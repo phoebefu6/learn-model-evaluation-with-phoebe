@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practitioner session 10 · Capstone: the eval sheet - learn model evaluation with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-model-evaluation-with-phoebe</a> / Practitioner session 10 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Model Evaluation with Phoebe · Practitioner track · Session 10 of 10</div>
+    <h1>Capstone: the <span class="accent">eval sheet</span></h1>
+    <p class="sub">Nine sessions of metrics come down to one page. Tonight you write the full evaluation sheet twice - once for Lumen's classic conversion model, once for its LLM assistant - and then defend every line against hostile questions. The sheet is eight slots: task, prices, one optimizing metric, constraints, golden set, grader spec, operational budgets, and the continuous plan. A sheet whose lines all survive the red-team round is an evaluation. Anything less is decoration on a launch deck.</p>
+    <div class="chip-row">
+      <span class="chip level">🔴 Practitioner track</span>
+      <span class="chip audience">DS · analysts · ML + AI engineers</span>
+      <span class="chip audience">Python · live evaluator on key pages</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · The eight slots</span>
+      <span class="a3" style="flex:5">18-42 · Build-along: write both sheets + defend them</span>
+      <span class="a4" style="flex:1">42-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ PART 1: THE EIGHT SLOTS ============ -->
+  <section class="section" id="sheet-anatomy">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · the course synthesis</span>
+      <h2>The eval sheet: eight slots, no blanks <span class="tag concept">8 min live</span></h2>
+    </div>
+    <p class="lede">Everything this course taught compresses into one page with eight slots. Each slot exists because a session showed what happens without it - the paradox (b1), the unpriced threshold (b5), the untrusted judge (b7), the invisible latency (b8), the eval that never ran again (b9). Fill all eight or say honestly which are open.</p>
+
+    <div class="steps">
+      <div class="step"><p><strong>1 · The task + base rate.</strong> What is predicted or generated, on what population, with what prevalence. A metric without its base rate is unreadable (b1).</p></div>
+      <div class="step"><p><strong>2 · The cost matrix, with named price owners.</strong> FP and FN in dollars or hours, and WHO signed each number. Unsigned prices are the sheet's most common blank (b5).</p></div>
+      <div class="step"><p><strong>3 · One optimizing metric.</strong> The single number you actually maximize - the money when possible. One, for iteration speed (Ng's doctrine, b5).</p></div>
+      <div class="step"><p><strong>4 · Satisficing constraints.</strong> Floors and ceilings with owners: recall floors, precision floors ops can absorb, toxicity ceilings. Constraints have prices too (b5).</p></div>
+      <div class="step"><p><strong>5 · The golden set.</strong> Size, where the cases came from, when it last grew. 20-50 real cases before building - the highest-ROI hour (b9).</p></div>
+      <div class="step"><p><strong>6 · The grader spec.</strong> Code, LLM-judge, or human per metric; if a judge: its model version AND its human-agreement number. A judge score without agreement data is hope (b7).</p></div>
+      <div class="step"><p><strong>7 · Operational budgets.</strong> p95 TTFT, cost per query, throughput - as eval criteria, not infra footnotes (b8; Anthropic lists latency and price as success-criteria categories).</p></div>
+      <div class="step"><p><strong>8 · The continuous plan.</strong> CI gate, production-sampling cadence, re-eval triggers - including "the model version changed", yours or the vendor's (b9).</p></div>
+    </div>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The one-page eval sheet mockup: eight labeled slots, with classic and LLM columns side by side.">
+        <style>
+          .esT { font: 700 14px Inter, sans-serif; fill: #FFFFFF; }
+          .esS { font: 400 11.5px Inter, sans-serif; fill: #FFFFFF; opacity: .92; }
+          .esI { font: 700 12.5px Inter, sans-serif; fill: #1E293B; }
+          .esX { font: 400 11.5px Inter, sans-serif; fill: #64748B; }
+          .esN { font: 600 13px Inter, sans-serif; fill: #043029; }
+        </style>
+        <rect x="60" y="24" width="760" height="44" rx="10" fill="#581C87"/>
+        <text class="esT" x="80" y="42">THE EVAL SHEET</text>
+        <text class="esS" x="80" y="60">one page · eight slots · every line has an owner</text>
+        <rect x="60" y="84" width="370" height="42" rx="8" fill="#FDF4FF" stroke="#C026D3" stroke-width="1.5"/>
+        <text class="esI" x="76" y="102">1 · Task + base rate</text>
+        <text class="esX" x="76" y="118">converted, 3.2% | RAG answers, 30 intents</text>
+        <rect x="450" y="84" width="370" height="42" rx="8" fill="#FDF4FF" stroke="#C026D3" stroke-width="1.5"/>
+        <text class="esI" x="466" y="102">2 · Cost matrix + owners</text>
+        <text class="esX" x="466" y="118">FP $2 (mktg) / FN $74 (finance)</text>
+        <rect x="60" y="136" width="370" height="42" rx="8" fill="#FDF4FF" stroke="#C026D3" stroke-width="1.5"/>
+        <text class="esI" x="76" y="154">3 · ONE optimizing metric</text>
+        <text class="esX" x="76" y="170">min expected cost | max task success</text>
+        <rect x="450" y="136" width="370" height="42" rx="8" fill="#FDF4FF" stroke="#C026D3" stroke-width="1.5"/>
+        <text class="esI" x="466" y="154">4 · Satisficing constraints</text>
+        <text class="esX" x="466" y="170">precision >= 8% | faithfulness >= 0.9</text>
+        <rect x="60" y="188" width="370" height="42" rx="8" fill="#FDF4FF" stroke="#C026D3" stroke-width="1.5"/>
+        <text class="esI" x="76" y="206">5 · Golden set</text>
+        <text class="esX" x="76" y="222">size, source, last-grown date</text>
+        <rect x="450" y="188" width="370" height="42" rx="8" fill="#FDF4FF" stroke="#C026D3" stroke-width="1.5"/>
+        <text class="esI" x="466" y="206">6 · Grader spec</text>
+        <text class="esX" x="466" y="222">judge version + human agreement %</text>
+        <rect x="60" y="240" width="370" height="42" rx="8" fill="#FDF4FF" stroke="#C026D3" stroke-width="1.5"/>
+        <text class="esI" x="76" y="258">7 · Operational budgets</text>
+        <text class="esX" x="76" y="274">p95 TTFT, cost/query, throughput</text>
+        <rect x="450" y="240" width="370" height="42" rx="8" fill="#FDF4FF" stroke="#C026D3" stroke-width="1.5"/>
+        <text class="esI" x="466" y="258">8 · Continuous plan</text>
+        <text class="esX" x="466" y="274">CI gate, sampling cadence, re-eval triggers</text>
+        <rect x="60" y="308" width="14" height="14" rx="3" fill="#0E7C6B"/>
+        <text class="esN" x="84" y="320">Same eight slots for a classifier and an LLM system - only the entries change. That symmetry is the course.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the one-page sheet, classic and LLM entries side by side</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why one page, and why owners<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Two design rules make the sheet work in real organizations:</p>
+        <ul>
+          <li><strong>One page, hard limit.</strong> A sheet nobody reads protects nobody. Eight slots fit on a page; the supporting notebooks can be as long as they like, linked from it.</li>
+          <li><strong>Every line has an owner who can veto it.</strong> The product owner owns the prices, DS owns the metrics and graders, platform owns the CI gate and budgets. A number without an owner is a number nobody will defend in the incident review - which is exactly when the sheet is read.</li>
+        </ul>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The sheet is the meeting.</strong> Teams that adopt this format report the same effect: the fights move from launch week to sheet-writing week, where they are cheap. Marketing arguing the FP price down, ops arguing the precision floor up, finance asking why latency has no budget - that argument IS the evaluation working. Silence at sheet time becomes an incident later.</p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: SHEET 1 - CLASSIC ============ -->
+  <section class="section" id="sheet-classic">
+    <div class="section-kicker">
+      <span class="klabel">Build-along 1 of 2</span>
+      <h2>Sheet 1: the Lumen conversion model <span class="tag demo">★ 10 min · everyone writes</span></h2>
+    </div>
+    <p class="lede">Fill the eight slots for the classic model, live: <strong>1</strong> predict `converted` per checkout session, base rate 3.2%. <strong>2</strong> FP $2 (marketing signed), FN $74 (finance signed). <strong>3</strong> minimize expected error cost on the held-out slice. <strong>4</strong> precision >= 8% (ops absorbs the alert volume), no customer segment's recall below 80%. <strong>5</strong> the 2,000-session evaluation slice + quarterly refresh. <strong>6</strong> grader = code (label comparison - classic problems get exact graders free). <strong>7</strong> n/a for a batch scorer - scoring latency budget only. <strong>8</strong> re-tune threshold quarterly and on any drift alert. Now verify the sheet against the evaluator - it opens at the sheet's chosen operating point.</p>
+
+    <div class="steps">
+      <div class="step"><p>Confirm slot 3's answer: the evaluator opens at t=0.22 - the cost-optimal threshold, <strong>$1,146</strong> on the slice. Check slot 4 holds: precision 8.8%, above the 8% floor. Barely - which means the floor is a REAL constraint, not decoration.</p></div>
+      <div class="step"><p>Press <strong>Optimize F1</strong> once more, as the red team will: F1 0.706 at t=0.61, cost $1,850. The sheet's justification for its ugly-looking operating point is this exact <strong>$704 gap</strong> - write it into the sheet's notes line.</p></div>
+      <div class="step"><p>Change the FN price to $40 and press <strong>Optimize $</strong>: the decision moves. The sheet is alive - when finance re-prices a lost order, the threshold re-tunes. That is slot 8 working, not a flaw.</p></div>
+    </div>
+
+    <div class="evalbox" data-mode="threshold" data-thresh="0.22"></div>
+
+    <div class="callout tip">
+      <strong>The sklearn line that implements slot 3</strong>
+      <code>TunedThresholdClassifierCV(model, scoring=make_scorer(lumen_gain))</code> - the b5 snippet IS the sheet's optimizing metric in code. The sheet documents; the code enforces; CI (slot 8) makes sure they never drift apart.
+    </div>
+  </section>
+
+  <!-- ============ PART 3: SHEET 2 - LLM ============ -->
+  <section class="section" id="sheet-llm">
+    <div class="section-kicker">
+      <span class="klabel">Build-along 2 of 2</span>
+      <h2>Sheet 2: the Lumen RAG assistant <span class="tag demo">★ 12 min · everyone writes</span></h2>
+    </div>
+    <p class="lede">Same eight slots, LLM entries: <strong>1</strong> answer customer + analyst questions over Lumen's docs and data, 30 intents. <strong>2</strong> a wrong-but-confident answer costs a support escalation (~$15) or a bad business decision (priced per intent tier); a refused answerable question costs a session. <strong>3</strong> maximize task success on the golden set. <strong>4</strong> faithfulness >= 0.9, relevance floor, zero PII leaks (a binary constraint - some floors are absolute). <strong>5</strong> 30 cases from real support transcripts, grown monthly from production misses. <strong>6</strong> faithfulness graded by an LLM judge - REQUIRED: judge model version pinned + human agreement >= 85% on the anchor set. <strong>7</strong> p95 TTFT <= 800ms, cost <= $0.02/query. <strong>8</strong> regression suite holds 100% in CI; full re-eval + judge re-calibration on ANY model version change. Slot 6 is the one most sheets fake - so run it for real:</p>
+
+    <div class="steps">
+      <div class="step"><p>Run the raw judge: <strong>58% agreement</strong> - this judge FAILS the sheet's >= 85% requirement. An eval built on it would be measuring verbosity, not faithfulness. The sheet just rejected its own grader; that is the sheet working.</p></div>
+      <div class="step"><p>Switch to the length-controlled judge: <strong>88%</strong> - passes the bar. Write BOTH numbers into slot 6: the bar, and the measured agreement. Now the faithfulness floor in slot 4 means something.</p></div>
+      <div class="step"><p>Note the discipline this created: before this course, "faithfulness 0.92 ✓" looked like a fact. Now you read it as "0.92 according to WHOM, agreeing with humans HOW often?" - the b7 reflex, institutionalized in a slot.</p></div>
+    </div>
+
+    <div class="evalbox" data-mode="judge"></div>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>Where the machinery lives.</strong> This sheet's slots 5-6 are implemented with the tooling the sibling <em>learn-evals</em> course teaches hands-on: RAGAS for the faithfulness pipeline, golden-set harnesses, tracing. The sheet is deliberately tool-agnostic - vendors change (OpenAI's evals platform sunsets November 2026), the slots do not.</p>
+    </div>
+  </section>
+
+  <!-- ============ PART 4: THE RED TEAM ============ -->
+  <section class="section" id="red-team">
+    <div class="section-kicker">
+      <span class="klabel">Part 4</span>
+      <h2>Defend every line <span class="tag demo">★ 8 min · pair up</span></h2>
+    </div>
+    <p class="lede">The ship gate: each sheet line gets the hostile question it must survive. Pair up - one reads a line, the other attacks it. A line that folds gets fixed or honestly marked open; a sheet that survives is an evaluation.</p>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The red-team question bank<span class="mini">6 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Slot 2:</strong> "Who signed the $74 - and would they sign it again today?" (Prices age. Quarterly re-validation is slot 8's job.)</li>
+          <li><strong>Slot 3:</strong> "Why is your optimizing metric not just F1 like every other team?" (Answer with the $704 gap, from the evaluator, on demand.)</li>
+          <li><strong>Slot 4:</strong> "What does the precision floor cost?" (Every constraint moves the optimum - you measured it in b5's Demo 2.)</li>
+          <li><strong>Slot 5:</strong> "When did the golden set last grow, and from what?" ("At launch, from brainstorming" is a failing answer - production misses are the feed.)</li>
+          <li><strong>Slot 6:</strong> "What is your judge's agreement number, and when did you last re-measure it?" (No number = no metric. Judge model changed = re-calibrate.)</li>
+          <li><strong>Slot 7:</strong> "p95 or average?" (Averages hide the tail the users actually feel.)</li>
+          <li><strong>Slot 8:</strong> "What happens when the base model silently updates?" (Version pins + the full-suite trigger, or you find out from customers.)</li>
+          <li><strong>The whole sheet:</strong> "Which online metric is this a proxy for, and who watches THAT?" (The two-hop chain - hop one celebrated as hop one only.)</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where to go next<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>learn-evals-with-phoebe</strong> - the LLM eval harness hands-on: RAGAS pipelines, LLM-judge implementations, tracing, CI wiring. This course's slots 5-6-8, in code.</li>
+          <li><strong>learn-intro-ml-with-phoebe</strong> - the sklearn mechanics under sheets like Sheet 1, including the model this course evaluated.</li>
+          <li><strong>The leader track (a1-a6)</strong> - the same material as governance: hand it to whoever reads your sheets.</li>
+          <li><strong>The honest frontier:</strong> fairness metrics (demographic parity, equalized odds) are the next column this sheet grows - named here, taught in a future course.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>The real capstone - this week <span class="tag exercise">◐ 60 min, worth it</span></h2>
+    </div>
+    <ul>
+      <li>Write the eight-slot sheet for ONE system you actually own - classic or LLM. Use the b1 and b5 homework artifacts you already built (your confusion matrix, your prices, your eval line) as slots 1-4.</li>
+      <li>Get one real signature: take slot 2 to the person who owns the money and have them confirm or correct the prices. Their correction is the most valuable data point this course produces.</li>
+      <li>Run the red-team bank against your own sheet, alone, honestly. Mark the lines that folded as OPEN rather than papering over them - an honest gap beats a decorative number.</li>
+      <li>Schedule the first quarterly review in your calendar now. Slot 8 dies by forgetting, never by decision.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">The capstone synthesizes the whole track. Certificates and graded assessments stay with the official providers. This page draws on:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">sklearn threshold-tuning + Elkan 2001 - slots 2-3 for classic systems</span><span class="note">Sheet 1 · the b5 machinery, institutionalized</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Ng's doctrines - one optimizing metric + satisficing constraints</span><span class="note">Slots 3-4 · the sheet's core architecture</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Anthropic - success criteria (incl. latency + price), task/trial/grader, capability vs regression evals</span><span class="note">Slots 5-8 · eval-driven development as the default motion</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Zheng et al. 2023 - the judge biases + the agreement bar</span><span class="note">Slot 6 · run live in Sheet 2's demo</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Google Rules of ML #37/#39 - skew ladder + the proxy chain</span><span class="note">Slot 8 + the closing red-team question</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">RAGAS + Microsoft Foundry metric definitions · NVIDIA serving metrics</span><span class="note">Sheet 2's entries · machinery hands-on in learn-evals</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · Sheet 1 ships at threshold 0.22 with F1 0.161 - the worst-looking F1 on the card. Why does it survive the red team?</p>
+      <button class="qopt" type="button">A · Because F1 is deprecated in modern evaluation practice</button>
+      <button class="qopt" type="button">B · Because the optimizing metric is priced cost, and the $704 gap to the F1-optimal point is the receipt</button>
+      <button class="qopt" type="button">C · Because low thresholds always maximize business value</button>
+      <p class="qwhy">The sheet declares its optimizing metric (expected cost at signed prices) and can produce the evaluator evidence on demand. Ugly satellite metrics at the priced optimum are expected. (C is false - the optimum follows the cost RATIO, which can point either direction.)</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">2 · Sheet 2's raw judge showed 58% human agreement. What does the sheet require you to do?</p>
+      <button class="qopt" type="button">A · Reject or fix the grader before trusting any metric it produces - slot 6 sets an agreement bar (>= 85%) the judge must pass</button>
+      <button class="qopt" type="button">B · Lower the faithfulness floor until the judge passes</button>
+      <button class="qopt" type="button">C · Average the judge score with a second judge to cancel the bias</button>
+      <p class="qwhy">A grader below the bar invalidates every number it grades - fix the grader (here: length control, 58% -> 88%), never the standard. Averaging two uncalibrated judges just averages two unknown biases.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">3 · Which slot answers "what happens when the vendor silently upgrades the base model"?</p>
+      <button class="qopt" type="button">A · Slot 3 - the optimizing metric absorbs model changes</button>
+      <button class="qopt" type="button">B · Slot 5 - the golden set is model-independent so nothing is needed</button>
+      <button class="qopt" type="button">C · Slot 8 - version pins plus the re-eval trigger: full suite + judge re-calibration on any model change</button>
+      <p class="qwhy">The continuous plan owns change. The golden set being model-independent is exactly why re-RUNNING it on the new model is the detection mechanism - and the judge is a model too, so it re-calibrates (b7).</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Practitioner session 10 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The eight slots</b><span>Task+base rate · priced cost matrix · ONE optimizing metric · satisficing constraints · golden set · grader spec · operational budgets · continuous plan.</span></div>
+      <div class="cheat-item"><b>One page, owners on every line</b><span>Product owns prices, DS owns metrics/graders, platform owns gates/budgets. Unowned numbers fold in incident reviews.</span></div>
+      <div class="cheat-item"><b>Sheet 1 (classic)</b><span>Minimize cost at FP $2/FN $74 -> t=0.22, $1,146; precision floor 8% held at 8.8%; the $704 gap is the receipt.</span></div>
+      <div class="cheat-item"><b>Sheet 2 (LLM)</b><span>Max task success on 30 real cases; faithfulness >= 0.9 measured by a judge that PASSES the 85% agreement bar (88% after length control).</span></div>
+      <div class="cheat-item"><b>Slot 6 rule</b><span>A judge score without its agreement number is not a metric. Bar first, measurement second, trust third.</span></div>
+      <div class="cheat-item"><b>The red-team bank</b><span>Who signed the price? When did the set grow? p95 or average? What happens on model change? Which online metric is this a proxy for?</span></div>
+      <div class="cheat-item"><b>The ship gate</b><span>Every line defended, or marked OPEN honestly. Decoration ships incidents; evaluation ships models.</span></div>
+      <div class="cheat-item"><b>Where next</b><span>learn-evals (the harness in code) · leader track (the governance view) · fairness metrics: the honest not-yet-covered frontier.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Practitioner session 10 of 10 · learn-model-evaluation-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="b9-drift-continuous-eval.html">← b9 · Drift + continuous eval</a> &nbsp;·&nbsp; <a href="../index.html">Back to all sessions →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/evalml-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

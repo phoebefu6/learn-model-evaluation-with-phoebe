@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practitioner session 5 · The cost matrix - learn model evaluation with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-model-evaluation-with-phoebe</a> / Practitioner session 5 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Model Evaluation with Phoebe · Practitioner track · Session 5 of 10</div>
+    <h1>The <span class="accent">cost matrix</span></h1>
+    <p class="sub">This is the session the classic half funnels into. Four sessions of metrics, and not one of them knew what a mistake costs - tonight you attach dollars to the error cells and watch something uncomfortable happen: the threshold that maximizes F1 and the threshold that minimizes cost are different places, and the gap on Lumen's slice is $704. You will press a button that makes the metric better and the business worse, learn why that trap has a name (Goodhart's law), and leave with the one-page cost matrix that turns any metric conversation into a money conversation.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Practitioner track</span>
+      <span class="chip audience">DS · analysts · ML + AI engineers</span>
+      <span class="chip audience">Python · live evaluator on key pages</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · Costs into cells + Elkan's rule</span>
+      <span class="a3" style="flex:5">18-42 · Build-along: the $704 button</span>
+      <span class="a4" style="flex:1">42-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ PART 1: COSTS INTO CELLS ============ -->
+  <section class="section" id="costs-into-cells">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers Elkan 2001, sklearn cost-sensitive learning example + threshold-tuning guide</span>
+      <h2>Put prices on the error cells <span class="tag concept">8 min live</span></h2>
+    </div>
+    <p class="lede">The cost matrix is the confusion matrix with money in it. At Lumen: a false positive is ~$2 of wasted outreach; a false negative is a ~$74 order that never happens. Once those two numbers exist, "how good is the model?" stops being a metrics debate and becomes arithmetic: <strong>expected cost = FP x $2 + FN x $74</strong>, and the best threshold is whichever one minimizes it. This is not a niche trick - it is a 2001 result (Elkan, "The Foundations of Cost-Sensitive Learning") that sklearn's own documentation now builds its threshold-tuning guide around.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The cost matrix: the confusion matrix cells with dollar prices attached, feeding an expected-cost formula that picks the threshold.">
+        <style>
+          .pcT { font: 700 14px Inter, sans-serif; fill: #FFFFFF; }
+          .pcS { font: 400 11.5px Inter, sans-serif; fill: #FFFFFF; opacity: .92; }
+          .pcI { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .pcX { font: 400 12px Inter, sans-serif; fill: #64748B; }
+          .pcN { font: 600 13px Inter, sans-serif; fill: #043029; }
+          .pcB { font: 700 13px Inter, sans-serif; fill: #991B1B; }
+          .pcWire { stroke: #86198F; stroke-width: 2.5; fill: none; marker-end: url(#pcHd); }
+        </style>
+        <defs>
+          <marker id="pcHd" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0,0 L9,4.5 L0,9 z" fill="#86198F"/>
+          </marker>
+        </defs>
+        <rect x="40" y="46" width="200" height="76" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="2"/>
+        <text class="pcB" x="58" y="74">FALSE POSITIVE</text>
+        <text class="pcX" x="58" y="94">wasted outreach</text>
+        <text class="pcB" x="58" y="112">price: $2</text>
+        <rect x="40" y="196" width="200" height="76" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="2"/>
+        <text class="pcB" x="58" y="224">FALSE NEGATIVE</text>
+        <text class="pcX" x="58" y="244">lost order</text>
+        <text class="pcB" x="58" y="262">price: $74</text>
+        <rect x="330" y="118" width="280" height="86" rx="10" fill="#86198F"/>
+        <text class="pcT" x="350" y="148">EXPECTED COST</text>
+        <text class="pcS" x="350" y="170">FP x $2  +  FN x $74</text>
+        <text class="pcS" x="350" y="190">computed at every threshold</text>
+        <rect x="680" y="118" width="170" height="86" rx="10" fill="#581C87"/>
+        <text class="pcT" x="698" y="148">THE DIAL</text>
+        <text class="pcS" x="698" y="170">pick the threshold</text>
+        <text class="pcS" x="698" y="190">that minimizes it</text>
+        <path class="pcWire" d="M240,84 C290,90 300,120 325,140"/>
+        <path class="pcWire" d="M240,234 C290,228 300,200 325,182"/>
+        <path class="pcWire" d="M610,161 L675,161"/>
+        <rect x="40" y="298" width="14" height="14" rx="3" fill="#0E7C6B"/>
+        <text class="pcN" x="64" y="310">Elkan 2001: with calibrated probabilities the optimal threshold follows from the cost RATIO - here $2:$74, nowhere near 0.5.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - two prices in, one threshold out</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Where the prices come from (and how rough is fine)<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Teams stall here: "we don't know the exact cost of a false negative." You do not need exact - you need the RATIO roughly right, because the optimal threshold moves with the ratio, not the absolute figures. Getting prices:</p>
+        <ul>
+          <li><strong>FP price</strong> - usually operational: cost of the outreach, the analyst-minutes to triage an alert, the goodwill hit of a wrong takedown. Lumen: ~$2 a nudge.</li>
+          <li><strong>FN price</strong> - usually opportunity: the average order (~$74 from the Lumen canon), the average fraud loss, the downstream cost of the missed defect.</li>
+          <li>Disagree about the number? Run the evaluator at BOTH candidate prices - if the chosen threshold barely moves, the disagreement doesn't matter; if it moves a lot, you found a genuinely important business question, and it belongs to the business owner, not the notebook.</li>
+        </ul>
+        <p>sklearn's canonical example does exactly this with the German Credit dataset - a cost matrix where misclassifying bad credit as good is <strong>5x</strong> more costly, shipped WITH the dataset since the 1990s. The field has always known; the defaults just made everyone forget.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The quarter spent polishing F1.</strong> A churn team pushed F1 from 0.61 to 0.68 over a quarter - reprocessing pipelines, new features, a bigger model. Finance saw nothing. Post-mortem: their retention offer cost $8, a churned customer cost $310 - the cost-optimal threshold sat far to the recall side of their F1-optimal one the whole time. Moving one number on day one would have delivered more than the quarter of modeling. You will reproduce their mistake with one button in Demo 1, safely.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The sklearn mechanics, exactly<span class="mini">4 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Two tools, both in sklearn >= 1.5, both from the threshold-tuning user guide:</p>
+<pre><code>from sklearn.model_selection import TunedThresholdClassifierCV
+from sklearn.metrics import make_scorer, confusion_matrix
+
+def lumen_gain(y, y_pred):                 # negative cost = gain
+    tn, fp, fn, tp = confusion_matrix(y, y_pred).ravel()
+    return -(fp * 2 + fn * 74)
+
+tuned = TunedThresholdClassifierCV(
+    model, scoring=make_scorer(lumen_gain)
+).fit(X_train, y_train)                    # NEVER tune on training data alone -
+print(tuned.best_threshold_)               # it cross-validates internally</code></pre>
+        <p>And for a threshold someone hands you (a policy decision, a regulator): <code>FixedThresholdClassifier</code>. The guide's two warnings, verbatim in spirit: default 0.5 cutoffs are "most certainly not ideal for most use cases," and never use the same data to train the classifier AND tune the threshold.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: GOODHART ============ -->
+  <section class="section" id="goodhart">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers Ng "satisficing vs optimizing", Rules of ML #39</span>
+      <h2>When the metric becomes the target <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Goodhart's law: when a measure becomes a target, it ceases to be a good measure. In evaluation it has a precise mechanism - <strong>every summary metric bakes in a cost assumption, and optimizing the metric optimizes that hidden assumption, not your business</strong>. F1 assumes false positives and false negatives cost the same. At Lumen they differ by 37x. So maximizing F1 quietly maximizes the wrong objective - politely, reproducibly, with great-looking dashboards.</p>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Ng's escape hatch: satisficing vs optimizing<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Andrew Ng's Structuring ML Projects doctrine, still the cleanest fix:</p>
+        <ul>
+          <li>Pick <strong>ONE optimizing metric</strong> - the number you genuinely try to maximize. Make it the money one when you can (expected cost/gain), a proxy only when you must.</li>
+          <li>Make everything else a <strong>satisficing metric</strong> - a constraint with a floor or ceiling: recall >= 0.9, latency <= 200ms, cost per query <= $0.01. You don't optimize constraints; you respect them.</li>
+          <li>His companion rule - the single-number evaluation metric - is about ITERATION SPEED, not truth: one number to rank experiments fast, with the cost matrix deciding what that number is.</li>
+        </ul>
+        <p>Anthropic's own success-criteria guidance says the same thing for LLM systems: "most use cases need multidimensional evaluation" - their worked example is an F1 floor AND a toxicity ceiling AND a latency ceiling. One optimizing number, several guardrails. That shape repeats in b8.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The two-hop proxy chain<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Google's Rules of ML, Rule #39, generalizes the trap: launch metrics are themselves proxies. The full chain is <strong>offline eval score -> online metric -> long-term business goal</strong>, and each hop can break independently:</p>
+        <ul>
+          <li>Offline-to-online breaks via drift, serving skew (Rule #37 - b9's whole story), or a metric detached from user pain.</li>
+          <li>Online-to-business breaks when engagement rises while satisfaction falls - the classic clickbait failure.</li>
+        </ul>
+        <p>The defense is not a cleverer metric - it is knowing which hop you are standing on when you read a number, and never celebrating hop-one progress as hop-three victory. Tattoo for the capstone: <em>my eval score is a proxy for a proxy.</em></p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Demo 1 of 2</span>
+      <h2>The $704 button <span class="tag demo">★ 14 min · everyone runs it</span></h2>
+    </div>
+    <p class="lede">The evaluator below has two buttons. <strong>Optimize F1</strong> sweeps every threshold and jumps to the best F1 the model can produce - the number most teams would put on the slide. <strong>Optimize $</strong> sweeps the same thresholds and minimizes expected cost with Lumen's prices. Press both. Read what each one says about the other.</p>
+
+    <div class="steps">
+      <div class="step"><p>Press <strong>Optimize F1</strong>: threshold 0.61, F1 0.706, precision 100% - a gorgeous slide. Now read the cost tile: <strong>$1,850</strong>, and the verdict: $704 worse than the cost-optimal point. The metric went up. The money went down.</p></div>
+      <div class="step"><p>Press <strong>Optimize $</strong>: threshold 0.22, cost <strong>$1,146</strong> - and look at the metrics card: F1 0.161, precision 8.8%, recall 100%. The BEST business operating point has the WORST-looking F1 on the card. If your review process kills anything with ugly metrics, it kills the right answer.</p></div>
+      <div class="step"><p>Understand WHY: a missed converter costs 37x a wasted nudge, so the money wants recall - flag broadly, tolerate cheap false alarms. F1 weighs both errors equally and refuses that trade. Neither number is lying; they optimize different worlds.</p></div>
+      <div class="step"><p>Now change the world: set FP cost to $40 (imagine each flag burns analyst time) and press Optimize $ again. Watch the optimal threshold march toward the F1 point. The cost matrix IS the decision.</p></div>
+      <div class="step"><p>Say the lesson out loud: F1-optimal is cost-optimal only when the errors cost the same - which is a business claim nobody at Lumen would sign.</p></div>
+    </div>
+
+    <div class="evalbox" data-mode="threshold" data-thresh="0.5"></div>
+
+    <div class="callout tip">
+      <strong>The honest rail</strong>
+      Every dollar figure is computed live: 2,000 embedded Lumen sessions, fixed model scores, your prices in the boxes. The $704 gap is not scripted - change the prices and it grows, shrinks, or flips. That is the point.
+    </div>
+  </section>
+
+  <!-- ============ DEMO 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Demo 2 of 2</span>
+      <h2>Write Lumen's eval line the grown-up way <span class="tag demo">★ 8 min · workshop</span></h2>
+    </div>
+    <p class="lede">Turn what you just saw into the one-line eval spec this course will keep reusing - one optimizing metric, satisficing constraints, prices declared. Draft it together, then stress-test it against the evaluator.</p>
+
+    <div class="steps">
+      <div class="step"><p>The line: <em>"Minimize expected error cost at FP=$2 / FN=$74 on the held-out slice; subject to precision >= 8% (ops can absorb the alert volume) and no segment's recall below 80%."</em> Every clause is a decision someone can veto - that is a feature.</p></div>
+      <div class="step"><p>Stress-test clause 1: at the cost-optimal threshold, is precision above the 8% floor? (Barely - 8.8%. If ops pushes the floor to 15%, find the new best threshold BY HAND with the slider and read what it costs: constraints have prices too.)</p></div>
+      <div class="step"><p>Note what is NOT in the line: accuracy (base-rate theater), F1 (an equal-costs assumption Lumen rejects). They can appear on a dashboard; they cannot be the target.</p></div>
+    </div>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>This line generalizes beyond classifiers.</strong> Swap the middle and it is an LLM spec: "maximize task success on the golden set; subject to faithfulness >= 0.9, TTFT <= 800ms, cost <= $0.02/query." Same architecture - one optimizing number, priced constraints. b8 fills in the latency and cost pieces; b10's capstone writes both versions in full.</p>
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 30-40 min total</span></h2>
+    </div>
+    <ul>
+      <li>Take the confusion matrix you drew for your own problem in b1's homework and price both error cells - rough is fine, ratio matters. Then write your one-line eval spec (optimizing metric + satisficing constraints).</li>
+      <li>Run the evaluator at your ratio (scale to the $2/$74 boxes) and note how far cost-optimal sits from F1-optimal. One sentence: who in your org currently picks the threshold, and do they know they are picking it?</li>
+      <li>Find one dashboard at work that shows F1 or accuracy with no cost context. Write the two clarifying questions you would now ask.</li>
+      <li>Optional deep read: sklearn's "Post-tuning the decision threshold for cost-sensitive learning" example end to end - the German Credit walkthrough is this session in code.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">Certificates and graded assessments stay with the official providers (linked each session). This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">sklearn threshold-tuning guide + cost-sensitive learning example (Elkan 2001, TunedThresholdClassifierCV)</span><span class="note">Parts 1-2 + both demos · the German Credit walkthrough linked as homework</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Ng, Structuring ML Projects W1 - single-number metric + satisficing vs optimizing</span><span class="note">Part 2 + Demo 2's eval line</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Google Rules of ML - Rule #39 (launch metrics as proxies)</span><span class="note">The two-hop chain · Rule #37's skew ladder lands in b9</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Anthropic define-success - multidimensional criteria incl. latency + price</span><span class="note">Previewed in Demo 2 · b8 makes latency/cost first-class</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Saito &amp; Rehmsmeier 2015 - why the imbalanced curves behave this way</span><span class="note">Taught in b3; the money consequence lands here</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">1 · On Lumen's slice, the F1-optimal threshold costs $704 more than the cost-optimal one. What is the root cause?</p>
+      <button class="qopt" type="button">A · The model is badly trained at low thresholds</button>
+      <button class="qopt" type="button">B · The evaluation slice is too small for F1 to be reliable</button>
+      <button class="qopt" type="button">C · F1 assumes both error types cost the same, and at Lumen they differ by 37x</button>
+      <p class="qwhy">Every summary metric embeds a cost assumption. F1's is equal costs - optimize it and you optimize that assumption. The $2-vs-$74 asymmetry wants a recall-heavy threshold F1 refuses to choose.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">2 · The cost-optimal operating point shows precision 8.8% and F1 0.161. What should a review committee do?</p>
+      <button class="qopt" type="button">A · Check it against the declared cost matrix and constraints - ugly metrics at the priced optimum are expected, not disqualifying</button>
+      <button class="qopt" type="button">B · Reject it - no production model should ship below F1 0.5</button>
+      <button class="qopt" type="button">C · Retrain until both F1 and cost are optimal at the same threshold</button>
+      <p class="qwhy">When the miss is 37x the false alarm, the money WANTS low precision and total recall. A committee that requires pretty metrics forces the expensive threshold. (C is usually impossible - the two optima coincide only at equal costs.)</p>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">3 · In Ng's vocabulary, "latency under 200ms" and "expected cost minimized" are, respectively:</p>
+      <button class="qopt" type="button">A · Both optimizing metrics - you should improve both forever</button>
+      <button class="qopt" type="button">B · A satisficing constraint (meet the floor, then stop caring) and the optimizing metric (the one number you actually maximize)</button>
+      <button class="qopt" type="button">C · Both satisficing - real targets cannot be optimized</button>
+      <p class="qwhy">One optimizing metric for iteration speed; everything else becomes a constraint with a threshold. Anthropic's multidimensional success criteria are the same architecture for LLM systems.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Practitioner session 5 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>Cost matrix</b><span>The confusion matrix with prices. Lumen: FP $2, FN $74. Expected cost = FP x $2 + FN x $74, minimized over thresholds.</span></div>
+      <div class="cheat-item"><b>Elkan's rule</b><span>With calibrated probabilities the optimal threshold follows from the cost RATIO - almost never 0.5. sklearn: TunedThresholdClassifierCV.</span></div>
+      <div class="cheat-item"><b>The $704 gap</b><span>F1-opt (t=0.61, $1,850) vs cost-opt (t=0.22, $1,146). Same model, same data - different hidden objective.</span></div>
+      <div class="cheat-item"><b>Goodhart's mechanism</b><span>Every summary metric bakes in a cost assumption; optimizing the metric optimizes the assumption. F1's assumption: equal costs.</span></div>
+      <div class="cheat-item"><b>Ng's architecture</b><span>ONE optimizing metric (make it the money) + satisficing constraints (recall floor, latency ceiling). Constraints have prices too.</span></div>
+      <div class="cheat-item"><b>Ratio over precision</b><span>Rough prices are fine - the threshold moves with the ratio. If stakeholders' candidate prices pick the same threshold, stop arguing.</span></div>
+      <div class="cheat-item"><b>Two-hop chain</b><span>Eval score -> online metric -> business goal. Each hop breaks independently. Never celebrate hop 1 as hop 3.</span></div>
+      <div class="cheat-item"><b>The eval line</b><span>"Minimize [priced cost] subject to [floors/ceilings]" - every clause vetoable by its owner. Same shape for LLM systems (b8, b10).</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Practitioner session 5 of 10 · learn-model-evaluation-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="b4-regression-ranking.html">← b4 · Regression + ranking</a> &nbsp;·&nbsp; <a href="../index.html">All sessions</a> &nbsp;·&nbsp; <a href="b6-llm-quality-metrics.html">Next: LLM quality metrics →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/evalml-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

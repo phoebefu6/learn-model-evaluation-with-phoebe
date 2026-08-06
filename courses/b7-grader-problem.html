@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practitioner session 7 · The grader problem - learn model evaluation with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-model-evaluation-with-phoebe</a> / Practitioner session 7 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Model Evaluation with Phoebe · Practitioner track · Session 7 of 10</div>
+    <h1>The grader <span class="accent">problem</span></h1>
+    <p class="sub">b6 gave you LLM quality metrics - faithfulness, groundedness, relevance. Tonight's uncomfortable question: who grades the grader? Every LLM metric is only as good as the thing computing it, and the most popular grader - another LLM - has four documented failure modes. You will meet the three grader types, the four judge biases from Zheng et al. 2023, the one number to demand with every judge score, and then you will calibrate a biased judge yourself: watch it climb from 58% agreement with humans to 88% because you controlled one variable. That loop is the whole craft.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Practitioner track</span>
+      <span class="chip audience">DS · analysts · ML + AI engineers</span>
+      <span class="chip audience">Python · live evaluator on key pages</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · The three graders + four biases</span>
+      <span class="a3" style="flex:5">18-42 · Build-along: calibrate the judge</span>
+      <span class="a4" style="flex:1">42-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ PART 1: THE THREE GRADERS ============ -->
+  <section class="section" id="three-graders">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers Anthropic develop-tests, OpenAI evals + graders guides</span>
+      <h2>Three ways to grade, one budget to spend <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">Every LLM metric is only as good as its grader. Faithfulness 0.92 sounds precise - but something read the answer and produced that number, and that something has strengths, blind spots, and a price. Anthropic's and OpenAI's taxonomies agree on the lineup: <strong>code-based</strong> graders, <strong>model-based</strong> graders (the LLM judge), and <strong>human</strong> graders. The craft is not picking one - it is spending each where it is strong.</p>
+
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The three grader types and when each earns its keep, the four documented judge biases with their mitigations, the one question to ask of any judge score ("what is its agreement with humans?"), and a calibration loop you ran with your own hands: anchor set, measure, find the bias, fix it, re-measure.
+    </div>
+
+    <table class="clean">
+      <thead>
+        <tr><th>Grader type</th><th>Strengths</th><th>Weaknesses</th><th>Use for</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Code-based</strong><br>exact match, string check, schema checks, text similarity (BLEU / ROUGE / METEOR / cosine)</td>
+          <td>Fast, cheap, objective, perfectly repeatable</td>
+          <td>Brittle - misses paraphrase, rewards surface overlap</td>
+          <td>Format checks, exact answers, regression gates that must never flake</td>
+        </tr>
+        <tr>
+          <td><strong>Model-based</strong><br>an LLM judge scoring with a rubric</td>
+          <td>Flexible, handles nuance and open-ended answers</td>
+          <td>Non-deterministic, biased in documented ways, costs per call</td>
+          <td>Quality, tone, faithfulness - anywhere "correct" has many shapes</td>
+        </tr>
+        <tr>
+          <td><strong>Human</strong><br>expert or crowd labels</td>
+          <td>The gold standard - the definition of correct</td>
+          <td>Slow, expensive, does not scale</td>
+          <td>Spend it CALIBRATING the other two, not grading everything</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Anthropic's volume doctrine<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Anthropic's develop-tests guidance is blunt: <strong>"prioritize volume over quality"</strong> - a larger set of questions with automated grading beats a small set graded by hand. The reasoning is statistical: eval scores are noisy estimates, and 500 automated verdicts pin down a model's behavior better than 30 artisanal ones, even if each automated verdict is individually less trustworthy.</p>
+        <p>That doctrine only works if the automated grader is trustworthy ON AVERAGE - which is exactly why the human budget goes to calibration. The division of labor:</p>
+        <ul>
+          <li><strong>Code graders</strong> run on every commit - thousands of checks, zero marginal cost.</li>
+          <li><strong>The LLM judge</strong> grades the open-ended bulk - hundreds of answers per run.</li>
+          <li><strong>Humans</strong> label a small fixed anchor set once, and the judge is measured against it. The demo below makes this concrete.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The taxonomy outlives the product<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>OpenAI's graders guide names the same families from the other direction: <strong>string check</strong>, <strong>text similarity</strong> (BLEU / ROUGE / METEOR / cosine and friends), <strong>score model</strong> (the judge), and <strong>python</strong> (arbitrary code). Two vendors, one shape: deterministic checks, model judgment, custom code, humans above them all.</p>
+        <div class="callout tip">
+          <strong>Flag before you bookmark</strong>
+          OpenAI's Evals PLATFORM is deprecated as of Nov 30, 2026 - the buttons and dashboards are going away. This course teaches the taxonomy, not the product, because the taxonomy is what transfers: every eval framework you will ever meet is these same three grader types wearing different UI.
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: THE FOUR BIASES ============ -->
+  <section class="section" id="four-biases">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers Zheng et al. 2023, "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena"</span>
+      <h2>The four documented judge failures <span class="tag concept">8 min live</span></h2>
+    </div>
+    <p class="lede">LLM judges were not benchmarked on vibes. Zheng et al. 2023 (the MT-Bench paper, NeurIPS 2023) measured judge verdicts against human preferences and documented exactly four failure modes. Learn them as a checklist - every judge you ever deploy should be audited against all four.</p>
+
+    <ul>
+      <li><strong>Position bias</strong> - verdicts flip when you swap the order of the two answers being compared. Mitigation from the paper: run both orders, keep only consistent verdicts.</li>
+      <li><strong>Verbosity bias</strong> - longer answers get rated better, independent of substance. The demo below is built on this one.</li>
+      <li><strong>Self-enhancement bias</strong> - a judge favors outputs from its own model family. Never let a model judge itself uncross-checked.</li>
+      <li><strong>Limited reasoning</strong> - a judge cannot reliably grade math or reasoning it cannot do itself. A judge is not smarter than its base model.</li>
+    </ul>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A balance scale: the four judge biases hang as weights on one side, the four calibration counterweights on the other.">
+        <style>
+          .j7T { font: 700 14px Inter, sans-serif; fill: #FFFFFF; }
+          .j7S { font: 400 11.5px Inter, sans-serif; fill: #FFFFFF; opacity: .92; }
+          .j7B { font: 700 13px Inter, sans-serif; fill: #991B1B; }
+          .j7X { font: 400 11.5px Inter, sans-serif; fill: #64748B; }
+          .j7I { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .j7N { font: 600 13px Inter, sans-serif; fill: #043029; }
+        </style>
+        <text class="j7I" x="352" y="34">THE JUDGE, ON A SCALE</text>
+        <line x1="180" y1="90" x2="700" y2="90" stroke="#1E293B" stroke-width="5"/>
+        <polygon points="440,90 410,150 470,150" fill="#1E293B"/>
+        <line x1="180" y1="90" x2="180" y2="110" stroke="#1E293B" stroke-width="3"/>
+        <line x1="700" y1="90" x2="700" y2="110" stroke="#1E293B" stroke-width="3"/>
+        <rect x="80" y="110" width="280" height="6" rx="3" fill="#1E293B"/>
+        <rect x="560" y="110" width="280" height="6" rx="3" fill="#1E293B"/>
+        <text class="j7B" x="80" y="140">THE FOUR BIAS WEIGHTS</text>
+        <text class="j7I" x="560" y="140">THE CALIBRATION COUNTERWEIGHTS</text>
+        <rect x="80" y="150" width="280" height="48" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="2"/>
+        <text class="j7B" x="96" y="170">POSITION BIAS</text>
+        <text class="j7X" x="96" y="188">verdicts flip with answer order</text>
+        <rect x="80" y="204" width="280" height="48" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="2"/>
+        <text class="j7B" x="96" y="224">VERBOSITY BIAS</text>
+        <text class="j7X" x="96" y="242">longer answers rated better</text>
+        <rect x="80" y="258" width="280" height="48" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="2"/>
+        <text class="j7B" x="96" y="278">SELF-ENHANCEMENT BIAS</text>
+        <text class="j7X" x="96" y="296">favors its own family's outputs</text>
+        <rect x="80" y="312" width="280" height="48" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="2"/>
+        <text class="j7B" x="96" y="332">LIMITED REASONING</text>
+        <text class="j7X" x="96" y="350">grades math it cannot do</text>
+        <rect x="560" y="150" width="280" height="48" rx="8" fill="#86198F"/>
+        <text class="j7T" x="576" y="170">ORDER SWAP</text>
+        <text class="j7S" x="576" y="188">run both orders, keep consistent</text>
+        <rect x="560" y="204" width="280" height="48" rx="8" fill="#C026D3"/>
+        <text class="j7T" x="576" y="224">LENGTH CONTROL</text>
+        <text class="j7S" x="576" y="242">stop paying the judge per word</text>
+        <rect x="560" y="258" width="280" height="48" rx="8" fill="#581C87"/>
+        <text class="j7T" x="576" y="278">CROSS-FAMILY JUDGE</text>
+        <text class="j7S" x="576" y="296">never let a model judge itself</text>
+        <rect x="560" y="312" width="280" height="48" rx="8" fill="#0E7C6B"/>
+        <text class="j7T" x="576" y="332">HUMAN ANCHOR SET</text>
+        <text class="j7S" x="576" y="350">~25 labels, agreement measured</text>
+        <rect x="80" y="386" width="14" height="14" rx="3" fill="#0E7C6B"/>
+        <text class="j7N" x="104" y="398">Uncalibrated, the weights win: 58% agreement. Counterweights on: 88%. The build-along runs this exact loop.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the four biases from Zheng et al. 2023 and the counterweight for each</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The 80% bar, read correctly<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Zheng et al. also measured the ceiling: GPT-4-class judges reach <strong>"over 80% agreement"</strong> with human preferences. Two readings of that number, one wrong and one right:</p>
+        <ul>
+          <li><strong>Wrong reading:</strong> "the judge is 20% wrong - humans would do better."</li>
+          <li><strong>Right reading:</strong> 80% EQUALS the agreement rate between two humans. The judge has hit the ceiling of the thing it approximates - a judge cannot beat the humans it is calibrated against, because human preference IS the target, disagreements and all.</li>
+        </ul>
+        <p>The habit this buys you: <strong>demand the agreement number with every judge score.</strong> "Faithfulness 0.92" alone is a model output. "Faithfulness 0.92, and this judge agrees with our human labels 85% of the time on the anchor set" is a measurement.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The judge that loved its own answers.</strong> A team A/B-tested two assistants and let a judge from the same model family as assistant A pick winners. A won decisively. A month later a cross-family judge and a small human panel both reversed the result - self-enhancement bias had picked the winner, not quality. The fix cost nothing: a judge from a different family, plus order-swapping. The un-fix cost a month of building on the wrong model.</p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO: CALIBRATE THE JUDGE ============ -->
+  <section class="section" id="demo-judge">
+    <div class="section-kicker">
+      <span class="klabel">Build-along · the centerpiece</span>
+      <h2>Calibrate the judge: 58% to 88% <span class="tag demo">★ 20 min · everyone runs it</span></h2>
+    </div>
+    <p class="lede">Below: 24 answers, each with a human label (good / bad) and a judge verdict. The judge has a scripted verbosity bias - it is a simulation of the Zheng et al. failure, so you can catch it red-handed. Your job is the full calibration loop, the same one you will run on real judges at work.</p>
+
+    <div class="steps">
+      <div class="step"><p>Run the raw judge: <strong>58% agreement</strong> with the human labels, and <strong>10 bad-but-long answers rated good</strong>. Read the individual rows - do not just take the number. Every miss has the same shape: wordy, empty, approved.</p></div>
+      <div class="step"><p>Name the pattern out loud before clicking anything: the judge is paying per word. That is verbosity bias - bias number two on tonight's checklist, found by reading rows, not by intuition.</p></div>
+      <div class="step"><p>Switch to the length-controlled judge: <strong>88% agreement</strong>, 1 residual miss plus a few borderline calls no grader escapes. One systematic bias corrected, thirty points of agreement recovered.</p></div>
+      <div class="step"><p>Say the method, because the method IS the lesson: fixed human-labeled anchor set -&gt; measure agreement -&gt; find the systematic bias -&gt; correct or constrain it -&gt; re-measure. That loop, repeated whenever the judge or the task changes, is judge calibration in its entirety.</p></div>
+      <div class="step"><p>Price it: the anchor set is ~25 labels of human effort - an afternoon, once. It is the cheapest insurance in LLM evaluation, and it is the difference between a judge score you can defend and one you just hope about.</p></div>
+    </div>
+
+    <div class="evalbox" data-mode="judge"></div>
+
+    <div class="callout tip">
+      <strong>How to read the evaluator</strong>
+      Each row is one answer: human label, judge verdict, answer length. The agreement tile is judge-vs-human over all 24. Honesty rail: the judge here is a scripted simulation of the Zheng et al. verbosity bias (0.009/word), so the failure is guaranteed to be findable - real judges fail in the same shapes but less cooperatively. The loop you practiced transfers unchanged.
+    </div>
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Measure agreement yourself, 15 lines<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The loop from the demo, as the code you would actually run. No framework required - agreement is a mean of matches:</p>
+<pre><code>import json
+
+anchors = json.load(open("anchor_set.json"))   # ~25 human-labeled answers
+
+def agreement(judge_fn, anchors):
+    verdicts = [judge_fn(a["question"], a["answer"]) for a in anchors]
+    hits = [v == a["label"] for v, a in zip(verdicts, anchors)]
+    misses = [a for a, h in zip(anchors, hits) if not h]
+    return sum(hits) / len(hits), misses
+
+score, misses = agreement(raw_judge, anchors)
+print(f"agreement: {score:.0%}")               # 58% -&gt; now READ the misses
+for m in misses:
+    print(len(m["answer"].split()), m["label"])  # every miss: long + bad</code></pre>
+        <p>The last loop is the part teams skip: the misses are where the systematic bias lives. In the demo every miss was long-and-bad - once you SEE that, the fix names itself. The number tells you whether to trust the judge; the misses tell you how to improve it.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: JUDGE PROMPT HYGIENE ============ -->
+  <section class="section" id="judge-hygiene">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · self-study</span>
+      <h2>Judge prompt hygiene <span class="tag concept">◐ read after class</span></h2>
+    </div>
+    <p class="lede">Calibration finds the bias; hygiene prevents half of them showing up at all. Five habits for any judge prompt you write:</p>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The five habits<span class="mini">5 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Rubric-anchored scales.</strong> Never ask for "a score 1-5" bare - define what a 2 and a 4 MEAN, with a short example of each. An unanchored scale drifts with the judge's mood; an anchored one is a checklist in disguise.</li>
+          <li><strong>Pairwise over pointwise where possible.</strong> "Which of these two is better?" is a more reliable judgment than "score this one" - comparison is easier than absolute calibration, for models and humans alike.</li>
+          <li><strong>Temperature 0.</strong> A grader that gives different verdicts on identical input is measurement noise you chose to add. Determinism first.</li>
+          <li><strong>Version-pin the judge model.</strong> A judge upgrade silently moves every score on your dashboard - pin the exact version, treat changes as breaking.</li>
+          <li><strong>Re-calibrate when it changes.</strong> New judge model, new rubric, new task distribution: re-run the anchor set and re-measure agreement before trusting a single new number. The ~25 labels keep paying rent.</li>
+        </ul>
+        <p>Where this connects: <strong>learn-evals-with-phoebe</strong> owns the harness that wires judges into pipelines and CI; tonight you learned what must be true about the judge before any of that machinery is worth running.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 20-30 min total</span></h2>
+    </div>
+    <ul>
+      <li>Re-run the demo and, before switching judges, predict which specific rows will flip. Check yourself against the residual - the borderline calls that survive are worth staring at.</li>
+      <li>Find one judge-scored metric in your org (or a vendor deck) and ask for its agreement number against human labels. If nobody has one, you have found this week's cheapest high-impact task: ~25 labels.</li>
+      <li>Audit any judge prompt you can access against the five hygiene habits. Score it out of five; fix the cheapest gap.</li>
+      <li>Optional: skim Zheng et al. 2023 sections 3-4 (arXiv 2306.05685) - the bias measurements are short, readable, and the primary source for everything in Part 2.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">This session teaches the grader taxonomy both major vendors agree on and the judge-bias findings from the primary paper, with the calibration loop run live in your browser. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Zheng et al. 2023 - "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena"</span><span class="note">The four biases, mitigations, and the 80% = human-human bar · Part 2 + demo</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Anthropic develop-tests - the three grading methods + volume doctrine</span><span class="note">Part 1 · "prioritize volume over quality" quoted</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">OpenAI evals + graders guides - string check, text similarity, score model, python</span><span class="note">Taxonomy taught; platform deprecates Nov 30, 2026 - concepts only, no buttons</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">evalml judge canon - 24 answers, 58% raw / 88% length-controlled</span><span class="note">The build-along · scripted simulation of the Zheng verbosity bias</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">1 · Your pairwise judge prefers answer A - until you swap the order, and then it prefers B. Which documented bias is this, and what is the paper's mitigation?</p>
+      <button class="qopt" type="button">A · Verbosity bias - control for answer length before judging</button>
+      <button class="qopt" type="button">B · Self-enhancement bias - switch to a judge from a different model family</button>
+      <button class="qopt" type="button">C · Position bias - run both orders and keep only the consistent verdicts</button>
+      <p class="qwhy">Verdicts that flip with answer order are position bias, the first of the four Zheng et al. failures. The paper's own mitigation: present both orderings and only trust verdicts that agree across them. The other two options are real biases - with the wrong symptoms.</p>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">2 · GPT-4-class judges reach "over 80% agreement" with humans. What does that number actually mean?</p>
+      <button class="qopt" type="button">A · The judge is 20% wrong, so human grading would be meaningfully more accurate</button>
+      <button class="qopt" type="button">B · 80% equals human-human agreement - the judge has hit the ceiling of the thing it approximates</button>
+      <button class="qopt" type="button">C · The judge needs a bigger rubric to close the remaining 20%</button>
+      <p class="qwhy">Two humans agree with each other about 80% of the time on these preferences - so a judge at 80% is not 20% short, it is at the ceiling. A judge cannot beat the humans it approximates. The takeaway habit: demand the agreement number with every judge score.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · Put the calibration loop in order.</p>
+      <button class="qopt" type="button">A · Human anchor set -&gt; measure agreement -&gt; find the systematic bias -&gt; correct or constrain -&gt; re-measure</button>
+      <button class="qopt" type="button">B · Correct the bias -&gt; build the anchor set -&gt; measure agreement -&gt; ship the judge</button>
+      <button class="qopt" type="button">C · Measure agreement -&gt; if above 80%, skip the anchor set and ship</button>
+      <p class="qwhy">The anchor set comes first - without human labels there is nothing to measure agreement against, and without measurement you cannot find the bias or prove your fix worked. In the demo that loop took the judge from 58% to 88%, and the anchor set cost ~25 labels.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Practitioner session 7 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>Three graders</b><span>Code (fast, cheap, brittle) · model/LLM judge (flexible, biased, costs) · human (gold standard, does not scale). Anthropic and OpenAI taxonomies agree.</span></div>
+      <div class="cheat-item"><b>The human budget</b><span>Spend humans CALIBRATING the other two graders, not grading everything. Volume doctrine: "prioritize volume over quality" of graded items.</span></div>
+      <div class="cheat-item"><b>The four biases</b><span>Position (order flips verdicts) · verbosity (longer wins) · self-enhancement (favors own family) · limited reasoning (cannot grade what it cannot do). Zheng et al. 2023.</span></div>
+      <div class="cheat-item"><b>The mitigations</b><span>Order swap + consistent-only verdicts · length control · cross-family judge · human anchor set. One counterweight per bias.</span></div>
+      <div class="cheat-item"><b>The 80% bar</b><span>GPT-4-class judges: "over 80% agreement" with humans - which EQUALS human-human agreement. A judge cannot beat the humans it approximates.</span></div>
+      <div class="cheat-item"><b>The calibration loop</b><span>Anchor set -&gt; measure agreement -&gt; find systematic bias -&gt; correct or constrain -&gt; re-measure. Demo: 58% raw -&gt; 88% length-controlled.</span></div>
+      <div class="cheat-item"><b>~25 labels</b><span>The anchor set's price - an afternoon of human effort, the cheapest insurance in LLM evaluation. Re-run it whenever the judge model or task changes.</span></div>
+      <div class="cheat-item"><b>Judge hygiene</b><span>Rubric-anchored scales (define 2 and 4) · pairwise over pointwise · temperature 0 · version-pin the judge · re-calibrate on change.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Practitioner session 7 of 10 · learn-model-evaluation-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="b6-llm-quality-metrics.html">← b6 · LLM quality metrics</a> &nbsp;·&nbsp; <a href="../index.html">All sessions</a> &nbsp;·&nbsp; <a href="b8-operational-metrics.html">Next: Operational metrics →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/evalml-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practitioner session 2 · The threshold dial - learn model evaluation with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-model-evaluation-with-phoebe</a> / Practitioner session 2 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Model Evaluation with Phoebe · Practitioner track · Session 2 of 10</div>
+    <h1>The threshold <span class="accent">dial</span></h1>
+    <p class="sub">Last session you learned that a classifier does not have one precision and one recall - it has a curve of them, and someone picks a point. Tonight you own the mechanism: precision and recall as formulas you can recite, the dial that trades them, F1 and why it is a harmonic mean and not a nicer-sounding average, and F-beta for when the costs lean one way. Then you drill on Lumen's real scores until you can predict every tile before you touch the slider. That fluency is the price of admission to b5, where the dial gets priced in dollars.</p>
+    <div class="chip-row">
+      <span class="chip level">🟢 Practitioner track</span>
+      <span class="chip audience">DS · analysts · ML + AI engineers</span>
+      <span class="chip audience">Python · live evaluator on key pages</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · P/R mechanics + F-beta</span>
+      <span class="a3" style="flex:5">18-42 · Build-along: fluency drills</span>
+      <span class="a4" style="flex:1">42-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Where the dial sits in the arc</h2>
+    </div>
+    <p class="lede">b1 gave you the four cells and the accuracy paradox. This session is the middle of the classic trilogy: the <strong>threshold</strong> is the single control that trades the two error cells against each other, and precision/recall/F1/F-beta are the vocabulary for describing where you set it. b3 lifts the same idea into curves (every threshold at once); b5 replaces the vocabulary with prices. Same 2,000-session Lumen slice, same seed 42, same evaluator - tonight you learn to drive it blind.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill peach">▶ Live evaluator - real math on real scores</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      Precision and recall as formulas you own (not look up), the raising-the-threshold mechanism said in one breath - fewer, surer flags - the reason F1 is harmonic and what that punishes, F-beta with the beta direction memorized, and the precision_recall_curve gotcha that bites everyone once.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: THE MECHANISM ============ -->
+  <section class="section" id="mechanism">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers sklearn precision/recall/F-scores + balanced_accuracy_score, Google MLCC "Accuracy, recall, precision"</span>
+      <h2>Two formulas, one dial <span class="tag concept">8 min live</span></h2>
+    </div>
+    <p class="lede">Both metrics share a numerator - the true positives - and differ only in what they divide by. <strong>Precision = TP / (TP + FP)</strong>: of everything we flagged, how much was real? Its denominator is the model's own flag pile. <strong>Recall = TP / (TP + FN)</strong>: of everything real, how much did we flag? Its denominator is fixed by the world - the 64 actual converters in Lumen's slice do not care where you put the cut. That asymmetry is the whole mechanism: <strong>raising the threshold makes fewer, surer flags</strong>. The flag pile shrinks and cleans up (precision rises), but real buyers slip under the cut (recall falls). Lower it and the trade runs backwards.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two score distribution strips - converters and non-converters - with a movable threshold cut line, showing which confusion-matrix cells grow as the cut slides.">
+        <style>
+          .t2-t { font: 700 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .t2-s { font: 400 11px Inter, sans-serif; fill: #FFFFFF; opacity: .92; }
+          .t2-i { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .t2-x { font: 400 12px Inter, sans-serif; fill: #64748B; }
+          .t2-n { font: 600 13px Inter, sans-serif; fill: #043029; }
+          .t2-b { font: 700 12.5px Inter, sans-serif; fill: #991B1B; }
+          .t2-g { font: 600 11.5px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <defs>
+          <marker id="t2-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1E293B"/></marker>
+        </defs>
+        <text class="t2-i" x="40" y="30">Where every session's score lands, and where the cut slices it</text>
+        <line x1="455" y1="52" x2="565" y2="52" stroke="#1E293B" stroke-width="2" marker-end="url(#t2-arr)"/>
+        <line x1="565" y1="58" x2="455" y2="58" stroke="#1E293B" stroke-width="2" marker-end="url(#t2-arr)"/>
+        <text class="t2-x" x="580" y="60">drag the cut</text>
+        <text class="t2-i" x="40" y="100">CONVERTERS</text>
+        <text class="t2-x" x="40" y="118">64 real buyers</text>
+        <rect x="200" y="76" width="310" height="56" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="2"/>
+        <text class="t2-b" x="214" y="99">FALSE NEGATIVES</text>
+        <text class="t2-x" x="214" y="118">missed buyers, no nudge</text>
+        <rect x="510" y="76" width="310" height="56" rx="8" fill="#86198F"/>
+        <text class="t2-t" x="530" y="99">TRUE POSITIVES</text>
+        <text class="t2-s" x="530" y="118">caught - most scores pile here</text>
+        <circle cx="612" cy="107" r="3.5" fill="#F0ABFC"/><circle cx="668" cy="96" r="3.5" fill="#F0ABFC"/><circle cx="700" cy="114" r="3.5" fill="#F0ABFC"/><circle cx="748" cy="100" r="3.5" fill="#F0ABFC"/><circle cx="782" cy="112" r="3.5" fill="#F0ABFC"/>
+        <text class="t2-g" x="200" y="152">raise the cut: FN grows</text>
+        <text class="t2-g" x="660" y="152">raise the cut: TP shrinks</text>
+        <text class="t2-i" x="40" y="212">NON-CONVERTERS</text>
+        <text class="t2-x" x="40" y="230">1,936 sessions</text>
+        <rect x="200" y="188" width="310" height="56" rx="8" fill="#581C87"/>
+        <text class="t2-t" x="214" y="211">TRUE NEGATIVES</text>
+        <text class="t2-s" x="214" y="230">left alone - the huge pile</text>
+        <circle cx="238" cy="222" r="3.5" fill="#F0ABFC"/><circle cx="286" cy="208" r="3.5" fill="#F0ABFC"/><circle cx="330" cy="226" r="3.5" fill="#F0ABFC"/><circle cx="372" cy="210" r="3.5" fill="#F0ABFC"/><circle cx="428" cy="224" r="3.5" fill="#F0ABFC"/><circle cx="470" cy="212" r="3.5" fill="#F0ABFC"/>
+        <rect x="510" y="188" width="310" height="56" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="2"/>
+        <text class="t2-b" x="530" y="211">FALSE POSITIVES</text>
+        <text class="t2-x" x="530" y="230">wasted outreach, ~$2 each</text>
+        <text class="t2-g" x="200" y="264">raise the cut: TN grows</text>
+        <text class="t2-g" x="660" y="264">raise the cut: FP shrinks</text>
+        <line x1="510" y1="66" x2="510" y2="278" stroke="#1E293B" stroke-width="2.5" stroke-dasharray="6 4"/>
+        <text class="t2-i" x="452" y="298">threshold = the cut</text>
+        <text class="t2-x" x="40" y="330">score 0.0</text>
+        <text class="t2-x" x="770" y="330">score 1.0</text>
+        <line x1="110" y1="326" x2="760" y2="326" stroke="#64748B" stroke-width="1.5" marker-end="url(#t2-arr)"/>
+        <rect x="40" y="356" width="14" height="14" rx="3" fill="#0E7C6B"/>
+        <text class="t2-n" x="64" y="368">Slide right: both flag cells (TP, FP) shrink, both no-flag cells grow. Fewer, surer flags - precision up, recall down.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the dial mechanism: two score strips, one cut line, four cells trading</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>F1: why harmonic, not arithmetic<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>You often need precision and recall folded into one number - to sort candidate models, to put in a dashboard cell. F1 is the <strong>harmonic mean</strong>: <code>F1 = 2PR / (P + R)</code>. The choice of mean is the entire point:</p>
+        <ul>
+          <li>Take a degenerate model: precision 1.0, recall 0.02 (it flags two sessions all year, both correct). The <strong>arithmetic</strong> mean says 0.51 - "roughly half good." Flattery.</li>
+          <li>The <strong>harmonic</strong> mean says ~0.039 - roughly as useless as the model actually is.</li>
+        </ul>
+        <p>Harmonic means punish lopsidedness: the score is dragged toward the WORSE of the two numbers, and a zero on either side gives F1 = 0. You cannot buy a good F1 by maxing one metric and abandoning the other - which is exactly the gaming an arithmetic mean would invite. On Lumen's slice at the default 0.50 cut: precision 21.5%, recall 63.6%, F1 <strong>0.321</strong> - pulled down toward the weak precision, as it should be.</p>
+        <div class="callout tip">
+          <strong>One F1 = a silent assumption</strong>
+          F1 weights precision and recall equally, which quietly assumes a false positive and a false negative hurt the same amount. At Lumen they cost $2 and $74. Keep quoting F1 - it is the standard shared vocabulary - but hear the assumption every time you do. b5 removes it.
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>F-beta: leaning the average when costs lean<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>When you KNOW one error hurts more, F-beta tilts the harmonic mean. Beta scales how much recall counts relative to precision:</p>
+        <ul>
+          <li><strong>beta = 2</strong> - recall matters more (a miss is the expensive error: fraud, disease, Lumen's $74 lost orders).</li>
+          <li><strong>beta = 0.5</strong> - precision matters more (a false alarm is the expensive error: spam filters, auto-takedowns).</li>
+          <li>beta = 1 is plain F1.</li>
+        </ul>
+<pre><code>from sklearn.metrics import fbeta_score, balanced_accuracy_score
+
+fbeta_score(y_test, y_pred, beta=2)    # recall-weighted: misses hurt more
+fbeta_score(y_test, y_pred, beta=0.5)  # precision-weighted: false alarms hurt more
+balanced_accuracy_score(y_test, y_pred)  # macro-average recall - the honest
+# accuracy replacement on imbalanced data (b1's paradox, patched)</code></pre>
+        <table class="clean">
+          <thead>
+            <tr><th>beta</th><th>Leans</th><th>Reach for it when</th><th>Lumen reading</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>2</td><td>Recall</td><td>a miss is the expensive error - fraud, disease, churn</td><td>the right lean: FN ~$74 vs FP ~$2</td></tr>
+            <tr><td>1</td><td>Neither (plain F1)</td><td>costs unknown, or genuinely equal</td><td>the silent equal-costs assumption</td></tr>
+            <tr><td>0.5</td><td>Precision</td><td>a false alarm is the expensive error - spam, takedowns</td><td>the wrong lean for Lumen</td></tr>
+          </tbody>
+        </table>
+        <p>An honest flag before you fall in love with it: <strong>F-beta is a soft version of what b5 does properly</strong>. Beta encodes "recall matters more-ish"; a cost matrix encodes "a miss costs $74 and a false alarm costs $2," and then the optimal threshold is a calculation, not a vibe. Use F-beta when you know the direction of the asymmetry but not its price. Once you have prices, graduate.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>balanced accuracy, one more look<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><code>balanced_accuracy_score</code> is the macro-average of per-class recall: recall on the converters averaged with recall on the non-converters. The lazy "always predict no" model from b1 scores 96.8% on plain accuracy but exactly 0.5 on balanced accuracy - the same as coin-flipping. That single property is why sklearn's docs recommend it to avoid "inflated performance estimates on imbalanced datasets." It is the drop-in replacement when a stakeholder insists on "an accuracy number."</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: NG'S DOCTRINE ============ -->
+  <section class="section" id="doctrine">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers Ng, Advanced Learning Algorithms W3 + sklearn precision_recall_curve</span>
+      <h2>Pick the point on purpose <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">Andrew Ng's Advanced Learning Algorithms (week 3) turns the mechanism into doctrine, in two moves. <strong>Move one: plot the tradeoff curve and pick the operating point deliberately.</strong> The threshold is not a training artifact to inherit at 0.5 - it is a decision, and the curve is the menu of every decision available. <strong>Move two: iterate against a single-number metric.</strong> When you are comparing model candidates daily, two numbers (P and R) stall every review in argument; one number (F1, F-beta, or later b5's cost) makes "did this change help?" answerable in seconds. Pick the point deliberately, then compress it to one number so iteration stays fast - those two habits carry the rest of this course.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>precision_recall_curve, and the gotcha in its return<span class="mini">6 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>sklearn hands you the whole menu in one call - every precision/recall pair the model can reach, plus the thresholds that reach them:</p>
+<pre><code>from sklearn.metrics import precision_recall_curve
+
+scores = model.predict_proba(X_test)[:, 1]
+prec, rec, thresholds = precision_recall_curve(y_test, scores)
+
+# GOTCHA: thresholds is ONE SHORTER than prec and rec.
+# The final (precision=1, recall=0) point is appended with no
+# threshold attached - so zip against thresholds, not the metrics:
+for p, r, t in zip(prec, rec, thresholds):
+    print(f"cut at {t:.2f} -&gt; precision {p:.2f}, recall {r:.2f}")
+
+# picking a point: e.g. the highest-recall cut with precision &gt;= 0.30
+import numpy as np
+ok = np.where(prec[:-1] &gt;= 0.30)[0]
+best_t = thresholds[ok[0]]</code></pre>
+        <p>The length mismatch is not trivia - off-by-one it and every threshold you report is shifted one row from the precision/recall pair you think it produces. You would ship a cut believing it clears a precision bar it does not clear. Zip against <code>thresholds</code> and the alignment is guaranteed.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The reviewed-and-still-wrong threshold memo.</strong> A retention team picked "the threshold where precision crosses 40%" from a notebook that zipped precision against the full arrays. The off-by-one shifted their chosen cut one step loose; live precision came in under the bar they had promised legal for a customer-contact program. The fix was one character in a zip. The habit: after picking a threshold from the curve, recompute P and R at that cut directly with <code>precision_score</code> / <code>recall_score</code> and confirm they match the row you selected.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Satisficing vs optimizing - the doctrine's second half<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Ng's fuller version, from Structuring ML Projects: when several things matter, make ONE the optimizing metric and turn the rest into constraints - "maximize F2, subject to latency under 300ms." You will meet this again in b8, where latency and cost per query become first-class satisficing metrics for LLM systems, straight from Anthropic's own success-criteria list.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO ============ -->
+  <section class="section" id="demo">
+    <div class="section-kicker">
+      <span class="klabel">Demo · fluency drills</span>
+      <h2>Drive the dial blind <span class="tag demo">★ 20 min · everyone runs it</span></h2>
+    </div>
+    <p class="lede">Same evaluator as b1 - Lumen's 2,000 scored sessions, seed 42, every metric recomputed live on each drag. Last session you explored it; tonight you drill it. The bar is prediction, not observation: you say what the tiles will do BEFORE the slider moves, in four-cell vocabulary, and the evaluator grades you.</p>
+
+    <div class="steps">
+      <div class="step"><p><strong>Drill 1 - call all five tiles.</strong> Before touching anything, write down which direction each of the five tiles (accuracy, precision, recall, F1, error cost) moves when the threshold rises from 0.50, and say each reason in cell language ("FP shrinks faster than TP, so..."). Then drag up and score yourself out of 5. Anything under 5/5: reread the strip diagram and repeat until the calls are boring.</p></div>
+      <div class="step"><p><strong>Drill 2 - find the crossover by feel.</strong> Somewhere on the dial, precision and recall are equal. Hunt it by feel - overshoot, bracket it, close in. Notice how steep both metrics are around the crossing: small threshold moves, large metric moves. This is why "we use threshold 0.5" deserves the same scrutiny as any other shipped constant.</p></div>
+      <div class="step"><p><strong>Drill 3 - the cost preview.</strong> Confirm the FN cost box reads 74 (Lumen's lost order). Read the error-cost tile at your crossover point, then drag left until recall hits 100% and read it again - at that floor the cost is <strong>$1,146</strong>, the cheapest point on tonight's dial even though precision has collapsed to single digits. Sit with that disagreement between the pretty-metrics point and the cheap point. Do NOT press the two buttons yet - they are b5's opening scene, and the punchline costs $704.</p></div>
+    </div>
+
+    <div class="evalbox" data-mode="threshold" data-thresh="0.5"></div>
+
+    <div class="callout tip">
+      <strong>How to know you are fluent</strong>
+      Fluency test, borrowed from language learning: explain to a rubber duck why recall can only fall as the threshold rises (its denominator is frozen at 64 real buyers) while precision can wobble non-monotonically on the way up (both its numerator and denominator are shrinking). If that sentence feels obvious, b2 is done its job.
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 20-30 min total</span></h2>
+    </div>
+    <ul>
+      <li>Run <code>precision_recall_curve</code> on any classifier you own. Zip against the thresholds array, pick an operating point for a stated reason, then verify it with direct <code>precision_score</code> / <code>recall_score</code> calls at that cut.</li>
+      <li>For your own problem from b1's homework: is it a beta = 2 problem or a beta = 0.5 problem? Write one sentence defending the direction, then compute both <code>fbeta_score</code> values and see how far they disagree.</li>
+      <li>Do the arithmetic-vs-harmonic party trick on paper for P = 0.9, R = 0.1. Predict both means first, then compute. (Arithmetic: 0.5. Harmonic: 0.18.)</li>
+      <li>Reread the b1 cheat sheet's threshold row - it should now feel like an understatement.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">This session teaches the precision/recall core of the sklearn metrics guide, the matching Google crash-course lesson, and Ng's tradeoff doctrine - drilled on the live evaluator rather than on slides. Certificates and graded assessments stay with the official providers. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">sklearn metrics guide - precision_recall_fscore_support, f1_score, fbeta_score, precision_recall_curve, balanced_accuracy_score</span><span class="note">Formulas, the beta direction, and the thresholds-length gotcha · curves continue in b3</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Google ML Crash Course - "Accuracy, recall, precision"</span><span class="note">The precision/recall tension, drilled live · ROC/AUC lesson lands in b3</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Ng, Advanced Learning Algorithms W3 - the P/R tradeoff + picking the operating point</span><span class="note">Both doctrine moves taught · satisficing vs optimizing returns in b8</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">sklearn threshold-tuning guide - the cost-driven ending of this story</span><span class="note">Previewed in Drill 3 · TunedThresholdClassifierCV and Elkan in b5</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">1 · Why is F1 a harmonic mean instead of a plain average of precision and recall?</p>
+      <button class="qopt" type="button">A · Harmonic means are faster to compute inside sklearn's C loops</button>
+      <button class="qopt" type="button">B · Historical convention from information retrieval, kept for compatibility</button>
+      <button class="qopt" type="button">C · It punishes lopsidedness - P = 1.0 with R = 0.02 averages to a flattering 0.51 arithmetically, but ~0.039 harmonically</button>
+      <p class="qwhy">The harmonic mean is dragged toward the worse number, so you cannot score well by maxing one metric and abandoning the other. An arithmetic mean would call a two-flags-a-year model "half good" - the exact gaming F1 exists to prevent.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">2 · Your team decides a missed converter hurts far more than a wasted outreach email. Which F-beta leans the right way?</p>
+      <button class="qopt" type="button">A · beta = 2 - it weights recall more heavily, and recall is the miss-catching metric</button>
+      <button class="qopt" type="button">B · beta = 0.5 - it weights recall more heavily, and recall is the miss-catching metric</button>
+      <button class="qopt" type="button">C · Either works, since F-beta is symmetric in precision and recall</button>
+      <p class="qwhy">beta above 1 favors recall, beta below 1 favors precision - beta = 2 for expensive misses, beta = 0.5 for expensive false alarms. And remember the honest flag: once you can PRICE the asymmetry ($2 vs $74), b5's cost matrix beats any beta.</p>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">3 · precision_recall_curve returns prec, rec, and thresholds. What is the trap?</p>
+      <button class="qopt" type="button">A · The thresholds come back unsorted, so you must sort before plotting</button>
+      <button class="qopt" type="button">B · thresholds is one element shorter than prec and rec - the final (P=1, R=0) point has no threshold, so zip against thresholds or your cuts shift by one row</button>
+      <button class="qopt" type="button">C · The arrays only cover thresholds between 0.25 and 0.75</button>
+      <p class="qwhy">sklearn appends the (precision=1, recall=0) endpoint with no threshold attached. Zip against the full metric arrays and every reported threshold is off by one - you ship a cut that does not clear the precision bar you promised. Zip against thresholds, then re-verify the chosen point directly.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Practitioner session 2 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>Precision</b><span>TP / (TP + FP). "When we flag, are we right?" Denominator = the model's own flag pile, so it responds to the cut.</span></div>
+      <div class="cheat-item"><b>Recall</b><span>TP / (TP + FN). "How many did we catch?" Denominator fixed by the world (Lumen: 64 real buyers) - it can only fall as the cut rises.</span></div>
+      <div class="cheat-item"><b>The mechanism</b><span>Raise the threshold: fewer, surer flags. Precision up, recall down. Lower it: the trade runs backwards. One dial, four cells.</span></div>
+      <div class="cheat-item"><b>F1 = harmonic</b><span>2PR/(P+R). Dragged toward the worse number; P=1.0/R=0.02 scores ~0.039, not the arithmetic 0.51. Punishes lopsidedness by design.</span></div>
+      <div class="cheat-item"><b>F-beta</b><span>beta=2 leans recall (expensive misses), beta=0.5 leans precision (expensive false alarms). A soft version of b5's priced cost matrix - graduate when you have prices.</span></div>
+      <div class="cheat-item"><b>Balanced accuracy</b><span>Macro-average recall. The "always no" model scores 0.5, not 96.8%. The drop-in when someone demands "an accuracy number" on imbalanced data.</span></div>
+      <div class="cheat-item"><b>The curve gotcha</b><span>precision_recall_curve's thresholds array is one shorter than prec/rec. Zip against thresholds; re-verify the chosen cut with direct metric calls.</span></div>
+      <div class="cheat-item"><b>Ng's doctrine</b><span>Plot the curve, pick the operating point deliberately; then iterate on ONE number so model comparisons take seconds, not meetings.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Practitioner session 2 of 10 · learn-model-evaluation-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="b1-confusion-matrix.html">← b1 · The confusion matrix</a> &nbsp;·&nbsp; <a href="../index.html">All sessions</a> &nbsp;·&nbsp; <a href="b3-curves-calibration.html">Next: Curves + calibration →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/evalml-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

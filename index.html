@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>learn model evaluation with phoebe - a two-track course on metrics that pay</title>
+<link rel="stylesheet" href="assets/style.css?v=1">
+<style>
+  .stats-row { display: flex; gap: 2.4rem; margin-top: 1.5rem; flex-wrap: wrap; }
+  .stat b { display: block; font-size: 2.1rem; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .stat span { font-size: .72rem; opacity: .85; text-transform: uppercase; letter-spacing: .09em; font-weight: 600; }
+
+  .course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+  .course-card {
+    border: 1px solid var(--hairline);
+    border-top: 4px solid var(--diff, var(--indigo));
+    border-radius: var(--radius);
+    padding: 1.2rem 1.3rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    text-decoration: none;
+    color: var(--ink);
+    background: #fff;
+    transition: box-shadow .15s ease, border-color .15s ease, transform .15s ease;
+    position: relative;
+  }
+  .course-card:hover { border-color: var(--indigo-soft); border-top-color: var(--diff, var(--indigo)); box-shadow: 0 8px 28px rgba(134,25,143,.12); transform: translateY(-3px); }
+  .course-card .cicon { font-size: 1.7rem; line-height: 1; }
+  .course-card .cnum { font-size: .72rem; font-weight: 700; color: var(--indigo); text-transform: uppercase; letter-spacing: .1em; }
+  .course-card h3 { font-size: 1.05rem; font-weight: 800; line-height: 1.3; }
+  .course-card p { font-size: .85rem; color: var(--muted); flex: 1; }
+  .course-card .meta { display: flex; gap: .4rem; flex-wrap: wrap; }
+
+  .diff-legend { display: flex; gap: 1rem; margin-top: 1.6rem; font-size: .74rem; color: var(--muted); font-weight: 600; flex-wrap: wrap; }
+  .diff-legend i { display: inline-block; width: .85rem; height: .35rem; border-radius: 999px; margin-right: .35rem; vertical-align: middle; }
+
+  .paths { margin-top: 2.6rem; }
+  .paths h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: .3rem; }
+  .paths .plede { color: var(--muted); font-size: .92rem; margin-bottom: .8rem; }
+  .path { display: flex; gap: .55rem; align-items: center; padding: .75rem 0; border-bottom: .5px solid var(--hairline); flex-wrap: wrap; }
+  .path:last-child { border-bottom: none; }
+  .path b { min-width: 15.5rem; font-size: .9rem; }
+  .path .pstep { background: var(--indigo-50); color: var(--indigo); border-radius: 999px; padding: .16rem .68rem; font-weight: 700; font-size: .8rem; text-decoration: none; transition: all .12s ease; }
+  .path .pstep:hover { background: var(--indigo); color: #fff; }
+  .path .parr { color: var(--faint); font-weight: 700; }
+
+  .mm-section { margin-top: 1.6rem; }
+  .mm-section h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: .2rem; }
+  .mm-section .mm-lede { color: var(--muted); font-size: .92rem; margin-bottom: .4rem; }
+  .mm-wrap { border: 1px solid var(--hairline); border-radius: var(--radius); background: linear-gradient(180deg,#fff,#FBF3FD); padding: .6rem; overflow-x: auto; }
+  .mm-svg { width: 100%; height: auto; display: block; max-width: 60rem; margin: 0 auto; min-width: 34rem; }
+  .mm-link { cursor: pointer; text-decoration: none; }
+  .mm-node rect { transition: opacity .15s ease, filter .15s ease; }
+  .mm-node text { pointer-events: none; }
+  .mm-link:hover .mm-node rect { filter: brightness(1.06); }
+  .mm-edge { transition: opacity .15s ease; }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Model Evaluation with Phoebe</div>
+    <h1>Two tracks into metrics that actually pay</h1>
+    <p class="sub">Every metric is an opinion about which mistakes matter - and most teams inherit the opinion without noticing. This course covers both metric families in one arc: the classic canon (precision, recall, F1, ROC, calibration, cost matrices) and the LLM-era system (groundedness, hallucination rates, LLM-as-judge, latency and cost per query). A leader track teaches you to read any model report without being fooled. A practitioner track evaluates Lumen's real conversion model end to end - and a live evaluator runs in your browser: drag a real threshold on 2,000 scored sessions, press "Optimize F1" and watch it cost $704 more than the money-optimal point, then calibrate an LLM judge yourself and catch its verbosity bias red-handed.</p>
+    <div class="stats-row">
+      <div class="stat"><b data-count="2">2</b><span>tracks</span></div>
+      <div class="stat"><b data-count="16">16</b><span>sessions</span></div>
+      <div class="stat"><b data-count="704">704</b><span>$ the Goodhart gap</span></div>
+      <div class="stat"><b data-count="45">45</b><span>min per session</span></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="section">
+    <div class="paths" style="margin-top:0">
+      <h2>The leader track 🤝 <span style="font-size:.85rem;font-weight:600;color:var(--muted)">· for executives, PMs &amp; anyone who reads model reports · 6 x 45 min · no code</span></h2>
+      <p class="plede">Metric literacy as self-defense: the accuracy paradox, the threshold as a business decision someone is silently making, LLM quality numbers in plain English, speed and cost as product features, and the three failure patterns that quietly kill AI ROI - each session ends with the questions to ask your teams.</p>
+    </div>
+    <div class="course-grid">
+      <a class="course-card" href="courses/a1-why-one-number-lies.html" style="--diff:#34D399">
+        <span class="cicon">🎭</span>
+        <span class="cnum">Leader 1 · easy</span>
+        <h3>Why one number lies</h3>
+        <p>A 96.8%-accurate model that finds zero customers - the accuracy paradox on real numbers, and the first questions that expose it.</p>
+        <span class="meta"><span class="pill amber">▶ Leaders start here</span></span>
+      </a>
+      <a class="course-card" href="courses/a2-precision-recall-money.html" style="--diff:#34D399">
+        <span class="cicon">💰</span>
+        <span class="cnum">Leader 2 · easy</span>
+        <h3>Precision, recall, and money</h3>
+        <p>The threshold is a business decision wearing a math costume - the $704 demo, and who in your org should be picking the operating point.</p>
+        <span class="meta"><span class="pill light">▶ The Goodhart button</span></span>
+      </a>
+      <a class="course-card" href="courses/a3-llm-quality-plain.html" style="--diff:#FBBF24">
+        <span class="cicon">🗣️</span>
+        <span class="cnum">Leader 3 · medium</span>
+        <h3>LLM quality metrics, in plain English</h3>
+        <p>Groundedness, hallucination rates, relevance - what the numbers mean, the two different things "hallucination" measures, and why judge scores are not measurements.</p>
+        <span class="meta"><span class="pill light">The judge caveat</span></span>
+      </a>
+      <a class="course-card" href="courses/a4-speed-and-cost.html" style="--diff:#FBBF24">
+        <span class="cicon">⚡</span>
+        <span class="cnum">Leader 4 · medium</span>
+        <h3>Speed and cost</h3>
+        <p>Time-to-first-token, cost per query, throughput - the operational metrics users actually feel, and the satisficing architecture that keeps quality honest about them.</p>
+        <span class="meta"><span class="pill light">Latency is a feature</span></span>
+      </a>
+      <a class="course-card" href="courses/a5-three-project-killers.html" style="--diff:#FB923C">
+        <span class="cicon">💣</span>
+        <span class="cnum">Leader 5 · deciding</span>
+        <h3>The three project killers</h3>
+        <p>No golden set before building, optimizing a proxy unwired to money, static evals in a drifting world - and the governance moves that prevent each.</p>
+        <span class="meta"><span class="pill light">The ROI session</span></span>
+      </a>
+      <a class="course-card" href="courses/a6-eval-governance.html" style="--diff:#FB923C">
+        <span class="cicon">📋</span>
+        <span class="cnum">Leader 6 · deciding</span>
+        <h3>Your eval governance playbook</h3>
+        <p>The scorecard to demand before any launch, vendor-grilling questions, the two-hop proxy chain, and the review cadence that keeps evals alive.</p>
+        <span class="meta"><span class="pill light">Strategy session</span></span>
+      </a>
+    </div>
+
+    <div class="paths">
+      <h2>The practitioner track 🧪 <span style="font-size:.85rem;font-weight:600;color:var(--muted)">· for DS, analysts &amp; AI engineers · 10 x 45 min · Python + the live evaluator</span></h2>
+      <p class="plede">One running case, evaluated harder every session: Lumen's conversion model (built in intro-ML) plus an LLM assistant on the same brand. Classic half b1-b5 funnels into the cost matrix; LLM half b6-b8 covers quality, graders, and operations; b9 makes it continuous; b10 ships the full eval sheet. Hands-on RAGAS machinery lives in the sibling learn-evals course - this one owns the metrics.</p>
+    </div>
+    <div class="course-grid">
+      <a class="course-card" href="courses/b1-confusion-matrix.html" style="--diff:#34D399">
+        <span class="cicon">🔲</span>
+        <span class="cnum">Practitioner 1 · easy</span>
+        <h3>The confusion matrix, cold</h3>
+        <p>Four cells, two kinds of pain, the accuracy paradox on Lumen's 3.2% base rate - and your first drag of a real threshold.</p>
+        <span class="meta"><span class="pill amber">▶ Practitioners start here</span></span>
+      </a>
+      <a class="course-card" href="courses/b2-threshold-dial.html" style="--diff:#34D399">
+        <span class="cicon">🎚️</span>
+        <span class="cnum">Practitioner 2 · easy</span>
+        <h3>The threshold dial</h3>
+        <p>Precision and recall trade through one number - F-beta when costs lean, balanced accuracy, and why a model has a curve, not a score.</p>
+        <span class="meta"><span class="pill light">P/R fluency</span></span>
+      </a>
+      <a class="course-card" href="courses/b3-curves-calibration.html" style="--diff:#FBBF24">
+        <span class="cicon">📈</span>
+        <span class="cnum">Practitioner 3 · medium</span>
+        <h3>Curves + calibration</h3>
+        <p>ROC-AUC vs PR-AUC under imbalance (the Saito-Rehmsmeier result), reliability diagrams, and the Brier-score caveat sklearn itself warns about.</p>
+        <span class="meta"><span class="pill light">The imbalance toolkit</span></span>
+      </a>
+      <a class="course-card" href="courses/b4-regression-ranking.html" style="--diff:#FBBF24">
+        <span class="cicon">📏</span>
+        <span class="cnum">Practitioner 4 · medium</span>
+        <h3>Regression + ranking metrics</h3>
+        <p>MAE vs RMSE vs MAPE on Lumen's order values, R² without self-deception, NDCG for anything ranked - and the which-scoring-function doctrine.</p>
+        <span class="meta"><span class="pill light">The other targets</span></span>
+      </a>
+      <a class="course-card" href="courses/b5-cost-matrix.html" style="--diff:#FB923C">
+        <span class="cicon">🧮</span>
+        <span class="cnum">Practitioner 5 · the heart</span>
+        <h3>The cost matrix</h3>
+        <p>THE session: prices on the error cells, Elkan's rule, TunedThresholdClassifierCV - and the button that maximizes F1 while losing $704.</p>
+        <span class="meta"><span class="pill light">▶ The $704 button</span></span>
+      </a>
+      <a class="course-card" href="courses/b6-llm-quality-metrics.html" style="--diff:#FB923C">
+        <span class="cicon">🔍</span>
+        <span class="cnum">Practitioner 6 · hands-on</span>
+        <h3>LLM quality metrics</h3>
+        <p>The faithfulness formula, groundedness on a 1-5 scale, relevance - and the world-vs-document distinction that untangles "hallucination".</p>
+        <span class="meta"><span class="pill light">Two hallucinations</span></span>
+      </a>
+      <a class="course-card" href="courses/b7-grader-problem.html" style="--diff:#FB923C">
+        <span class="cicon">⚖️</span>
+        <span class="cnum">Practitioner 7 · hands-on</span>
+        <h3>The grader problem</h3>
+        <p>Code vs LLM vs human graders, the four documented judge biases, the 80%-equals-human-agreement bar - and a judge you calibrate yourself, live.</p>
+        <span class="meta"><span class="pill light">▶ 58% → 88% demo</span></span>
+      </a>
+      <a class="course-card" href="courses/b8-operational-metrics.html" style="--diff:#FB923C">
+        <span class="cicon">⏱️</span>
+        <span class="cnum">Practitioner 8 · hands-on</span>
+        <h3>Operational metrics</h3>
+        <p>TTFT, inter-token latency, the identity that ties them together, cost per query, the batching tradeoff - operations as first-class eval criteria.</p>
+        <span class="meta"><span class="pill light">The serving math</span></span>
+      </a>
+      <a class="course-card" href="courses/b9-drift-continuous-eval.html" style="--diff:#F87171">
+        <span class="cicon">🌊</span>
+        <span class="cnum">Practitioner 9 · hardest</span>
+        <h3>Drift + continuous evaluation</h3>
+        <p>Capability vs regression evals, golden-set-first discipline, the training/serving skew ladder, and the two-hop proxy chain that explains "offline up, revenue flat".</p>
+        <span class="meta"><span class="pill light">Evals as a process</span></span>
+      </a>
+      <a class="course-card" href="courses/b10-capstone-eval-sheet.html" style="--diff:#F87171">
+        <span class="cicon">🏆</span>
+        <span class="cnum">Practitioner 10 · hardest</span>
+        <h3>Capstone: the eval sheet</h3>
+        <p>Write the full evaluation spec for one classic model and one LLM system - metrics, prices, floors, gates - and defend every line of it.</p>
+        <span class="meta"><span class="pill light">Ship the sheet</span></span>
+      </a>
+    </div>
+    <div class="diff-legend">
+      <span><i style="background:#34D399"></i>easy - everyone</span>
+      <span><i style="background:#FBBF24"></i>medium</span>
+      <span><i style="background:#FB923C"></i>hands-on / deciding</span>
+      <span><i style="background:#F87171"></i>hardest</span>
+    </div>
+
+    <div class="paths">
+      <h2>Choose your path 🗺️</h2>
+      <p class="plede">Two doors into one conviction: a metric without a cost story is an opinion you have not read yet. Leaders learn to read them; practitioners learn to write them.</p>
+      <div class="path"><b>🤝 Leader (read any report)</b>
+        <a class="pstep" href="courses/a1-why-one-number-lies.html">a1</a><span class="parr">→</span>
+        <a class="pstep" href="courses/a2-precision-recall-money.html">a2</a><span class="parr">→</span>
+        <a class="pstep" href="courses/a3-llm-quality-plain.html">a3</a><span class="parr">→</span>
+        <a class="pstep" href="courses/a4-speed-and-cost.html">a4</a><span class="parr">→</span>
+        <a class="pstep" href="courses/a5-three-project-killers.html">a5</a><span class="parr">→</span>
+        <a class="pstep" href="courses/a6-eval-governance.html">a6</a>
+      </div>
+      <div class="path"><b>🧪 Practitioner (write the sheet)</b>
+        <a class="pstep" href="courses/b1-confusion-matrix.html">b1</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b2-threshold-dial.html">b2</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b3-curves-calibration.html">b3</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b4-regression-ranking.html">b4</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b5-cost-matrix.html">b5</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b6-llm-quality-metrics.html">b6</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b7-grader-problem.html">b7</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b8-operational-metrics.html">b8</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b9-drift-continuous-eval.html">b9</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b10-capstone-eval-sheet.html">b10</a>
+      </div>
+      <div class="path"><b>🤖 LLM-only fast lane</b>
+        <a class="pstep" href="courses/b1-confusion-matrix.html">b1</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b5-cost-matrix.html">b5</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b6-llm-quality-metrics.html">b6</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b7-grader-problem.html">b7</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b8-operational-metrics.html">b8</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b9-drift-continuous-eval.html">b9</a>
+      </div>
+      <div class="path"><b>🚀 Full journey (read AND write)</b>
+        <a class="pstep" href="courses/a1-why-one-number-lies.html">a1-a6</a><span class="parr">→</span>
+        <a class="pstep" href="courses/b1-confusion-matrix.html">b1-b10</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section mm-section">
+    <h2>The knowledge map 🧠</h2>
+    <p class="mm-lede">Both tracks at a glance - hover a session to spotlight its concepts, click any node to jump in.</p>
+    <div class="mm-wrap"><div id="mindmap"></div></div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>learn-model-evaluation-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a> · taught from the sklearn evaluation + calibration + threshold-tuning guides, Google ML Crash Course + Rules of ML, Ng's metric doctrines, Saito-Rehmsmeier 2015, Zheng et al. 2023, RAGAS + Microsoft Foundry metric docs, NVIDIA serving metrics, Anthropic + OpenAI evals guidance, TruthfulQA + the Vectara HHEM leaderboard</span>
+  </footer>
+</main>
+
+<script>
+window.MINDMAP_DATA = {
+  title: "Model\nEvaluation",
+  centerColor: "#581C87",
+  sessions: [
+    { label: "Why one\nnumber lies", href: "courses/a1-why-one-number-lies.html", color: "#34D399",
+      concepts: [
+        { label: "Accuracy paradox", href: "courses/a1-why-one-number-lies.html" },
+        { label: "Which mistakes hide", href: "courses/a1-why-one-number-lies.html" } ] },
+    { label: "P, R &\nmoney", href: "courses/a2-precision-recall-money.html", color: "#34D399",
+      concepts: [
+        { label: "Threshold = decision", href: "courses/a2-precision-recall-money.html" },
+        { label: "The $704 gap", href: "courses/a2-precision-recall-money.html" } ] },
+    { label: "LLM quality,\nplain", href: "courses/a3-llm-quality-plain.html", color: "#FBBF24",
+      concepts: [
+        { label: "Groundedness", href: "courses/a3-llm-quality-plain.html" },
+        { label: "Judge skepticism", href: "courses/a3-llm-quality-plain.html" } ] },
+    { label: "Speed &\ncost", href: "courses/a4-speed-and-cost.html", color: "#FBBF24",
+      concepts: [
+        { label: "TTFT", href: "courses/a4-speed-and-cost.html" },
+        { label: "Cost per query", href: "courses/a4-speed-and-cost.html" } ] },
+    { label: "Project\nkillers", href: "courses/a5-three-project-killers.html", color: "#FB923C",
+      concepts: [
+        { label: "Golden set first", href: "courses/a5-three-project-killers.html" },
+        { label: "Goodhart · drift", href: "courses/a5-three-project-killers.html" } ] },
+    { label: "Eval\ngovernance", href: "courses/a6-eval-governance.html", color: "#FB923C",
+      concepts: [
+        { label: "The scorecard", href: "courses/a6-eval-governance.html" },
+        { label: "Proxy chain", href: "courses/a6-eval-governance.html" } ] },
+    { label: "Confusion\nmatrix", href: "courses/b1-confusion-matrix.html", color: "#34D399",
+      concepts: [
+        { label: "Four cells", href: "courses/b1-confusion-matrix.html" },
+        { label: "Two pains", href: "courses/b1-confusion-matrix.html" },
+        { label: "96.8% useless", href: "courses/b1-confusion-matrix.html" } ] },
+    { label: "Threshold\ndial", href: "courses/b2-threshold-dial.html", color: "#34D399",
+      concepts: [
+        { label: "P/R tradeoff", href: "courses/b2-threshold-dial.html" },
+        { label: "F-beta", href: "courses/b2-threshold-dial.html" } ] },
+    { label: "Curves &\ncalibration", href: "courses/b3-curves-calibration.html", color: "#FBBF24",
+      concepts: [
+        { label: "PR vs ROC", href: "courses/b3-curves-calibration.html" },
+        { label: "Reliability diagram", href: "courses/b3-curves-calibration.html" } ] },
+    { label: "Regression\n& ranking", href: "courses/b4-regression-ranking.html", color: "#FBBF24",
+      concepts: [
+        { label: "MAE · RMSE · MAPE", href: "courses/b4-regression-ranking.html" },
+        { label: "NDCG", href: "courses/b4-regression-ranking.html" } ] },
+    { label: "Cost\nmatrix", href: "courses/b5-cost-matrix.html", color: "#FB923C",
+      concepts: [
+        { label: "The $704 button", href: "courses/b5-cost-matrix.html" },
+        { label: "Satisficing metrics", href: "courses/b5-cost-matrix.html" } ] },
+    { label: "LLM quality\nmetrics", href: "courses/b6-llm-quality-metrics.html", color: "#FB923C",
+      concepts: [
+        { label: "Faithfulness formula", href: "courses/b6-llm-quality-metrics.html" },
+        { label: "World vs document", href: "courses/b6-llm-quality-metrics.html" } ] },
+    { label: "Grader\nproblem", href: "courses/b7-grader-problem.html", color: "#FB923C",
+      concepts: [
+        { label: "4 judge biases", href: "courses/b7-grader-problem.html" },
+        { label: "58% → 88%", href: "courses/b7-grader-problem.html" } ] },
+    { label: "Operational\nmetrics", href: "courses/b8-operational-metrics.html", color: "#FB923C",
+      concepts: [
+        { label: "TTFT + ITL", href: "courses/b8-operational-metrics.html" },
+        { label: "Batching tradeoff", href: "courses/b8-operational-metrics.html" } ] },
+    { label: "Drift &\ncontinuous", href: "courses/b9-drift-continuous-eval.html", color: "#F87171",
+      concepts: [
+        { label: "Skew ladder", href: "courses/b9-drift-continuous-eval.html" },
+        { label: "Regression evals", href: "courses/b9-drift-continuous-eval.html" } ] },
+    { label: "Capstone\neval sheet", href: "courses/b10-capstone-eval-sheet.html", color: "#F87171",
+      concepts: [
+        { label: "Classic + LLM specs", href: "courses/b10-capstone-eval-sheet.html" },
+        { label: "Defend every line", href: "courses/b10-capstone-eval-sheet.html" } ] }
+  ]
+};
+</script>
+<script src="assets/mindmap.js?v=1"></script>
+<script src="assets/app.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practitioner session 6 · LLM quality metrics - learn model evaluation with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-model-evaluation-with-phoebe</a> / Practitioner session 6 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Model Evaluation with Phoebe · Practitioner track · Session 6 of 10</div>
+    <h1>LLM quality <span class="accent">metrics</span></h1>
+    <p class="sub">The LLM half begins. Lumen now has an LLM assistant answering customer and analyst questions over its docs and data - a RAG system - and "is it any good?" needs numbers, not vibes. Tonight you learn the metric families: faithfulness and groundedness (with the exact RAGAS formula), relevancy, the retrieval metrics that localize failures, and the two very different things people call "hallucination." Then you score one real Lumen answer entirely by hand - the manual pass every automated grader merely automates. The sibling <strong>learn-evals</strong> course runs the RAGAS machinery hands-on; this session owns what the numbers MEAN.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Practitioner track</span>
+      <span class="chip audience">DS · analysts · ML + AI engineers</span>
+      <span class="chip audience">Python · live evaluator on key pages</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · The metric families</span>
+      <span class="a3" style="flex:5">18-42 · Build-along: score a RAG answer by hand</span>
+      <span class="a4" style="flex:1">42-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Where tonight fits</h2>
+    </div>
+    <p class="lede">b1-b5 evaluated a model that outputs a number. Lumen's new assistant outputs SENTENCES - answers stitched from retrieved context - and yet the evaluation instincts transfer almost perfectly: metrics are still opinions about which mistakes matter, and the precision/recall pair from b1 comes back reborn at sentence level. Division of labor with the sibling course, said honestly: <strong>learn-evals</strong> owns the hands-on harness (golden sets, RAGAS pipelines, tracing, CI); this course owns the metrics - definitions, use cases, and the misconceptions that get systems shipped wrongly. b7 next session asks the uncomfortable follow-up: who grades the grader?</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The faithfulness formula computed by hand on a real answer, the faithful-vs-correct distinction that catches the most expensive RAG misreading, the world-vs-document split behind the word "hallucination," and the retrieval metrics that tell you WHICH half of a RAG system broke.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: FAITHFULNESS ============ -->
+  <section class="section" id="faithfulness">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers RAGAS faithfulness, Microsoft Foundry groundedness</span>
+      <h2>Faithfulness, done properly <span class="tag concept">8 min live</span></h2>
+    </div>
+    <p class="lede">The headline metric of RAG evaluation asks one question: <strong>does the answer stick to the evidence it was given?</strong> RAGAS defines it exactly: break the response into claims, check each claim against the retrieved context, and score <strong>supported claims / total claims</strong>, on a 0-1 scale. The worked example in the RAGAS docs scores <strong>0.5</strong> - one claim right, one date wrong. A variant, FaithfulnesswithHHEM, swaps the LLM checker for Vectara's trained hallucination detector as the grader.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A RAG answer decomposed into four claims, each checked against two context chunks; three supported, one unsupported, faithfulness 3 of 4 equals 0.75.">
+        <style>
+          .l6T { font: 700 12px Inter, sans-serif; fill: #FFFFFF; }
+          .l6S { font: 400 11.5px Inter, sans-serif; fill: #FFFFFF; opacity: .92; }
+          .l6I { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .l6C { font: 400 12px Inter, sans-serif; fill: #1E293B; }
+          .l6G { font: 700 12px Inter, sans-serif; fill: #0E7C6B; }
+          .l6B { font: 700 12px Inter, sans-serif; fill: #991B1B; }
+        </style>
+        <text class="l6I" x="40" y="28">Q: "why did March revenue dip?" - one answer, four claims, each checked against the context</text>
+        <line x1="420" y1="82" x2="600" y2="120" stroke="#64748B" stroke-width="1.5"/>
+        <line x1="420" y1="136" x2="600" y2="235" stroke="#64748B" stroke-width="1.5"/>
+        <line x1="420" y1="244" x2="600" y2="120" stroke="#64748B" stroke-width="1.5"/>
+        <rect x="40" y="60" width="380" height="44" rx="8" fill="#FDF4FF" stroke="#C026D3" stroke-width="2"/>
+        <text class="l6C" x="54" y="87">Claim 1 · March revenue fell 12% vs February</text>
+        <text class="l6G" x="432" y="87">✓ chunk 1</text>
+        <rect x="40" y="114" width="380" height="44" rx="8" fill="#FDF4FF" stroke="#C026D3" stroke-width="2"/>
+        <text class="l6C" x="54" y="141">Claim 2 · paid traffic dropped after the sale ended</text>
+        <text class="l6G" x="432" y="141">✓ chunk 2</text>
+        <rect x="40" y="168" width="380" height="44" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="2"/>
+        <text class="l6B" x="54" y="195">Claim 3 · a March 8 site outage caused the dip</text>
+        <text class="l6B" x="432" y="195">✗ unsupported</text>
+        <rect x="40" y="222" width="380" height="44" rx="8" fill="#FDF4FF" stroke="#C026D3" stroke-width="2"/>
+        <text class="l6C" x="54" y="249">Claim 4 · recovery began in the final week of March</text>
+        <text class="l6G" x="432" y="249">✓ chunk 1</text>
+        <rect x="600" y="70" width="240" height="100" rx="10" fill="#86198F"/>
+        <text class="l6T" x="616" y="96">CONTEXT CHUNK 1</text>
+        <text class="l6S" x="616" y="118">weekly revenue report:</text>
+        <text class="l6S" x="616" y="136">Feb vs Mar, recovery curve</text>
+        <rect x="600" y="185" width="240" height="100" rx="10" fill="#581C87"/>
+        <text class="l6T" x="616" y="211">CONTEXT CHUNK 2</text>
+        <text class="l6S" x="616" y="233">campaign calendar: the paid</text>
+        <text class="l6S" x="616" y="251">push ended March 1</text>
+        <rect x="40" y="310" width="800" height="46" rx="10" fill="#043029"/>
+        <text class="l6T" x="60" y="338">faithfulness = supported claims / total claims = 3 / 4 = 0.75</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the RAGAS faithfulness arithmetic on one decomposed answer</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Same idea, different ruler: Foundry's groundedness<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Microsoft Foundry (Azure AI) measures the same concept with a different instrument: <strong>Groundedness is judged on a 1-5 Likert scale by an LLM judge, with a pass threshold of 3</strong>. And their framing hands you a gift - it maps straight back to b1:</p>
+        <ul>
+          <li><strong>Groundedness = the PRECISION aspect</strong> - nothing in the answer is fabricated beyond the context.</li>
+          <li><strong>Response Completeness = the RECALL aspect</strong> - nothing critical in the context was left out of the answer.</li>
+        </ul>
+        <p>The b1 pair, reborn at sentence level. And notice what the RAGAS-vs-Foundry difference teaches: same concept, one scores a 0-1 claim ratio, the other a 1-5 judged scale with a pass line. <strong>Metric design is a CHOICE</strong> - when two dashboards disagree on "groundedness," check the ruler before blaming the model.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>CRITICAL: faithful is not correct<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Faithfulness is measured <strong>against the CONTEXT</strong> - not against reality. An answer that perfectly restates a stale or wrong retrieved document scores a flawless 1.0 while being flatly false. RAGAS keeps a separate metric for truth-vs-reality: <strong>Factual Correctness</strong>, scored against a ground-truth reference - a different metric, deliberately.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>Grounded in the wrong context = confidently wrong with a perfect score.</strong> A support bot answered pricing questions from a deprecated price sheet the retriever kept surfacing. Faithfulness: 1.0, every claim supported. Customers were quoted prices two revisions old for a month. No generation metric could catch it - the failure lived in retrieval, and only a retrieval metric (or a human reading answers against reality) would see it. Hold that thought for Part 2.</p>
+        </div>
+      </div>
+    </details>
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The faithfulness pass in pseudocode<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Strip away the library and the whole metric is a dozen lines - which is exactly why you should know it cold:</p>
+<pre><code># what every faithfulness grader automates
+claims = decompose(answer)          # split into atomic, checkable claims
+
+supported = 0
+for claim in claims:
+    if is_supported(claim, context):   # judged per claim vs the chunks ONLY
+        supported += 1
+
+faithfulness = supported / len(claims)   # tonight: 3 / 4 = 0.75</code></pre>
+        <p>Both function calls hide a judgment: <code>decompose</code> decides what counts as one claim, and <code>is_supported</code> decides what counts as evidence. In RAGAS both are performed by an LLM (or by Vectara's HHEM detector in the variant) - which is why b7 exists: the grader is itself a model, with a model's failure modes.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: THE FAMILY ============ -->
+  <section class="section" id="metric-family">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the RAGAS metric family, TruthfulQA, the HHEM leaderboard</span>
+      <h2>The rest of the family, and the two hallucinations <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">Faithfulness never works alone. A RAG system has two halves - retrieval and generation - and the rest of the family exists to tell you WHICH half broke, plus one guard against the oldest failure: a beautiful answer to the wrong question.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Relevancy + the retrieval metrics<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Response Relevancy</strong> (RAGAS renamed it from Answer Relevancy) - is the answer on-topic for the question? On-topic is NOT accuracy: an answer can be perfectly relevant and factually wrong, or faithful and beside the point. Separate dials.</li>
+          <li><strong>Context Precision</strong> - of the chunks retrieved, how many were actually useful? Low = the retriever floods generation with noise.</li>
+          <li><strong>Context Recall</strong> - of the evidence needed, how much did retrieval actually fetch? Requires a reference answer to score. Low = the evidence never arrived, and no prompt engineering can fix that.</li>
+          <li><strong>Noise Sensitivity</strong> - how much does irrelevant retrieved material degrade the answer?</li>
+        </ul>
+        <p>The diagnostic power is in the COMBINATION: low faithfulness with high context recall means generation is inventing; high faithfulness with low context recall means retrieval starved it (the stale price sheet). Localize first, then fix the right half.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The two hallucinations - world vs document<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>"Hallucination rate" gets quoted as if it were one number. It is two different failures, measured by two different benchmarks:</p>
+        <table class="clean">
+          <thead><tr><th>Benchmark</th><th>What it measures</th><th>Headline numbers</th><th>The fix it points to</th></tr></thead>
+          <tbody>
+            <tr><td><strong>TruthfulQA</strong></td><td>Lying about the WORLD - parametric knowledge parroting popular falsehoods (817 adversarial questions)</td><td>At publication: best model 58% truthful vs 94% for humans - and larger models were LESS truthful (inverse scaling)</td><td>Better model, better prompting - retrieval will not save a model that believes the myth</td></tr>
+            <tr><td><strong>HHEM leaderboard</strong> (Vectara)</td><td>Lying about the DOCUMENT - faithfulness in summarization, measured at temperature 0</td><td>Leaders sit around ~2-3% hallucination rates</td><td>Better retrieval and grounding - this is the RAG-relevant number</td></tr>
+          </tbody>
+        </table>
+        <p>Different failure, different fix. A vendor quoting "under 3% hallucinations" is citing the document kind; your users asking general questions will meet the world kind. Ask which one the number means before it goes on a slide.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: BY HAND ============ -->
+  <section class="section" id="by-hand">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Score one Lumen answer by hand <span class="tag demo">★ 20 min · everyone scores</span></h2>
+    </div>
+    <p class="lede">An analyst asks Lumen's assistant: <strong>"why did March revenue dip?"</strong> (the same March the statistics and experimentation courses dissected). The assistant retrieves two context chunks - the weekly revenue report and the campaign calendar - and produces a four-claim answer. You are the grader. Pen, paper, no model.</p>
+
+    <div class="steps">
+      <div class="step"><p><strong>Decompose the answer into claims.</strong> Four atomic statements: revenue fell 12% vs February; paid traffic dropped after the sale ended; a March 8 site outage caused the dip; recovery began in the final week. One claim per checkable fact - if a sentence bundles two facts, split it.</p></div>
+      <div class="step"><p><strong>Check each claim against the two chunks - only the chunks.</strong> Claims 1 and 4 are supported by the revenue report; claim 2 by the campaign calendar. Claim 3 appears in NEITHER chunk. Whether an outage actually happened is not the question - the context is the only admissible evidence.</p></div>
+      <div class="step"><p><strong>Compute faithfulness.</strong> Supported / total = 3 / 4 = <strong>0.75</strong>. That is the entire RAGAS formula - you just ran it.</p></div>
+      <div class="step"><p><strong>Now score the OTHER dials.</strong> Response relevancy: high - every claim addresses the question asked. And here is the twist: suppose the March 8 outage really happened (the site log confirms it, the retriever just never fetched that log). Claim 3 is UNGROUNDED but TRUE - world knowledge leaking in.</p></div>
+      <div class="step"><p><strong>Say what each family member would report.</strong> Faithfulness: 0.75, flags claim 3. Factual Correctness (vs ground truth): would PASS claim 3. Context Recall: low - the evidence needed was never retrieved. Verdict: this is a retrieval failure wearing a generation costume. Fix the retriever, not the prompt.</p></div>
+    </div>
+
+    <div class="callout tip">
+      <strong>Why you did this by hand</strong>
+      This manual pass is exactly what every automated grader automates - claim decomposition, evidence check, ratio. Do it once by hand and you will forever read grader output critically: you know where the judgment calls hide (what counts as one claim? what counts as supported?). b7 makes that skepticism systematic; the hands-on RAGAS pipelines that run this at scale live in learn-evals.
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 20-30 min total</span></h2>
+    </div>
+    <ul>
+      <li>Take one real answer from any assistant you use, decompose it into claims, and score faithfulness by hand against whatever source it cites. Note every judgment call you had to make - that list is b7's syllabus.</li>
+      <li>Explain faithful-vs-correct to a colleague in two sentences, using the stale price sheet story. If they can repeat it back, you own the distinction.</li>
+      <li>Find one "hallucination rate" claim in a vendor deck or blog post and classify it: world (TruthfulQA-style) or document (HHEM-style)? Was the distinction stated?</li>
+      <li>Optional bridge: skim the RAGAS metrics docs and match each metric to the family map from Part 2 - then let learn-evals run the pipeline for real.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">Tonight covers the canonical RAG quality metrics from RAGAS and Microsoft Foundry, plus the two hallucination benchmarks everyone quotes and few distinguish. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">RAGAS metric docs - faithfulness formula, FaithfulnesswithHHEM, Response Relevancy, Context Precision/Recall, Noise Sensitivity, Factual Correctness</span><span class="note">Parts 1-3 · the 0.5 worked example quoted</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Microsoft Foundry RAG evaluators - Groundedness (1-5, pass at 3), the precision/recall framing</span><span class="note">Part 1 · judge mechanics continue in b7</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">TruthfulQA (arXiv 2109.07958) - 817 adversarial questions, 58% vs 94%, inverse scaling</span><span class="note">Part 2 · the world half of "hallucination"</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Vectara Hallucination Leaderboard (HHEM) - summarization faithfulness, temp 0, leaders ~2-3%</span><span class="note">Part 2 · the document half</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">learn-evals-with-phoebe (sibling course)</span><span class="note">Hands-on RAGAS pipelines, golden sets, tracing, and CI wiring live there - this session owns the metrics themselves</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">1 · A Lumen answer scores faithfulness 1.0, yet the customer was told a price two revisions old. What happened?</p>
+      <button class="qopt" type="button">A · The faithfulness grader malfunctioned - a 1.0 answer cannot be wrong</button>
+      <button class="qopt" type="button">B · The model hallucinated in the TruthfulQA sense</button>
+      <button class="qopt" type="button">C · Nothing malfunctioned - faithfulness is scored against the CONTEXT, and the retrieved context was stale; correctness vs reality is a different metric</button>
+      <p class="qwhy">Faithful means "sticks to the evidence given," not "true." Grounded-in-wrong-context is confidently wrong with a perfect score. RAGAS keeps Factual Correctness (vs ground truth) as a separate metric precisely because these come apart.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">2 · A model repeats a popular myth in a closed-book chat, and a different model contradicts the report it was asked to summarize. Which benchmark measures which?</p>
+      <button class="qopt" type="button">A · TruthfulQA measures the first (lying about the WORLD); HHEM measures the second (lying about the DOCUMENT)</button>
+      <button class="qopt" type="button">B · HHEM measures both - hallucination is hallucination</button>
+      <button class="qopt" type="button">C · TruthfulQA measures both, at temperature 0</button>
+      <p class="qwhy">Two different failures share one word. TruthfulQA: 817 adversarial questions about world knowledge, where larger models were LESS truthful. HHEM: faithfulness to a given document in summarization, temp 0, leaders ~2-3%. Different failure, different fix - better model vs better retrieval.</p>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">3 · An answer scores HIGH faithfulness but Context Recall is LOW, and users say the answers keep missing the real cause. Which half of the RAG system broke?</p>
+      <button class="qopt" type="button">A · Generation - the model is inventing claims</button>
+      <button class="qopt" type="button">B · Retrieval - the needed evidence never reached the model; it faithfully summarized an incomplete picture</button>
+      <button class="qopt" type="button">C · Neither - high faithfulness means the system is healthy</button>
+      <p class="qwhy">High faithfulness says generation stuck to what it was given; low context recall says what it was given was not enough. That combination localizes the failure to retrieval - fix the retriever, and no amount of prompt tuning will substitute. Localize first, then fix the right half.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Practitioner session 6 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>Faithfulness (RAGAS)</b><span>Supported claims / total claims, 0-1. Docs' worked example: 0.5 (one claim right, one date wrong). Variant: FaithfulnesswithHHEM uses Vectara's detector as grader.</span></div>
+      <div class="cheat-item"><b>Faithful ≠ correct</b><span>Faithfulness is vs the CONTEXT; Factual Correctness (vs ground truth) is a separate RAGAS metric. Grounded-in-wrong-context = confidently wrong with a perfect score.</span></div>
+      <div class="cheat-item"><b>Groundedness (Foundry)</b><span>LLM-judged 1-5 Likert, pass threshold 3. Same concept as faithfulness, different ruler - metric design is a choice.</span></div>
+      <div class="cheat-item"><b>P/R reborn</b><span>Foundry: groundedness = the precision aspect, Response Completeness = the recall aspect. The b1 pair at sentence level.</span></div>
+      <div class="cheat-item"><b>Relevancy</b><span>Response Relevancy (renamed from Answer Relevancy): on-topic is NOT accuracy. Relevant-and-wrong is a common failure combo.</span></div>
+      <div class="cheat-item"><b>Retrieval dials</b><span>Context Precision (useful chunks?), Context Recall (needed evidence fetched? requires a reference), Noise Sensitivity. Combinations localize retrieval-vs-generation failures.</span></div>
+      <div class="cheat-item"><b>Two hallucinations</b><span>TruthfulQA = lying about the WORLD (817 questions; best 58% vs human 94%; larger = less truthful). HHEM = lying about the DOCUMENT (temp 0; leaders ~2-3%). Different fix each.</span></div>
+      <div class="cheat-item"><b>The by-hand habit</b><span>Decompose, check, ratio - 3/4 = 0.75. Every automated grader automates this pass. Do it once by hand; read graders critically forever. Pipelines: learn-evals.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Practitioner session 6 of 10 · learn-model-evaluation-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="b5-cost-matrix.html">← b5 · The cost matrix</a> &nbsp;·&nbsp; <a href="../index.html">All sessions</a> &nbsp;·&nbsp; <a href="b7-grader-problem.html">Next: The grader problem →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

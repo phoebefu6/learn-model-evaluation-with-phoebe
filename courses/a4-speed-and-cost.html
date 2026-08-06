@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leader session 4 · Speed and cost - learn model evaluation with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-model-evaluation-with-phoebe</a> / Leader session 4 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Model Evaluation with Phoebe · Leader track · Session 4 of 6</div>
+    <h1>Speed and <span class="accent">cost</span></h1>
+    <p class="sub">Quality metrics get all the meetings, but users leave over the metrics nobody presents: how long the assistant sits silent before the first word, how smoothly the words arrive, and what each answer costs at real volume. Tonight you learn the three latency numbers that describe what a user actually feels, a one-line identity that sanity-checks any vendor's latency claims, and the architecture that puts speed and cost where they belong - as first-class success criteria on the eval sheet, not footnotes in an infrastructure ticket.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Leader track</span>
+      <span class="chip audience">Executives · PMs · report readers</span>
+      <span class="chip audience">No code, decisions only</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · The metrics users feel</span>
+      <span class="a3" style="flex:5">18-42 · The satisficing architecture</span>
+      <span class="a4" style="flex:1">42-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Where you are in the leader track</h2>
+    </div>
+    <p class="lede">Session a3 decoded the quality rows of an LLM report and taught you to distrust unmeasured judges. Tonight covers the rows that usually are not on the report at all: latency and cost. These are not infrastructure trivia - they are the metrics users vote on with their feet, and the ones that quietly decide whether an AI initiative's economics work. The session ends with the move that ties the whole leader track together: every metric on one sheet, one number being optimized, and everything else - including speed and price - holding a declared floor or ceiling.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The three latency metrics translated into what a user feels (TTFT, streaming smoothness, total time), the one-line identity that catches inconsistent vendor numbers, the batching tradeoff stated as a business choice, and the satisficing architecture: one optimizing metric, declared floors and ceilings for everything else - latency and cost included, on the eval sheet.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: THE METRICS USERS FEEL ============ -->
+  <section class="section" id="metrics-users-feel">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers NVIDIA NIM LLM benchmarking metrics</span>
+      <h2>Latency, decoded for decision-makers <span class="tag concept">15 min live</span></h2>
+    </div>
+    <p class="lede">An LLM answer is not one wait - it is two experiences in sequence. First the silence: from the moment the user submits to the moment the first token appears. That is <strong>TTFT, time to first token</strong> - the "is it thinking?" moment, and the number users judge hardest. Then the stream: tokens arriving one by one, whose smoothness is set by <strong>inter-token latency (ITL)</strong> - the average gap between tokens. Add them up and you get <strong>total time</strong>. Three numbers, three different experiences, three different engineering levers.</p>
+
+    <table class="clean">
+      <thead>
+        <tr><th>Metric</th><th>Plain-English question</th><th>What the user feels</th><th>The trap</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>TTFT (time to first token)</td>
+          <td>"How long is the silence between submit and the first word?"</td>
+          <td>The "is it thinking?" moment - the wait users judge hardest and abandon over.</td>
+          <td>Averages hide the tail. Always ask at p95 - one user in twenty lives in the tail.</td>
+        </tr>
+        <tr>
+          <td>ITL (inter-token latency)</td>
+          <td>"Once it starts, how smoothly do the words arrive?"</td>
+          <td>The stream's rhythm - choppy streaming reads as a struggling product even when total time is fine.</td>
+          <td>System-wide tokens per second is NOT this number - under batching the two diverge.</td>
+        </tr>
+        <tr>
+          <td>Total time (e2e)</td>
+          <td>"Submit to done, how long altogether?"</td>
+          <td>The full wait - what a stopwatch and an impatient user both measure.</td>
+          <td>One blended number hiding two experiences. Decompose it with the identity below.</td>
+        </tr>
+        <tr>
+          <td>Cost per query</td>
+          <td>"What does one answer cost at OUR volume?"</td>
+          <td>Nothing - which is why it slips off the eval sheet until the invoice arrives.</td>
+          <td>Rate cards are not budgets. Pennies per query is a budget line at a million queries a month.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The user's timeline for one LLM answer: submit, the TTFT silence, tokens streaming under ITL, done - with the metric and the cost that owns each phase, and the e2e identity.">
+        <style>
+          .s4T { font: 700 14px Inter, sans-serif; fill: #FFFFFF; }
+          .s4S { font: 400 11.5px Inter, sans-serif; fill: #FFFFFF; opacity: .92; }
+          .s4I { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .s4X { font: 400 12px Inter, sans-serif; fill: #64748B; }
+          .s4N { font: 600 13px Inter, sans-serif; fill: #043029; }
+        </style>
+        <text class="s4I" x="52" y="78">SUBMIT</text>
+        <text class="s4I" x="272" y="78">FIRST TOKEN</text>
+        <text class="s4I" x="758" y="78">DONE</text>
+        <line x1="80" y1="86" x2="80" y2="156" stroke="#64748B" stroke-width="2"/>
+        <line x1="320" y1="86" x2="320" y2="156" stroke="#64748B" stroke-width="2"/>
+        <line x1="780" y1="86" x2="780" y2="156" stroke="#64748B" stroke-width="2"/>
+        <rect x="80" y="100" width="240" height="50" rx="6" fill="#581C87"/>
+        <text class="s4T" x="100" y="122">TTFT</text>
+        <text class="s4S" x="100" y="140">the silence users judge</text>
+        <rect x="320" y="100" width="460" height="50" rx="6" fill="#86198F"/>
+        <text class="s4T" x="340" y="122">TOKENS STREAMING</text>
+        <text class="s4S" x="340" y="140">inter-token latency (ITL) sets the smoothness</text>
+        <rect x="620" y="106" width="3" height="38" fill="#F0ABFC"/>
+        <rect x="660" y="106" width="3" height="38" fill="#F0ABFC"/>
+        <rect x="700" y="106" width="3" height="38" fill="#F0ABFC"/>
+        <rect x="740" y="106" width="3" height="38" fill="#F0ABFC"/>
+        <line x1="80" y1="156" x2="780" y2="156" stroke="#64748B" stroke-width="1"/>
+        <text class="s4X" x="80" y="182">metric: TTFT (queue + prefill)</text>
+        <text class="s4X" x="80" y="200">cost: the user's patience</text>
+        <text class="s4X" x="400" y="182">metric: ITL / per-user tokens per second</text>
+        <text class="s4X" x="400" y="200">cost: decode GPU time - the per-token bill</text>
+        <rect x="80" y="230" width="700" height="64" rx="10" fill="#FDF4FF" stroke="#C026D3" stroke-width="2"/>
+        <text class="s4I" x="100" y="256">E2E TIME = TTFT + (TOKENS - 1) x ITL</text>
+        <text class="s4X" x="100" y="278">the one-line sanity check: if a vendor's three numbers do not obey this, ask why</text>
+        <rect x="80" y="330" width="14" height="14" rx="3" fill="#0E7C6B"/>
+        <text class="s4N" x="104" y="342">The silence and the stream are different metrics with different costs - never let one number stand for both.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - one answer, two experiences, and the identity that ties the numbers together</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The identity, and the batching tradeoff<span class="mini">6 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The diagram's box is worth memorizing as a leader's tool: <strong>e2e = TTFT + (tokens - 1) x ITL</strong>. End-to-end time is the first-token wait plus one inter-token gap for every remaining token. When a vendor quotes you a TTFT, a tokens-per-second figure, and a total time, run the one-line check - numbers that do not obey the identity mean someone is quoting different scenarios in the same table.</p>
+        <p>Then the tradeoff every deployment hides: <strong>batching</strong>. Serving many users' requests together raises SYSTEM throughput - more total tokens per second out of the same GPUs, so a cheaper service. But it stretches each user's ITL - every individual stream gets choppier. System throughput up means each user's smoothness down:</p>
+        <ul>
+          <li>You cannot maximize both. This is a curve, and someone chooses the operating point - exactly like the classification threshold in a2.</li>
+          <li>The infra team's dashboard (system tokens per second) and the user's experience (per-user tokens per second) diverge under batching. Ask which one a report shows.</li>
+          <li>The choice is a business decision wearing an infrastructure costume: cost per query versus experience per user. It should be made by someone who knows it is being made.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Cost per query - the other axis<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every answer has a price: tokens in plus tokens out, times the model's rates - or GPU time, if you host. The leader habits that follow:</p>
+        <ul>
+          <li><strong>Always evaluate at YOUR volume.</strong> A metric that looks like pennies per query becomes a budget line at a million queries a month. Quality reports that omit cost per query are comparing free things that are not free.</li>
+          <li><strong>Quality gains have prices.</strong> The common upgrade decision - a bigger model scores 2% higher on the quality metric at 5x the cost per query - is usually a loss once you price it. Not always: a 2% win on a high-stakes task can be worth 50x. The point is that the arithmetic must be done, and it usually is not.</li>
+          <li><strong>Speed and cost trade too.</strong> Faster serving often means more hardware or smaller models - the three-way tension (quality, latency, cost) is the real decision space, and any report showing only one axis is hiding the tradeoffs.</li>
+        </ul>
+      </div>
+    </details>
+
+    <div class="callout tip">
+      <strong>The 2%-at-5x arithmetic, worked once</strong>
+      A hypothetical, to make the reflex concrete: the upgrade scores 2 quality points higher at 5x the per-query price - say a cent becomes a nickel. At a million queries a month, that is roughly $40,000 a month, about $480,000 a year, for 2 points on a judge-scored metric (a3's caveats apply to the 2 points, too). Sometimes worth it, on a high-stakes task. But the decision is two lines of multiplication, and most upgrade proposals arrive without them.
+    </div>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where these numbers come from<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The definitions behind Part 1, as the benchmarking docs (NVIDIA's NIM metrics guide) state them - useful when a vendor's glossary gets creative:</p>
+        <ul>
+          <li><strong>TTFT</strong> covers everything before the first token: queueing, prefill (processing your prompt), and the network. Long prompts raise it - which is why a RAG system that stuffs huge contexts pays for that choice in first-word silence.</li>
+          <li><strong>ITL</strong> is the average gap between tokens after the first: (e2e minus TTFT) divided by (tokens minus 1) - the same identity from the diagram, rearranged.</li>
+          <li><strong>System tokens per second vs per-user tokens per second</strong> are different quantities that diverge under batching - the vendor's throughput slide usually shows the first, your user feels the second.</li>
+        </ul>
+        <p>You will never compute these yourself - the practitioner track (b8) does. You only need to recognize which one a slide is showing, and ask for the one it is not.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: THE SATISFICING ARCHITECTURE ============ -->
+  <section class="section" id="satisficing">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers Anthropic define-success, Ng's satisficing doctrine</span>
+      <h2>The satisficing architecture <span class="tag concept">18 min live</span></h2>
+    </div>
+    <p class="lede">Three axes, all trading against each other - so which one wins? The answer is an architecture, and two very different sources agree on it. Andrew Ng's doctrine: pick ONE optimizing metric, and make everything else a <strong>satisficing metric</strong> - a threshold to satisfy, not a score to maximize. Optimize quality SUBJECT TO latency at most X and cost at most Y. Anthropic's guidance lands in the same place: its success-criteria list includes latency AND price as first-class categories alongside quality, and its worked example sets a quality floor AND a toxicity ceiling AND a latency ceiling - one sheet, several constraints, one thing being maximized.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Floors, ceilings, and the one number you optimize<span class="mini">8 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Why one optimizing metric? Because teams iterate fast only when every experiment gets an unambiguous verdict - better or worse. Two "optimize both" metrics produce arguments; one optimizing metric plus hard constraints produces decisions. The architecture in practice:</p>
+        <ul>
+          <li><strong>Optimize:</strong> the metric closest to the business outcome - answer quality, resolution rate, conversion lift. One number.</li>
+          <li><strong>Floors:</strong> minimums that must hold - quality never below the current baseline, completeness above an agreed bar.</li>
+          <li><strong>Ceilings:</strong> maximums that must hold - latency (TTFT and total, at p95), cost per query, harmful-output rate.</li>
+        </ul>
+        <p>The leader's move that makes this real: <strong>every AI initiative declares its latency and cost budgets ON THE EVAL SHEET</strong> - the same document that carries the quality metrics - not in an infrastructure ticket nobody reviews. A constraint that lives outside the eval sheet does not constrain anything: the team optimizes what the sheet measures, and ships whatever the sheet ignores.</p>
+      </div>
+    </details>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>The assistant users abandoned.</strong> A support assistant's quality scores climbed for three straight months - the team tuned prompts, upgraded models, and the judge scores duly rose. Usage fell the whole time. The upgraded models took around 8 seconds to start answering, users clicked away, and churn did the judging that the eval sheet did not: nobody had made latency a success criterion, so nobody was watching it. The postmortem finding was one sentence - the eval sheet had five quality rows and zero speed rows - and the fix was one line on a document, declared before the next initiative started.</p>
+    </div>
+
+    <div class="callout tip">
+      <strong>The one-line policy this session earns</strong>
+      No AI initiative is approved without its latency ceiling (TTFT and total time, at p95) and cost-per-query ceiling written on the eval sheet, next to the quality metrics, before building starts.
+    </div>
+  </section>
+
+  <!-- ============ PART 3: VENDOR QUESTIONS ============ -->
+  <section class="section" id="vendor-questions">
+    <div class="section-kicker">
+      <span class="klabel">Part 3</span>
+      <h2>The questions for any LLM vendor or team <span class="tag concept">self-study</span></h2>
+    </div>
+    <p class="lede">Three questions, in the order to ask them. Each has a follow-up that separates teams who measured from teams who assumed.</p>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The three questions, with their follow-ups<span class="mini">5 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>"What is TTFT at p95 - not the average?"</strong> Averages hide the tail, and the tail is where users churn: a 1-second average with an 8-second p95 means one user in twenty gets the abandoned-assistant experience. A team that answers with an average has not looked at the tail.</li>
+          <li><strong>"What is cost per query at OUR volume?"</strong> Demo pricing and production pricing are different worlds - long contexts, retries, and peak-hour batching all move the real number. Ask for the arithmetic at your monthly query count, not the per-token rate card.</li>
+          <li><strong>"Which quality metric degrades when you cut latency - and by how much?"</strong> Speed is bought with something: a smaller model, tighter retrieval, shorter answers. A team that says "nothing degrades" has not measured the tradeoff; a team that names the metric and the size of the hit has an eval sheet you can trust.</li>
+        </ul>
+        <p>Notice what the three questions share: none asks for a better number - each asks whether the number was measured where it matters (the tail, your volume, the tradeoff). That is the leader track's whole method applied to speed and cost.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ TAKE IT TO WORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Take it to work</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 20 min total</span></h2>
+    </div>
+    <ul>
+      <li>Open the eval sheet (or the closest thing to one) for your most visible AI initiative. Count the quality rows, then the speed rows, then the cost rows. If the last two are zero, you have found the abandoned-assistant risk in your own portfolio.</li>
+      <li>Ask the owning team for TTFT at p95 on the main user-facing flow. Time how long the answer takes to arrive - that delay is itself a finding.</li>
+      <li>Run the 2%-at-5x arithmetic on the next model-upgrade proposal you see: quality delta, cost multiple, monthly volume. Two lines of multiplication, one clear decision.</li>
+      <li>Draft the satisficing sheet for one initiative: one optimizing metric, one quality floor, one latency ceiling (p95), one cost ceiling. It fits on an index card - the value is that it now exists.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">The leader track distills the canonical sources into decisions - benchmark mechanics and measurement details stay with the linked originals, and the practitioner track works them hands-on in b8. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">NVIDIA NIM LLM benchmarking metrics - TTFT, ITL, tokens per second</span><span class="note">The identity + the batching tradeoff · measurement mechanics in b8</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Anthropic define-success - success-criteria categories and worked example</span><span class="note">Latency + price as first-class categories · floor-and-ceiling example quoted</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Ng, Structuring ML Projects - satisficing vs optimizing metrics</span><span class="note">The one-optimizing-metric doctrine · full treatment in a5 and b5</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · Users complain the assistant "takes forever to start answering," but the vendor's total-time numbers look fine. Which metric do you ask for?</p>
+      <button class="qopt" type="button">A · Tokens per second - the stream must be too slow</button>
+      <button class="qopt" type="button">B · TTFT - the submit-to-first-token silence is its own metric, and a fine total time can hide a long "is it thinking?" wait</button>
+      <button class="qopt" type="button">C · Cost per query - slow answers are usually a budget problem</button>
+      <p class="qwhy">The complaint names the silence, not the stream - that is TTFT's phase of the timeline. Total time blends both phases together, which is exactly why the identity e2e = TTFT + (tokens - 1) x ITL matters: it lets you take one blended number apart into the two experiences users actually feel.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · The infra team proposes heavier batching: "system throughput doubles, same hardware." What is the catch?</p>
+      <button class="qopt" type="button">A · There is no catch - throughput gains are free efficiency</button>
+      <button class="qopt" type="button">B · Batching only works for small models, so quality drops</button>
+      <button class="qopt" type="button">C · Each user's inter-token latency stretches - system throughput up means per-user smoothness down, and someone must choose the operating point</button>
+      <p class="qwhy">Batching trades the individual stream's smoothness for total system output - you cannot maximize both. It is a business choice (cost per query vs experience per user) wearing an infrastructure costume, and the leader's job is to make sure it is chosen consciously, not defaulted.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · In the satisficing architecture, where does latency belong?</p>
+      <button class="qopt" type="button">A · As a declared ceiling on the eval sheet - satisfy the budget, optimize the quality metric subject to it</button>
+      <button class="qopt" type="button">B · As the optimizing metric - speed is what users feel most</button>
+      <button class="qopt" type="button">C · In the infrastructure ticket, where the engineers who control it can track it</button>
+      <p class="qwhy">One optimizing metric, everything else a floor or ceiling - Ng's doctrine, and the shape of Anthropic's own worked example (quality floor, toxicity ceiling, latency ceiling). Optimizing latency itself ships a fast wrong answer; leaving it in an infra ticket ships the abandoned assistant. The ceiling on the eval sheet is the placement that constrains.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Leader session 4 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>TTFT</b><span>Submit to first token - the "is it thinking?" silence, and the number users judge hardest. Always ask for it at p95, not the average.</span></div>
+      <div class="cheat-item"><b>ITL / streaming smoothness</b><span>The average gap between tokens - sets how smooth the stream feels. Per-user tokens per second is its everyday face.</span></div>
+      <div class="cheat-item"><b>The identity</b><span>e2e = TTFT + (tokens - 1) x ITL. One line that sanity-checks any vendor's latency table - numbers that disobey it are mixing scenarios.</span></div>
+      <div class="cheat-item"><b>The batching tradeoff</b><span>System throughput up = each user's smoothness down. A curve, not a setting - someone chooses the point, and it is a business choice.</span></div>
+      <div class="cheat-item"><b>Cost per query</b><span>Always at YOUR volume, never the rate card. A 2% quality win at 5x cost is usually a loss - do the two lines of arithmetic every time.</span></div>
+      <div class="cheat-item"><b>Satisficing architecture</b><span>ONE optimizing metric; everything else holds a floor or ceiling. Ng's doctrine, matching Anthropic's worked example (quality floor, toxicity ceiling, latency ceiling).</span></div>
+      <div class="cheat-item"><b>Budgets on the eval sheet</b><span>Latency and cost ceilings declared next to the quality metrics, before building - constraints outside the eval sheet constrain nothing.</span></div>
+      <div class="cheat-item"><b>The three vendor questions</b><span>TTFT at p95? Cost per query at our volume? Which quality metric degrades when latency is cut, and by how much?</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Leader session 4 of 6 · learn-model-evaluation-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="a3-llm-quality-plain.html">← a3 · LLM quality metrics</a> &nbsp;·&nbsp; <a href="../index.html">All sessions</a> &nbsp;·&nbsp; <a href="a5-three-project-killers.html">Next: The three project killers →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

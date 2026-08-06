@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practitioner session 4 · Regression + ranking metrics - learn model evaluation with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-model-evaluation-with-phoebe</a> / Practitioner session 4 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Model Evaluation with Phoebe · Practitioner track · Session 4 of 10</div>
+    <h1>Regression + ranking <span class="accent">metrics</span></h1>
+    <p class="sub">Three sessions of classifiers; tonight the other two families. When the model predicts a NUMBER (Lumen's order values) or a RANKED LIST (which 500 sessions get the outreach budget), the confusion matrix disappears - but the b1 habit survives intact: every metric is still an opinion about which errors hurt. You will learn the regression six (MAE, RMSE, MAPE, R², median absolute error, pinball), sklearn's which-scoring-function doctrine that assigns each one a job, and the ranking metrics - precision@k and NDCG - that turn "how good is the list?" into a number the business can argue with.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Practitioner track</span>
+      <span class="chip audience">DS · analysts · ML + AI engineers</span>
+      <span class="chip audience">Python · live evaluator on key pages</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · Regression metrics with opinions</span>
+      <span class="a3" style="flex:5">18-42 · Build-along: Lumen order values + ranking</span>
+      <span class="a4" style="flex:1">42-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Where tonight fits</h2>
+    </div>
+    <p class="lede">b1-b3 taught you to read a classifier. Tonight is the detour every real project takes: Lumen also forecasts <strong>order values</strong> (a regression - the average order is ~$74 and the distribution is right-skewed), and marketing does not consume probabilities, it consumes a <strong>ranked outreach list</strong> with a budget cutoff. Both need metrics, and both inherit the same discipline: name the errors that hurt before you pick the number. Next session (b5) everything funnels into the cost matrix; tonight makes sure the non-classifier metrics arrive there fluent.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The regression metrics as six answers to one question ("which errors hurt?"), sklearn's which-scoring-function doctrine as a decision rule you can recite, and precision@k as the moment a ranking metric IS the business metric - plus the 30-second chooser to pick the right one under pressure.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: REGRESSION ============ -->
+  <section class="section" id="regression-metrics">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers sklearn regression metrics + the which-scoring-function doctrine</span>
+      <h2>Six regression metrics, one question <span class="tag concept">15 min live</span></h2>
+    </div>
+    <p class="lede">Every regression metric answers the same question - <strong>which errors hurt?</strong> - with a different opinion. MAE says all dollars hurt equally. RMSE says big misses hurt disproportionately. MAPE says percentage misses hurt, wherever they happen. Learn the opinion, not just the formula, and the choice becomes obvious from the business.</p>
+
+    <table class="clean">
+      <thead><tr><th>Metric</th><th>The question it answers</th><th>Pros</th><th>The trap</th></tr></thead>
+      <tbody>
+        <tr><td><code>mean_absolute_error</code> (MAE)</td><td>How big is the typical miss, in $?</td><td>Reads in real dollars; robust to a few wild misses</td><td>Treats a $10 and a $10,000 miss linearly - no extra alarm for disasters</td></tr>
+        <tr><td><code>root_mean_squared_error</code> (RMSE)</td><td>How bad are the BIG misses?</td><td>Punishes big misses - right for inventory and capacity problems where one huge error breaks things</td><td>Outlier-sensitive: Lumen's order_value mean is ~$74 and right-skewed, so a few big gift sets dominate RMSE</td></tr>
+        <tr><td><code>mean_absolute_percentage_error</code> (MAPE)</td><td>How far off in %, across scales?</td><td>Scale-free - compare a $2M store and a $20k product on one number</td><td>EXPLODES near zero actuals, and it is asymmetric - it penalizes over-forecast less</td></tr>
+        <tr><td><code>r2_score</code> (R²)</td><td>What share of the variance did we explain?</td><td>One familiar number; comparable across targets</td><td>Misleading alone - high R² with structured residuals is common; always plot residuals too</td></tr>
+        <tr><td><code>median_absolute_error</code></td><td>What is the typical miss, ignoring disasters?</td><td>The robust reporter - immune to the tail</td><td>Hides the tail entirely; never use it alone when big misses are the expensive ones</td></tr>
+        <tr><td><code>mean_pinball_loss</code></td><td>How good is our quantile (p90) forecast?</td><td>The only honest score for quantile targets</td><td>Meaningless if you actually meant to predict the mean</td></tr>
+      </tbody>
+    </table>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A right-skewed distribution of Lumen order-value errors, with the median, MAE, and RMSE markers landing at three different spots.">
+        <style>
+          .r4T { font: 700 12px Inter, sans-serif; fill: #FFFFFF; }
+          .r4I { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .r4X { font: 400 12px Inter, sans-serif; fill: #64748B; }
+          .r4N { font: 600 13px Inter, sans-serif; fill: #043029; }
+        </style>
+        <text class="r4I" x="60" y="28">Which errors hurt? Three metrics land at three spots on the same skewed errors</text>
+        <rect x="80" y="190" width="30" height="60" fill="#F0ABFC"/>
+        <rect x="114" y="100" width="30" height="150" fill="#F0ABFC"/>
+        <rect x="148" y="60" width="30" height="190" fill="#F0ABFC"/>
+        <rect x="182" y="80" width="30" height="170" fill="#F0ABFC"/>
+        <rect x="216" y="110" width="30" height="140" fill="#F0ABFC"/>
+        <rect x="250" y="140" width="30" height="110" fill="#F0ABFC"/>
+        <rect x="284" y="162" width="30" height="88" fill="#F0ABFC"/>
+        <rect x="318" y="180" width="30" height="70" fill="#F0ABFC"/>
+        <rect x="352" y="194" width="30" height="56" fill="#F0ABFC"/>
+        <rect x="386" y="205" width="30" height="45" fill="#F0ABFC"/>
+        <rect x="420" y="214" width="30" height="36" fill="#F0ABFC"/>
+        <rect x="454" y="221" width="30" height="29" fill="#F0ABFC"/>
+        <rect x="488" y="227" width="30" height="23" fill="#F0ABFC"/>
+        <rect x="522" y="231" width="30" height="19" fill="#F0ABFC"/>
+        <rect x="556" y="235" width="30" height="15" fill="#F0ABFC"/>
+        <rect x="590" y="238" width="30" height="12" fill="#F0ABFC"/>
+        <rect x="624" y="240" width="30" height="10" fill="#F0ABFC"/>
+        <rect x="658" y="242" width="30" height="8" fill="#F0ABFC"/>
+        <rect x="692" y="243" width="30" height="7" fill="#F0ABFC"/>
+        <rect x="726" y="244" width="30" height="6" fill="#F0ABFC"/>
+        <line x1="60" y1="250" x2="820" y2="250" stroke="#64748B" stroke-width="1.5"/>
+        <text class="r4X" x="700" y="272">error size in $</text>
+        <rect x="60" y="44" width="130" height="26" rx="6" fill="#0E7C6B"/>
+        <text class="r4T" x="72" y="61">median: robust</text>
+        <line x1="180" y1="74" x2="180" y2="250" stroke="#0E7C6B" stroke-width="2" stroke-dasharray="5 4"/>
+        <rect x="210" y="84" width="175" height="26" rx="6" fill="#C026D3"/>
+        <text class="r4T" x="222" y="101">MAE: the typical miss</text>
+        <line x1="270" y1="114" x2="270" y2="250" stroke="#C026D3" stroke-width="2" stroke-dasharray="5 4"/>
+        <rect x="370" y="44" width="200" height="26" rx="6" fill="#991B1B"/>
+        <text class="r4T" x="382" y="61">RMSE: dragged by the tail</text>
+        <line x1="450" y1="74" x2="450" y2="250" stroke="#991B1B" stroke-width="2" stroke-dasharray="5 4"/>
+        <text class="r4X" x="560" y="215">a few big gift-set orders live out here</text>
+        <rect x="60" y="304" width="14" height="14" rx="3" fill="#0E7C6B"/>
+        <text class="r4N" x="84" y="316">The tail owns RMSE, the crowd owns the median, MAE sits between - pick by which error hurts your business.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - one skewed error distribution, three metrics with three different opinions</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The which-scoring-function doctrine<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>sklearn's evaluation guide compresses this whole zoo into one decision rule - what are you actually trying to predict?</p>
+        <ul>
+          <li>Predicting a <strong>mean</strong> - score with <strong>squared error</strong> (RMSE family).</li>
+          <li>Predicting a <strong>median</strong> - score with <strong>absolute error</strong> (MAE family).</li>
+          <li>Predicting a <strong>quantile</strong> (p90 demand for safety stock) - score with <strong>pinball loss</strong>.</li>
+          <li>Predicting a <strong>probability</strong> - score with <strong>proper scoring rules</strong> (Brier, log loss - b3's territory).</li>
+        </ul>
+        <p>The doctrine cuts both ways: a model trained toward the mean but reported on MAE is being graded against a target it never aimed at. Say what the model predicts, then the metric picks itself.</p>
+        <div class="callout tip">
+          <strong>Baseline discipline (intro-ml canon)</strong>
+          ALWAYS report regression metrics against the predict-the-mean baseline. "MAE $19" means nothing alone; "MAE $19 vs $31 for predict-the-mean" is a model earning its keep. Same paradox-proofing as b1's always-say-no model - the dumb baseline is the lie detector.
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>R² ~0.45 and proud of it<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The intro-ml course's order-value model reached <strong>R² ~0.45</strong> with multiple features - and that is honest work on noisy humans. Individual purchase behavior is mostly unexplainable variance; nobody's features capture mood, payday, or a friend's recommendation. Two habits follow:</p>
+        <ul>
+          <li><strong>Calibrate expectations by domain.</strong> R² 0.45 on human behavior can be excellent; R² 0.98 on a physical sensor can be mediocre. There is no universal "good R²."</li>
+          <li><strong>Never read R² alone.</strong> High R² with structured residuals is common - the model can explain the variance and still be systematically wrong for a whole segment (every order above $200, say). Residual plots are part of the metric, not an optional extra.</li>
+        </ul>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The demand model with the beautiful R².</strong> A retailer's demand forecast reported R² 0.91 and shipped. The residuals, never plotted, were fine on ordinary weeks and wildly low every promotion week - exactly the weeks the forecast existed for. The aggregate metric averaged over the moments that mattered. RMSE sliced by promotion weeks would have caught it in review.</p>
+        </div>
+      </div>
+    </details>
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The regression six in sklearn, 60 seconds<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The intro-ml course covers the mechanics hands-on; here is the whole family as a refresher, with the baseline wired in:</p>
+<pre><code>import numpy as np
+from sklearn.metrics import (
+    mean_absolute_error, root_mean_squared_error,
+    mean_absolute_percentage_error, r2_score,
+    median_absolute_error, mean_pinball_loss,
+)
+
+mae  = mean_absolute_error(y_test, pred)
+rmse = root_mean_squared_error(y_test, pred)
+mape = mean_absolute_percentage_error(y_test, pred)  # guard zeros first
+r2   = r2_score(y_test, pred)
+med  = median_absolute_error(y_test, pred)
+p90  = mean_pinball_loss(y_test, pred_q90, alpha=0.9)
+
+# the lie detector: the predict-the-mean baseline
+baseline = np.full_like(y_test, y_test.mean(), dtype=float)
+mae_base = mean_absolute_error(y_test, baseline)</code></pre>
+        <p>One habit worth stealing: print every metric as a pair - model vs baseline - in the same log line. Reviews go faster when the lie detector is already in the output.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: RANKING ============ -->
+  <section class="section" id="ranking-metrics">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers sklearn ndcg_score + average_precision_score</span>
+      <h2>Ranking metrics - when position matters <span class="tag concept">14 min live</span></h2>
+    </div>
+    <p class="lede">Search results, recommendations, top-k outreach lists: the model's output is an ORDER, and errors near the top hurt more than errors near the bottom. Classification metrics ignore position entirely; ranking metrics make it the whole point.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The ranking family in four names<span class="mini">6 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>precision@k</strong> - of the top k items, how many are relevant? The metric of every budget cutoff: "we can act on 500, how many are real?"</li>
+          <li><strong>recall@k</strong> - of all relevant items, how many made the top k? The metric of coverage: "how many real buyers does the top 500 even contain?"</li>
+          <li><strong>NDCG</strong> - handles GRADED relevance (a perfect match beats an okay match), discounts each position by log2 of its rank so the top of the list dominates, and normalizes to 0-1 against the ideal ordering. In sklearn: <code>ndcg_score</code> with <code>k=</code> for a cutoff. Canonical citation: Jarvelin &amp; Kekalainen 2002.</li>
+          <li><strong>average_precision_score</strong> - sklearn's AP summarizes the whole precision-recall tradeoff of the ranking. It is deliberately step-wise, not trapezoidal: linear interpolation of PR curves is overly optimistic (the b3 warning, still true here).</li>
+        </ul>
+        <p>Honest note: true IR-style MAP@k - averaged over queries the way search papers report it - is <strong>not in sklearn</strong>. If a vendor quotes MAP@10, ask exactly how they computed it.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Lumen's top-500 list: precision@500 IS the business metric<span class="mini">8 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Here is how ranking metrics enter Lumen's story: rank all sessions by the conversion model's score, and marketing's outreach budget covers the <strong>top 500</strong>. Nobody below position 500 gets touched, so the quality of the whole ranking is irrelevant - <strong>precision@500 is not a proxy for the business metric, it IS the business metric</strong>: real converters per 500 outreach dollars spent. This is the rare, happy case where the metric and the money are the same number.</p>
+<pre><code>import numpy as np
+from sklearn.metrics import ndcg_score
+
+# graded relevance (0-3) vs model scores, top-heavy by design
+ndcg = ndcg_score([relevance], [scores], k=500)
+
+# precision@k by hand: slice the top k, count the hits
+k = 500
+top_k = np.argsort(scores)[::-1][:k]
+precision_at_k = y_true[top_k].sum() / k</code></pre>
+        <div class="callout tip">
+          <strong>The offline-online gap, previewed</strong>
+          Offline ranking metrics correlate WEAKLY with online clicks - a list that scores better on NDCG does not reliably earn more engagement from real users. The A/B test remains the truth; the offline metric is the filter that decides what is worth testing. b9 names this the two-hop proxy chain and builds the governance around it.
+        </div>
+      </div>
+    </details>
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Reading NDCG without fear<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>NDCG intimidates people because the formula has three moving parts. Read them one at a time and it is friendly:</p>
+        <ul>
+          <li><strong>Graded relevance.</strong> Items are not just relevant/irrelevant - a 3 (perfect) beats a 1 (marginal). Binary labels still work; grades are the upgrade.</li>
+          <li><strong>The log2 rank discount.</strong> Position 1 counts full weight, position 2 divided by log2(3), and so on - relevance buried at rank 40 is worth almost nothing. The discount encodes the belief that users read from the top.</li>
+          <li><strong>The N is normalization.</strong> The score is divided by the best achievable ordering of the same items, so 1.0 always means "the ideal ranking" and scores compare across queries.</li>
+        </ul>
+        <p>Two reading rules: an NDCG without a stated k is a whole-list score (rarely what the business does), and an NDCG compared across DIFFERENT datasets means little - the normalizer changes with the items. Compare rankers on the same data, at your real k.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: THE CHOOSER ============ -->
+  <section class="section" id="chooser">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · the 30-second chooser</span>
+      <h2>Choosing in 30 seconds <span class="tag concept">self-study</span></h2>
+    </div>
+    <p class="lede">The whole session as a flowchart in prose. Say the target out loud, walk the branches, done.</p>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The flowchart, in prose<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Money target?</strong> Start with MAE and RMSE together, then pick by outlier pain: if one huge miss breaks something (inventory, capacity), lead with RMSE; if you want the honest typical miss, lead with MAE (or median absolute error when the tail is pure noise).</li>
+          <li><strong>Comparing across scales?</strong> (stores, products, currencies) - MAPE, with a zero-guard: exclude or floor near-zero actuals first, and remember it penalizes over-forecast less.</li>
+          <li><strong>Ranked list with a budget cutoff?</strong> - precision@k at YOUR k. The cutoff is a business fact, not a modeling choice.</li>
+          <li><strong>Graded relevance, order matters everywhere?</strong> - NDCG (with k if only the top matters).</li>
+        </ul>
+        <p>And in every branch: quote the number NEXT TO its dumb baseline (predict-the-mean, or a random ranking). A metric without a baseline is a mood.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 20-30 min total</span></h2>
+    </div>
+    <ul>
+      <li>Take any regression target you own and compute MAE, RMSE, and median absolute error side by side. If they disagree loudly, plot the error distribution - the skew IS the story, exactly like the figure above.</li>
+      <li>Recite the which-scoring-function doctrine from memory: mean, median, quantile, probability - and the score each one earns.</li>
+      <li>Find one ranked list in your business (leads, alerts, recommendations) and name its real k. Compute precision@k for it; ask whether anyone has ever seen that number.</li>
+      <li>Warm-up for b5: write down what a $1 over-forecast and a $1 under-forecast each cost Lumen's warehouse. Asymmetric costs are next session's entire plot.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">This session covers the regression and ranking sections of sklearn's evaluation guide, with the doctrine that assigns each metric its job. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">sklearn regression metrics - mean_absolute_error, root_mean_squared_error, mean_absolute_percentage_error, r2_score, median_absolute_error, mean_pinball_loss</span><span class="note">Part 1 · the full opinion table</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">sklearn ranking metrics - ndcg_score, average_precision_score</span><span class="note">Part 2 · step-wise AP noted · MAP@k honestly absent</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">sklearn "which scoring function" doctrine - mean/median/quantile/probability</span><span class="note">Part 1 · probability branch handled in b3</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Lumen canon (learn-intro-ml) - order_value ~$74, right-skewed; R² ~0.45 model</span><span class="note">The running case · reused, never re-derived</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · Lumen forecasts order values to size warehouse capacity, where one huge miss breaks the packing line. RMSE or MAE?</p>
+      <button class="qopt" type="button">A · MAE - it reads in dollars, so it is always the business choice</button>
+      <button class="qopt" type="button">B · RMSE - it punishes big misses disproportionately, and big misses are exactly the expensive error here</button>
+      <button class="qopt" type="button">C · R² - it is scale-free, so it works for any target</button>
+      <p class="qwhy">RMSE's squaring is not a quirk, it is the opinion: disasters count extra. When one big miss hurts more than many small ones (inventory, capacity), that opinion matches the business. When it does not, MAE or the median tells the truer story.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">2 · MAPE has two famous traps. Which pair is it?</p>
+      <button class="qopt" type="button">A · It explodes near zero actuals, and it is asymmetric - it penalizes over-forecast less</button>
+      <button class="qopt" type="button">B · It only works on classification data, and it needs a threshold</button>
+      <button class="qopt" type="button">C · It is outlier-sensitive, and it requires the errors to be normally distributed</button>
+      <p class="qwhy">Divide by an actual near zero and one row can dominate the whole average; and the same $ miss scores differently over- vs under-forecast. MAPE earns its keep on cross-scale comparison - guard the zeros and know the asymmetry.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">3 · Marketing's budget covers the top 500 sessions on the list. When does precision@500 beat AUC as the metric to watch?</p>
+      <button class="qopt" type="button">A · Never - AUC summarizes the whole ranking, so it always contains more information</button>
+      <button class="qopt" type="button">B · Only when the classes are balanced</button>
+      <button class="qopt" type="button">C · Here and now - only the top 500 get acted on, so the quality of that slice IS the business outcome; AUC grades positions nobody will ever touch</button>
+      <p class="qwhy">AUC scores the entire ordering, including the 90% of the list below the budget line. When action stops at k, precision@k is real converters per outreach dollar - the metric and the money are the same number. More information is not better when it is information about sessions you will never contact.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Practitioner session 4 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>MAE</b><span>The typical miss in $. Robust, linear - a $10 and a $10,000 miss count proportionally, no extra alarm for disasters.</span></div>
+      <div class="cheat-item"><b>RMSE</b><span>Punishes big misses - inventory and capacity problems. Outlier-sensitive: Lumen's right-skewed ~$74 orders let a few gift sets dominate it.</span></div>
+      <div class="cheat-item"><b>MAPE</b><span>Scale-free % across stores and products. Two traps: explodes near zero actuals, asymmetric (penalizes over-forecast less).</span></div>
+      <div class="cheat-item"><b>R²</b><span>Variance explained; misleading alone. ~0.45 multi-feature is honest work on noisy humans. Always check residuals for structure.</span></div>
+      <div class="cheat-item"><b>The doctrine</b><span>Predict a mean -> squared error · median -> absolute error · quantile -> pinball · probability -> proper scoring rules. Target first, metric second.</span></div>
+      <div class="cheat-item"><b>Baseline discipline</b><span>ALWAYS report against predict-the-mean (or a random ranking). A metric without its dumb baseline is a mood.</span></div>
+      <div class="cheat-item"><b>precision@k</b><span>Of the top k, how many are real? At a budget cutoff (Lumen's top 500) it IS the business metric, not a proxy.</span></div>
+      <div class="cheat-item"><b>NDCG</b><span>Graded relevance, log2 rank discount, 0-1 vs the ideal order (Jarvelin &amp; Kekalainen 2002). Offline it correlates weakly with clicks - A/B stays the truth (b9).</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Practitioner session 4 of 10 · learn-model-evaluation-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="b3-curves-calibration.html">← b3 · Curves + calibration</a> &nbsp;·&nbsp; <a href="../index.html">All sessions</a> &nbsp;·&nbsp; <a href="b5-cost-matrix.html">Next: The cost matrix →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

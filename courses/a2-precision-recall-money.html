@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leader session 2 · Precision, recall, and money - learn model evaluation with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-model-evaluation-with-phoebe</a> / Leader session 2 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Model Evaluation with Phoebe · Leader track · Session 2 of 6</div>
+    <h1>Precision, recall, and <span class="accent">money</span></h1>
+    <p class="sub">Last session you learned to distrust one number. Tonight you learn where the real decision hides: the threshold - the dial that trades marketing's pain against finance's pain, usually set to a default by whoever shipped the model. You will press two buttons on Lumen's live evaluator and watch them disagree by $704: the threshold that maximizes the team's favorite metric costs $704 MORE than the one that maximizes money, and the money-optimal point has the ugliest metrics on the card. By the end you can ask any team quoting F1 three questions they should be able to answer - and you will know that the cost matrix, not the metric, is the actual decision.</p>
+    <div class="chip-row">
+      <span class="chip level">🟢 Leader track</span>
+      <span class="chip audience">Executives · PMs · report readers</span>
+      <span class="chip audience">No code, decisions only</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome back</span>
+      <span class="a2" style="flex:4">3-18 · The threshold nobody owns</span>
+      <span class="a3" style="flex:5">18-42 · Live: the $704 button</span>
+      <span class="a4" style="flex:1">42-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="recap">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Welcome back: what a1 installed</h2>
+    </div>
+    <p class="lede">Quick recap of the equipment you arrived with. Every yes/no model makes <strong>four kinds of outcome</strong>, and at Lumen the two mistakes carry different prices: a wasted outreach costs ~$2 (marketing's pain), a missed buyer costs ~$74 (finance's pain) - a 37x asymmetry. You learned the one question that exposes any single number ("which mistakes does this hide?") and you dragged the threshold yourself, watching precision and recall trade against each other while accuracy stayed serene. Tonight we finish that thought: WHO should set the dial, WHAT should be optimized, and what it costs - in exact dollars, on the live evaluator - when a team optimizes the wrong thing.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill peach">▶ Live evaluator - real math on real scores</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The threshold reframed as a business decision with a named owner, Elkan's one-sentence rule (the cost ratio picks the point), Ng's satisficing-vs-optimizing split as a governance mandate, the $704 Goodhart gap pressed with your own finger, and three questions for any team quoting F1.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: THE DIAL ============ -->
+  <section class="section" id="the-dial">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers sklearn threshold-tuning guide + Elkan 2001</span>
+      <h2>The threshold nobody owns <span class="tag concept">15 min live</span></h2>
+    </div>
+    <p class="lede">The threshold is a business decision wearing a math costume. A model does not decide who gets flagged - it outputs a score, and the threshold decides which scores count as "yes." Set it low and you flag more people: recall rises, precision falls, marketing pays. Set it high and the reverse: finance pays. A model therefore does not HAVE one precision and one recall - it has a <strong>curve of operating points</strong>, and someone picks the point. In most organizations that someone is a data scientist accepting the default of 0.5, a value scikit-learn's own documentation calls "most certainly not ideal for most use cases."</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 370" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="One threshold dial between two pain gauges - missed buyers on the left, wasted outreach on the right - moving in opposite directions, with a label asking who owns this dial.">
+        <style>
+          .m2T { font: 700 14px Inter, sans-serif; fill: #FFFFFF; }
+          .m2S { font: 400 11.5px Inter, sans-serif; fill: #FFFFFF; opacity: .92; }
+          .m2I { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .m2X { font: 400 12px Inter, sans-serif; fill: #64748B; }
+          .m2N { font: 600 13px Inter, sans-serif; fill: #043029; }
+          .m2B { font: 700 13px Inter, sans-serif; fill: #991B1B; }
+          .m2Y { font: 400 12px Inter, sans-serif; fill: #991B1B; }
+          .m2G { font: 400 12px Inter, sans-serif; fill: #043029; }
+        </style>
+        <rect x="340" y="52" width="200" height="36" rx="8" fill="#1E293B"/>
+        <text class="m2T" x="360" y="76">WHO OWNS THIS DIAL?</text>
+        <line x1="440" y1="88" x2="440" y2="160" stroke="#64748B" stroke-width="2" stroke-dasharray="4 4"/>
+        <rect x="250" y="172" width="380" height="10" rx="5" fill="#F0ABFC"/>
+        <circle cx="440" cy="177" r="16" fill="#86198F" stroke="#FFFFFF" stroke-width="3"/>
+        <text class="m2X" x="250" y="212">0 · flag everyone</text>
+        <text class="m2X" x="524" y="212">1 · flag nobody</text>
+        <text class="m2I" x="384" y="236">the threshold</text>
+        <rect x="40" y="120" width="180" height="120" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="2"/>
+        <text class="m2B" x="58" y="148">MISSED BUYERS</text>
+        <text class="m2Y" x="58" y="170">finance's pain</text>
+        <text class="m2Y" x="58" y="188">~$74 per miss</text>
+        <path d="M 130 226 L 130 202 L 122 210 M 130 202 L 138 210" stroke="#991B1B" stroke-width="2.5" fill="none"/>
+        <text class="m2Y" x="58" y="222">drag right:</text>
+        <rect x="660" y="120" width="180" height="120" rx="10" fill="#FDF4FF" stroke="#C026D3" stroke-width="2"/>
+        <text class="m2I" x="678" y="148">WASTED OUTREACH</text>
+        <text class="m2X" x="678" y="170">marketing's pain</text>
+        <text class="m2X" x="678" y="188">~$2 per false alarm</text>
+        <path d="M 750 202 L 750 226 L 742 218 M 750 226 L 758 218" stroke="#0E7C6B" stroke-width="2.5" fill="none"/>
+        <text class="m2G" x="678" y="222">drag right:</text>
+        <line x1="220" y1="177" x2="250" y2="177" stroke="#64748B" stroke-width="2"/>
+        <line x1="630" y1="177" x2="660" y2="177" stroke="#64748B" stroke-width="2"/>
+        <rect x="150" y="272" width="580" height="42" rx="10" fill="#FDF4FF" stroke="#C026D3" stroke-width="2"/>
+        <text class="m2I" x="170" y="298">One dial, two pains, moving in opposite directions. Someone is choosing.</text>
+        <rect x="40" y="340" width="14" height="14" rx="3" fill="#0E7C6B"/>
+        <text class="m2N" x="64" y="352">The default setting of 0.5 is also a choice - made by nobody, in favor of nobody, reviewed by nobody.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the dial that trades finance's pain against marketing's pain</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>A curve of operating points, one silent default<span class="mini">7 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>When a team reports "precision 21.5%, recall 63.6%," they are reporting one point on a curve - the point their threshold happens to sit on. Move the threshold and both numbers move, in opposite directions. So the honest questions are never "what is the precision?" but:</p>
+        <ul>
+          <li><strong>What does the whole curve look like?</strong> The curve is the model's actual capability; any single P/R pair is one chosen point on it.</li>
+          <li><strong>Which point are we operating at, and who chose it?</strong> If the answer is "0.5, the default," then the trade between finance's pain and marketing's pain was made by a library setting.</li>
+          <li><strong>What would it take to move?</strong> Nothing - no retraining, one number. The threshold is the cheapest model improvement that exists, which is why leaving it at the default is so expensive.</li>
+        </ul>
+        <p>scikit-learn is blunt about this in its threshold-tuning guide: the 0.5 cutoff is "most certainly not ideal for most use cases," and the library now ships a tool that tunes the threshold against a business scorer instead. The toolmakers have already conceded the point; most org charts have not caught up.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Elkan's rule: the cost ratio picks the point<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>So where SHOULD the dial sit? A 2001 paper by Charles Elkan, "The Foundations of Cost-Sensitive Learning," settled it, and the leader version is one sentence: <strong>the right threshold follows from the cost ratio of the two mistakes.</strong> Price a missed buyer and a false alarm, and the optimal operating point is determined - it stops being a matter of taste.</p>
+        <ul>
+          <li>At Lumen the ratio is roughly 37 to 1 ($74 miss vs $2 false alarm), which pushes the optimal threshold far LOWER than 0.5: when misses are 37x dearer, you flag generously and tolerate noise.</li>
+          <li>scikit-learn's own cost-sensitive example works exactly this way - a credit-risk case where one error is priced at five times the other, citing Elkan - and its tooling tunes the threshold to the money, not to a metric.</li>
+          <li>Which means the real deliverable from the business side is not a metric target. It is <strong>two prices</strong>. Give your teams the cost of each mistake and the threshold stops being anyone's opinion.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Dials you already own without knowing it<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Once you see the threshold, you see it everywhere. Each of these is the same dial - two mistake types with different prices, one cut line, and usually no named owner:</p>
+        <ul>
+          <li><strong>Credit and risk approvals</strong> - approve a bad applicant vs decline a good one. The cut score is a threshold; ask who priced the two errors.</li>
+          <li><strong>Fraud and security alerts</strong> - a missed incident vs an analyst hour burned per false alarm. Alert fatigue is a threshold set too low, silence is one set too high.</li>
+          <li><strong>Content moderation</strong> - harmful content left up vs legitimate content taken down. Both mistakes make headlines; the dial decides which one you read about.</li>
+          <li><strong>Hiring screens</strong> - a strong candidate filtered out vs an interview slot spent on a weak one. Whoever set that cutoff made a talent-strategy decision.</li>
+          <li><strong>Lumen's outreach</strong> - tonight's case: a $74 miss vs a $2 nudge, 37 to 1.</li>
+        </ul>
+        <p>The homework asks you to pick ONE of these in your own org and find the dial's owner. Expect the search to be short and the answer to be "nobody" - that is the finding.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: GOODHART ============ -->
+  <section class="section" id="goodhart">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers Ng's satisficing-vs-optimizing doctrine + Goodhart's law</span>
+      <h2>Goodhart for leaders <span class="tag concept">8 min live</span></h2>
+    </div>
+    <p class="lede">Goodhart's law: when a measure becomes a target, it stops being a good measure. Here is the mechanism in evaluation: <strong>every summary metric hides a cost assumption.</strong> F1 - the metric teams most love to optimize - silently assumes both mistake types cost the same. At Lumen they differ by 37x. So a team maximizing F1 is optimizing for a fictional business where a $2 error and a $74 error are equally painful - and the harder they optimize, the more precisely they hit the wrong target.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The governance fix: one optimizing number, everything else floors<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Andrew Ng's doctrine for structuring ML projects is the cleanest fix a leader can mandate: split metrics into <strong>one optimizing metric</strong> and several <strong>satisficing metrics</strong> - thresholds to clear, not scores to maximize.</p>
+        <ul>
+          <li><strong>The optimizing number should be the money</strong> (or the mission equivalent): expected cost or value per decision, using your two prices from Part 1.</li>
+          <li><strong>Everything else becomes a floor or a ceiling:</strong> recall at least X so finance's exposure is capped, precision at least Y so marketing's budget survives, response time under Z. Pass/fail, not leaderboards.</li>
+          <li>This kills the Goodhart game structurally: nobody can win by polishing a proxy, because the only number being maximized is the one wired to the P&amp;L.</li>
+        </ul>
+        <p>One caution to carry forward: even the money number on an offline slice is a proxy for what happens in production - Google's "Rules of Machine Learning" makes this point as Rule #39, and it is the plot of a5 and a6. Tonight's fix is still the right first move: proxy-for-money beats proxy-for-nothing.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The churn team that polished F1 for a quarter.</strong> A subscription business ran a churn model whose team proudly pushed F1 up week after week, tuning at the default threshold. Finance saw nothing move. The reason sat in plain sight: a retention offer cost $8, a churned customer cost $310 - a cost ratio near 39x that F1 was structurally blind to. When someone finally optimized the threshold against those two prices, the model flagged far more customers, F1 got WORSE on the dashboard, and retention economics visibly improved within a month. The metric had been the target; the money had been the measure nobody watched.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>How to spot Goodhart running in your own dashboards<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Four signs, any one of which deserves a meeting. Two or more and you are almost certainly funding metric-polishing:</p>
+        <ul>
+          <li><strong>The model metric improves for months while the business line it serves stays flat.</strong> The churn story, generalized - the proxy and the money have decoupled.</li>
+          <li><strong>Nobody can state the metric's cost assumption.</strong> Ask "what does this metric assume the two mistakes cost?" F1 assumes 1 to 1; if nobody knows that, nobody checked whether it is true.</li>
+          <li><strong>The metric was chosen because it is standard, not because it matches your prices.</strong> "Everyone reports F1" is a fashion statement, not an evaluation design.</li>
+          <li><strong>The metric IS the team's target or OKR.</strong> That is Goodhart's precondition by definition - the fix is to move the target to the money and demote the metric to a floor.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO ============ -->
+  <section class="section" id="demo">
+    <div class="section-kicker">
+      <span class="klabel">Live demo</span>
+      <h2>The $704 button <span class="tag demo">★ 20 min · everyone presses both</span></h2>
+    </div>
+    <p class="lede">Same evaluator as a1 - Lumen's model on a live 2,000-session slice - but tonight you press the two buttons. One asks the machine to find the threshold with the best F1. The other asks for the threshold with the lowest total error cost, using the $2 / $74 price list. They disagree, they disagree by real money, and the ugly one wins.</p>
+
+    <div class="steps">
+      <div class="step"><p>Press <strong>Optimize F1</strong>. The threshold jumps to <strong>0.61</strong>, F1 hits <strong>0.706</strong>, and the metric tiles look magnificent. Now read the cost tile: <strong>$1,850</strong>. Remember that number.</p></div>
+      <div class="step"><p>Press <strong>Optimize $</strong>. The threshold drops to <strong>0.22</strong>, cost falls to <strong>$1,146</strong> - and F1 collapses to <strong>0.161</strong>. Sit with the discomfort: the best business point has the ugliest metrics on the card. A dashboard sorted by F1 would rank the cheapest operating point dead last.</p></div>
+      <div class="step"><p>Do the arithmetic out loud: <strong>$1,850 minus $1,146 is $704</strong> - the Goodhart gap. That is what optimizing the team's favorite metric costs on this one slice, versus optimizing the money. Nobody did anything wrong; the metric's hidden equal-costs assumption did it.</p></div>
+      <div class="step"><p>Now change the <strong>FN cost box</strong> - try a world where a missed buyer is worth much less - and press Optimize $ again. Watch the optimal threshold move. The model never changed; your business assumptions did, and the decision followed. Say the lesson: <strong>the cost matrix IS the decision.</strong> The metrics are commentary.</p></div>
+    </div>
+
+    <div class="evalbox" data-mode="threshold" data-thresh="0.5"></div>
+
+    <div class="callout tip">
+      <strong>How to read the evaluator</strong>
+      The two buttons search the same curve of operating points from Part 1 - one for the F1 peak, one for the cost valley. The cost tile prices the two error cells with the boxes below ($2 false alarm, $74 miss by default). Everything recomputes live; change a price and the "right answer" moves, which is exactly the point.
+    </div>
+
+    <p class="lede">The scoreboard, for the record - three operating points of the SAME model on the SAME 2,000 sessions. Read the last two rows together: the row a dashboard would celebrate and the row the business should choose are different rows.</p>
+    <table class="clean">
+      <thead><tr><th>Operating point</th><th>Threshold</th><th>Precision</th><th>Recall</th><th>F1</th><th>Error cost</th></tr></thead>
+      <tbody>
+        <tr><td>Default (nobody chose)</td><td>0.50</td><td>21.5%</td><td>63.6%</td><td>0.321</td><td>$1,736</td></tr>
+        <tr><td>Optimize F1 (the dashboard's favorite)</td><td>0.61</td><td>100.0%</td><td>54.5%</td><td><strong>0.706</strong></td><td><strong>$1,850</strong></td></tr>
+        <tr><td>Optimize $ (the business point)</td><td>0.22</td><td>8.8%</td><td>100.0%</td><td><strong>0.161</strong></td><td><strong>$1,146</strong></td></tr>
+      </tbody>
+    </table>
+    <p>One more paradox rides along: at the F1-optimal point, accuracy reads <strong>98.8%</strong> - a1's serene headline number, still calm, still uninformative, now decorating the operating point that costs $704 too much.</p>
+  </section>
+
+  <!-- ============ PART 3: SELF-STUDY ============ -->
+  <section class="section" id="three-questions">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · self-study</span>
+      <h2>Three questions for any team quoting F1 <span class="tag concept">5 min read</span></h2>
+    </div>
+    <p class="lede">F1 is not a bad metric - it is a metric with an undisclosed opinion (equal costs) that is almost never true. When a team or a vendor leads with it, these three questions surface the opinion. Good teams enjoy answering them; the silence after each one is also an answer.</p>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The three questions, with what each one exposes<span class="mini">4 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>1 · "What cost ratio does your problem actually have?"</strong> F1 assumes 1 to 1. If the honest answer is 37 to 1 - or anything far from even - the metric and the business are optimizing different worlds. A team that has never priced the two mistakes cannot know whether F1 is fine or catastrophic.</li>
+          <li><strong>2 · "Who picked the threshold?"</strong> If the answer is "the default" or a name from the data team alone, the finance-vs-marketing trade from Part 1 was made without either party in the room. The dial needs an owner who knows both prices.</li>
+          <li><strong>3 · "What does the cost-optimal point look like - and why aren't we there?"</strong> Tonight you saw it: at Lumen it looks terrible on metrics (F1 0.161) and saves $704 per slice. Sometimes there is a real reason not to operate there - capacity limits, customer-experience floors. Fine: those are satisficing constraints, and they should be stated, not hidden inside a metric choice.</li>
+        </ul>
+        <p>Notice these are governance questions, not math questions. You are not auditing formulas - you are auditing whether a business decision was made by someone authorized to make it.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Questions to ask your teams</span>
+      <h2>This week, in your own meetings <span class="tag exercise">◐ 15 min total</span></h2>
+    </div>
+    <ul>
+      <li>Pick one deployed classifier in your org and ask who owns its threshold. Not who set it - who OWNS it, the way someone owns a pricing decision. If the question has no answer, you found this session's gap in the wild.</li>
+      <li>Deliver two prices to one team: what a miss costs, what a false alarm costs, even rough. Ask them to report the cost-optimal operating point next to their usual metrics from now on.</li>
+      <li>Find one F1 (or any single blended score) in a report and run the three questions from Part 3. Write down which of the three produced the longest silence.</li>
+      <li>Draft your one-optimizing-number memo: for one model you sponsor, name the money metric to maximize and two or three floors that protect stakeholders. One page. It becomes your template in a6.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">This session teaches the decision core of the cost-sensitive evaluation canon - scikit-learn's threshold guidance, Elkan's cost-ratio result, and Ng's metric doctrines - in leader language, with the live evaluator doing the math. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">sklearn threshold-tuning guide + Elkan 2001 - "most certainly not ideal," the cost-ratio rule</span><span class="note">Part 1 · the tooling itself lives in practitioner b5</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Ng, Structuring ML Projects - single-number metric, satisficing vs optimizing</span><span class="note">Part 2, as a governance mandate</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">evalml canon - the $704 Goodhart gap on the live Lumen slice</span><span class="note">The demo · same numbers the practitioner track derives</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Google Rules of ML #39 - launch metrics are proxies for long-term goals</span><span class="note">One caution here · the full proxy chain in a5-a6</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">1 · On Lumen's evaluator, the F1-optimal threshold costs $704 more than the cost-optimal one. Why do the two buttons disagree?</p>
+      <button class="qopt" type="button">A · The cost optimizer uses a smarter model under the hood</button>
+      <button class="qopt" type="button">B · F1 is computed on a different data slice than the cost</button>
+      <button class="qopt" type="button">C · F1 silently assumes both mistakes cost the same, but Lumen's errors differ 37x</button>
+      <p class="qwhy">Same model, same 2,000 sessions, same curve - only the target differs. F1's hidden equal-costs assumption points it at a fictional business; the cost optimizer uses the real $2 / $74 prices, lands at threshold 0.22, and looks ugly (F1 0.161) while saving $704.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">2 · In Ng's satisficing-vs-optimizing split, which number should a leader make THE optimizing metric?</p>
+      <button class="qopt" type="button">A · The money - expected cost or value per decision; everything else becomes floors and ceilings</button>
+      <button class="qopt" type="button">B · F1, because it balances precision and recall in one score</button>
+      <button class="qopt" type="button">C · All key metrics at once, so no stakeholder is neglected</button>
+      <p class="qwhy">One optimizing number keeps iteration fast and Goodhart-proof - provided it is wired to the business. Everything else (recall floor, precision floor, latency ceiling) is pass/fail. Optimizing several numbers at once means optimizing none; optimizing F1 means optimizing an equal-costs fiction.</p>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">3 · Who should own the threshold on a production classifier?</p>
+      <button class="qopt" type="button">A · The data scientist - it is a parameter of the model they built</button>
+      <button class="qopt" type="button">B · A named business owner who knows both error prices - it is a business decision wearing a math costume</button>
+      <button class="qopt" type="button">C · Nobody needs to - 0.5 is the industry standard</button>
+      <p class="qwhy">The threshold trades finance's pain against marketing's pain, so it needs an owner with both prices in hand - and Elkan's rule makes the setting follow from the cost ratio once they are. The 0.5 default is not a standard; sklearn's own docs call it "most certainly not ideal for most use cases."</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Leader session 2 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The dial</b><span>The threshold trades missed buyers (finance, ~$74) against wasted outreach (marketing, ~$2). A business decision wearing a math costume - it needs a named owner.</span></div>
+      <div class="cheat-item"><b>Curve, not a point</b><span>A model has a whole curve of precision-recall operating points. Any quoted P/R pair is one chosen point - ask who chose it.</span></div>
+      <div class="cheat-item"><b>The 0.5 default</b><span>sklearn's own docs: "most certainly not ideal for most use cases." A default is a choice made by nobody, in favor of nobody.</span></div>
+      <div class="cheat-item"><b>Elkan's rule</b><span>The right threshold follows from the cost RATIO of the two mistakes. Deliver two prices and the dial setting stops being an opinion.</span></div>
+      <div class="cheat-item"><b>F1's hidden opinion</b><span>F1 assumes equal error costs. At Lumen the errors differ 37x - so maximizing F1 optimizes a fictional business, precisely.</span></div>
+      <div class="cheat-item"><b>The $704 gap</b><span>Optimize F1: t=0.61, F1 0.706, cost $1,850. Optimize $: t=0.22, F1 0.161, cost $1,146. The best business point has the ugliest metrics.</span></div>
+      <div class="cheat-item"><b>Satisficing vs optimizing</b><span>ONE optimizing number (the money), everything else floors and ceilings. Ng's doctrine, deployed as governance - it kills the Goodhart game structurally.</span></div>
+      <div class="cheat-item"><b>Three questions for F1</b><span>What cost ratio does your problem actually have? Who picked the threshold? What does the cost-optimal point look like - and why aren't we there?</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Leader session 2 of 6 · learn-model-evaluation-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="a1-why-one-number-lies.html">← a1 · Why one number lies</a> &nbsp;·&nbsp; <a href="../index.html">All sessions</a> &nbsp;·&nbsp; <a href="a3-llm-quality-plain.html">Next: LLM quality metrics →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/evalml-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

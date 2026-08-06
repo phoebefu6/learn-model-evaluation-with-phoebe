@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practitioner session 3 · Curves + calibration - learn model evaluation with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-model-evaluation-with-phoebe</a> / Practitioner session 3 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Model Evaluation with Phoebe · Practitioner track · Session 3 of 10</div>
+    <h1>Curves + <span class="accent">calibration</span></h1>
+    <p class="sub">b2 taught you to pick one point on the dial. Tonight you evaluate every point at once - the ROC curve and the PR curve, which summarize a model across ALL thresholds - and you learn the uncomfortable fact that on imbalanced data the two curves tell different stories about the same model. Then the second act: whether the scores themselves can be trusted as probabilities. Does 0.8 actually mean 80%? Reliability diagrams answer that, calibration methods fix it, and one famous caveat about the Brier score keeps you honest. Both halves are load-bearing for b5: cost-optimal thresholds are only as real as the probabilities underneath them.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Practitioner track</span>
+      <span class="chip audience">DS · analysts · ML + AI engineers</span>
+      <span class="chip audience">Python · live evaluator on key pages</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · ROC vs PR under imbalance</span>
+      <span class="a3" style="flex:5">18-42 · Build-along: calibration + the Brier caveat</span>
+      <span class="a4" style="flex:1">42-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>From one point to the whole curve</h2>
+    </div>
+    <p class="lede">A threshold metric grades one operating point; a curve grades the model's entire repertoire - useful when the threshold will be chosen later, tuned per campaign, or argued about in b5. Tonight's two curves are ROC (the classic) and PR (the honest one on rare events), and the session's first rule of thumb costs you nothing to adopt: <strong>on imbalanced problems, report both AUCs and trust the pessimistic one</strong>. The second half asks a question no curve answers: when Lumen's model says 0.8, does that session convert 80% of the time? Same 2,000-session slice, same seed 42, same evaluator below.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill peach">▶ Live evaluator - real math on real scores</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      Why ROC flatters on imbalance (the denominator trick, with Lumen's 1,936 negatives as the culprit), the Saito &amp; Rehmsmeier result that made PR curves respectable, how to read and fix a reliability diagram, and the Brier caveat that separates people who quote calibration metrics from people who understand them.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: ROC VS PR ============ -->
+  <section class="section" id="roc-vs-pr">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers Google MLCC "ROC and AUC", Saito &amp; Rehmsmeier 2015, sklearn PR-interpolation caveat</span>
+      <h2>Two curves, two verdicts <span class="tag concept">8 min live</span></h2>
+    </div>
+    <p class="lede">The <strong>ROC curve</strong> plots true positive rate against false positive rate at every threshold; its area, <strong>AUC, is ranking quality</strong> - the probability that a random converter is scored above a random non-converter. Elegant, threshold-free, and on imbalanced data, flattering. The trick is in FPR's denominator: FPR = FP / (FP + TN), and <strong>true negatives dominate it</strong>. Lumen's slice holds 1,936 non-converters, so the model can rack up dozens of wasted flags while FPR barely twitches - the curve glides along the top-left looking heroic. The <strong>PR curve</strong> replots the same thresholds as precision against recall, and precision has no TN term to hide behind: every wasted flag lands in its denominator. Same model, same scores, honest sag.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The same model's ROC curve, hugging the top-left and looking excellent, next to its PR curve sagging honestly - with the 1,936 true negatives called out as the reason ROC flatters.">
+        <style>
+          .c3-i { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .c3-x { font: 400 12px Inter, sans-serif; fill: #64748B; }
+          .c3-n { font: 600 13px Inter, sans-serif; fill: #043029; }
+          .c3-b { font: 700 12.5px Inter, sans-serif; fill: #991B1B; }
+          .c3-a { font: 600 11.5px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <defs>
+          <marker id="c3-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#991B1B"/></marker>
+        </defs>
+        <text class="c3-i" x="90" y="42">SAME MODEL: the ROC curve</text>
+        <text class="c3-x" x="90" y="62">looks great - hugs the top-left corner</text>
+        <line x1="90" y1="80" x2="90" y2="330" stroke="#64748B" stroke-width="1.5"/>
+        <line x1="90" y1="330" x2="400" y2="330" stroke="#64748B" stroke-width="1.5"/>
+        <line x1="90" y1="330" x2="400" y2="82" stroke="#64748B" stroke-width="1.5" stroke-dasharray="5 5"/>
+        <path d="M 90,330 C 98,150 138,94 400,88" fill="none" stroke="#86198F" stroke-width="3.5"/>
+        <text class="c3-x" x="62" y="76">TPR</text>
+        <text class="c3-x" x="230" y="352">FPR</text>
+        <text class="c3-a" x="250" y="200">chance line</text>
+        <rect x="130" y="248" width="180" height="44" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="2"/>
+        <text class="c3-b" x="144" y="266">1,936 TNs inflate this</text>
+        <text class="c3-x" x="144" y="284">FPR = FP / (FP + TN)</text>
+        <line x1="240" y1="292" x2="240" y2="324" stroke="#991B1B" stroke-width="2" marker-end="url(#c3-arr)"/>
+        <text class="c3-i" x="530" y="42">SAME MODEL: the PR curve</text>
+        <text class="c3-x" x="530" y="62">the honest sag - no TNs to hide behind</text>
+        <line x1="530" y1="80" x2="530" y2="330" stroke="#64748B" stroke-width="1.5"/>
+        <line x1="530" y1="330" x2="840" y2="330" stroke="#64748B" stroke-width="1.5"/>
+        <path d="M 530,108 C 574,126 612,226 840,298" fill="none" stroke="#C026D3" stroke-width="3.5"/>
+        <line x1="530" y1="318" x2="840" y2="318" stroke="#64748B" stroke-width="1.5" stroke-dasharray="5 5"/>
+        <text class="c3-x" x="480" y="76">Precision</text>
+        <text class="c3-x" x="668" y="352">Recall</text>
+        <text class="c3-a" x="600" y="310">baseline = 3.2% prevalence</text>
+        <text class="c3-a" x="640" y="180">every wasted flag</text>
+        <text class="c3-a" x="640" y="196">drags this down</text>
+        <rect x="90" y="384" width="14" height="14" rx="3" fill="#0E7C6B"/>
+        <text class="c3-n" x="114" y="396">Same scores, two verdicts: ROC divides FPs by 1,936 negatives so FPR barely moves; precision feels every flag.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - one model, two curves: ROC's flattery vs the PR curve's honesty on a 3.2% base rate</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The paper that settled it: Saito &amp; Rehmsmeier 2015<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>This is not folklore - it has a citation. Saito and Rehmsmeier (PLOS ONE, 2015) showed that <strong>ROC plots can deceive on imbalanced datasets while PR plots are more informative</strong>, and the reason is structural: <strong>precision is prevalence-sensitive and the ROC axes are not</strong>. TPR and FPR are each computed within one actual class, so the class ratio never enters the plot - a model looks identical on ROC whether positives are half the data or 3.2% of it. Precision mixes the classes in its denominator, so the PR curve feels the base rate directly. On rare-event problems - which b1 argued are MOST valuable classification problems - the curve that feels the base rate is the curve that matches production experience.</p>
+        <div class="callout tip">
+          <strong>The working rule</strong>
+          On imbalanced problems, report BOTH AUCs - ROC-AUC and PR-AUC (average precision) - and trust PR-AUC's pessimism. ROC-AUC still earns its keep as pure ranking quality; it just must not be the only number in the deck when the base rate is 3.2%.
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The interpolation trap sklearn warns you about<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>One more honesty clause, straight from sklearn's own docs: <strong>linear interpolation between points on a PR curve is overly optimistic</strong>. Precision does not move linearly between measured thresholds the way ROC's axes do, so computing PR-AUC with the trapezoidal rule (as <code>auc(recall, precision)</code> happily will) credits the model for area it never earned. This is why <code>average_precision_score</code> exists and <strong>deliberately avoids trapezoids</strong> - it is a step-wise weighted mean of precisions, not a geometric area.</p>
+<pre><code>from sklearn.metrics import roc_auc_score, average_precision_score
+
+scores = model.predict_proba(X_test)[:, 1]
+roc_auc_score(y_test, scores)           # ranking quality - flattering on imbalance
+average_precision_score(y_test, scores) # PR-AUC done right: step-wise,
+                                        # no optimistic trapezoids</code></pre>
+        <p>Two-line takeaway for your next review: PR-AUC computed by trapezoid is a small silent inflation on top of a metric you chose FOR its honesty. Use <code>average_precision_score</code> and the inflation never happens.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where each curve still wins<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Neither curve is retired. ROC-AUC remains the right single number when classes are roughly balanced, when you care about ranking across the full score range, or when comparing models across datasets with different base rates (its prevalence-blindness becomes a feature). PR-AUC wins whenever the positive class is rare and the flags are what you act on - fraud queues, outreach lists, alert triage. Google's crash course teaches ROC/AUC as the default lens; this session adds the imbalance asterisk that Lumen's 3.2% base rate makes mandatory.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: CALIBRATION ============ -->
+  <section class="section" id="calibration">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers sklearn calibration guide - reliability diagrams, Platt/isotonic, the Brier warning</span>
+      <h2>Does 0.8 mean 80%? <span class="tag concept">10 min live</span></h2>
+    </div>
+    <p class="lede">Everything so far treated model scores as a RANKING - higher means more likely. Calibration asks for more: that <code>predict_proba</code> be interpretable as <strong>confidence</strong>, so a 0.8 means roughly 80% of such sessions actually convert. The diagnostic is the <strong>reliability diagram</strong>: bin the predicted probabilities, plot each bin's mean prediction against its actual positive rate, and compare to the diagonal - <strong>the diagonal is perfect calibration</strong>. Points sagging below it mean overconfidence (the model says 0.8, reality delivers 0.55); bulging above means underconfidence. Many good rankers are badly calibrated - boosted trees and SVMs are famous offenders - so this is a check you run, not a property you assume.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Diagnose, then repair: the sklearn calibration kit<span class="mini">6 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Diagnosis and repair are three calls apart:</p>
+<pre><code>from sklearn.calibration import (CalibratedClassifierCV,
+                                 CalibrationDisplay, calibration_curve)
+
+# diagnose: binned predicted vs actual - the reliability diagram
+prob_true, prob_pred = calibration_curve(y_test, scores, n_bins=10)
+CalibrationDisplay.from_predictions(y_test, scores, n_bins=10)
+
+# repair: wrap the model, refit the mapping on held-out folds
+cal = CalibratedClassifierCV(model, method="isotonic", cv=5)
+cal.fit(X_train, y_train)   # cal.predict_proba is now the trusted one</code></pre>
+        <p>Two repair methods, one selection rule:</p>
+        <ul>
+          <li><strong>Platt scaling</strong> (<code>method="sigmoid"</code>) fits a logistic curve to the scores - two parameters, hard to overfit, the safe pick on small data or when the distortion looks sigmoid-shaped.</li>
+          <li><strong>Isotonic regression</strong> (<code>method="isotonic"</code>) fits a free-form monotonic step function - more expressive, and hungry: sklearn's guidance is to reach for it with <strong>more than ~1,000 calibration samples</strong>, or it will happily overfit the wiggles.</li>
+        </ul>
+        <p>Lumen's slice clears the isotonic bar on raw count - but remember the minority class: 2,000 sessions hold only ~64 converters, and calibration in the high-score bins is only as good as the positives available there. When in doubt, sigmoid first, isotonic when the reliability diagram shows a distortion the sigmoid cannot bend to.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The Brier caveat - sklearn's own warning<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The Brier score - mean squared error between predicted probabilities and 0/1 outcomes - looks like the obvious "calibration metric." Here is the caveat, and it is sklearn's calibration guide speaking, not a blog: <strong>a lower Brier score does NOT necessarily mean better calibration</strong>. Brier mixes two ingredients - calibration (do the probabilities match reality?) and discrimination (does the model separate the classes?) - into one number. A sharper, better-discriminating model can post a lower Brier than a more honest one; you cannot tell from the score alone which ingredient improved, or whether one improved at the other's expense.</p>
+        <div class="callout tip">
+          <strong>The discipline</strong>
+          Assess calibration with the reliability CURVE, not with Brier alone. Brier (or log loss) is a fine overall probability-quality number to track; the curve is the only place calibration itself is visible. One picture, one habit, no false claims in your eval report.
+        </div>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>Why b5 needs tonight's second half.</strong> The cost-matrix session ahead rests on Elkan-style reasoning: given error costs, the optimal threshold falls out of the predicted probability. That rule ASSUMES the probabilities are calibrated. Feed it an overconfident model's 0.8-that-means-0.55 and the "cost-optimal" threshold it computes is optimal for a fantasy - your dollar numbers will be confidently, precisely wrong. Calibrate first; then price. Teams that skip the reliability diagram do cost-sensitive learning on fiction.</p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO ============ -->
+  <section class="section" id="demo">
+    <div class="section-kicker">
+      <span class="klabel">Demo · trace the curve by hand</span>
+      <h2>The slider IS the curve <span class="tag demo">★ 15 min · everyone runs it</span></h2>
+    </div>
+    <p class="lede">Here is tonight's quiet unification: the PR curve is not a new object - it is b2's dial with the trail left on. <strong>Every slider position below is ONE point on the PR curve.</strong> The evaluator computes Lumen's precision and recall live at each cut; you supply the tracing paper.</p>
+
+    <div class="steps">
+      <div class="step"><p><strong>Walk five positions.</strong> Set the threshold to 0.1, 0.3, 0.5, 0.7, 0.9. At each stop, write the (recall, precision) pair. Then sketch the five points on paper with recall on the x-axis and connect them. You have just drawn Lumen's PR curve by hand - the sag from the diagram above should appear under your pencil, baseline hovering near the 3.2% prevalence floor at the high-recall end.</p></div>
+      <div class="step"><p><strong>Watch what accuracy does on the same walk.</strong> Across those five stops, the accuracy tile barely moves - it sits near the base-rate ceiling the whole way - while your penciled curve swings across most of its range. That flat tile is ROC-thinking on a rare event: a summary dominated by the 1,936 easy negatives. Your sketch is PR-thinking: every point priced in flags and catches. On rare events, trust the view that moves.</p></div>
+      <div class="step"><p><strong>Say the unification out loud.</strong> "A threshold metric is one point; a curve is every point; the model is the curve, not the point." If your five-point sketch makes that sentence feel obvious, you are ready for b4's ranking metrics - and for b5, where one of these points gets a dollar sign.</p></div>
+    </div>
+
+    <div class="evalbox" data-mode="threshold" data-thresh="0.5"></div>
+
+    <div class="callout tip">
+      <strong>What the evaluator will not show you tonight</strong>
+      Calibration. The tiles are threshold metrics - there is no reliability diagram in the box. That is deliberate: the homework has you draw one in sklearn on scores you own, because the diagram-reading habit has to form on YOUR model, where the sag is not staged.
+    </div>
+  </section>
+
+  <!-- ============ PART 3: SCORING FUNCTIONS PREVIEW ============ -->
+  <section class="section" id="scoring-preview">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · self-study bridge to b4</span>
+      <h2>Which scoring function, previewed <span class="tag concept">read after class</span></h2>
+    </div>
+    <p class="lede">Tonight touched two members of a bigger doctrine sklearn's guide organizes cleanly: <strong>match the metric to what the model outputs</strong>. Predicting <strong>probabilities</strong>? Grade with proper scoring rules - Brier, log loss - which are minimized only by the true probabilities. Predicting hard <strong>classes</strong>? Grade with the zero-one family - accuracy, precision, recall, F-scores - the metrics of b1 and b2. The doctrine extends to regression (means want squared error, medians want absolute error, quantiles want pinball loss) - the full table is b4's opening act.</p>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>log loss vs Brier, one paragraph<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Both are proper scoring rules over predicted probabilities; they differ in temperament. <strong>Brier</strong> is squared error on probabilities: bounded between 0 and 1, forgiving at the extremes - a confident wrong answer costs at most 1. <strong>Log loss</strong> charges the negative log of the probability assigned to the truth: unbounded, and brutal at the extremes - predict 0.99 for the wrong class and the penalty explodes toward infinity. Track log loss when confident wrongness is the failure mode you most need to punish (it is also what logistic-family models optimize); track Brier when you want a stable, bounded probability-quality number. And carry tonight's caveat to both: neither one, alone, certifies calibration - the reliability curve does.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 25-35 min total</span></h2>
+    </div>
+    <ul>
+      <li>On a classifier you own, compute <code>roc_auc_score</code> and <code>average_precision_score</code> side by side. Write one sentence on the gap - the more imbalanced your data, the wider it should feel.</li>
+      <li>Draw the reliability diagram for the same model with <code>CalibrationDisplay.from_predictions</code>, 10 bins. Diagnose in one word: overconfident, underconfident, or honest.</li>
+      <li>If the diagram sags, wrap the model in <code>CalibratedClassifierCV</code> (sigmoid on small data, isotonic past ~1,000 samples) and redraw. Keep the before/after pair - it belongs in your b10 eval sheet.</li>
+      <li>Find one report or vendor deck quoting a single ROC-AUC on a rare-event problem. Ask for the PR-AUC. Note the reaction.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">This session teaches the curve-and-calibration core: the key PLOS ONE paper on PR vs ROC, sklearn's calibration guide with its own Brier warning quoted in spirit, the PR-interpolation caveat from the metrics guide, and Google's ROC/AUC lesson - all drilled against Lumen's live scores. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Saito &amp; Rehmsmeier 2015, PLOS ONE - PR plots vs ROC plots on imbalanced data</span><span class="note">The prevalence-sensitivity argument, taught with Lumen's 1,936 negatives</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">sklearn calibration guide - reliability diagrams, Platt/isotonic, CalibratedClassifierCV, the Brier warning</span><span class="note">The caveat quoted in spirit · feeds directly into b5's Elkan assumption</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">sklearn metrics guide - the PR-interpolation caveat + average_precision_score</span><span class="note">Why AP avoids trapezoids · the scoring-function doctrine table lands in b4</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Google ML Crash Course - "ROC and AUC"</span><span class="note">AUC as ranking quality · the imbalance asterisk added on top</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · Why does the ROC curve flatter Lumen's model while the PR curve sags?</p>
+      <button class="qopt" type="button">A · ROC is computed on the training set while PR uses the test set</button>
+      <button class="qopt" type="button">B · FPR's denominator is dominated by the 1,936 true negatives, so wasted flags barely move it - while precision feels every wasted flag directly</button>
+      <button class="qopt" type="button">C · The PR curve uses a stricter threshold grid than the ROC curve</button>
+      <p class="qwhy">FPR = FP / (FP + TN), and TNs are 96.8% of the slice - the model can waste dozens of flags while FPR barely twitches. Precision is prevalence-sensitive (Saito &amp; Rehmsmeier's point), so the PR curve matches production experience on rare events. Report both AUCs; trust the pessimist.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · What does a reliability diagram actually show?</p>
+      <button class="qopt" type="button">A · Precision and recall at every threshold, connected into a curve</button>
+      <button class="qopt" type="button">B · The model's error cost as the threshold moves</button>
+      <button class="qopt" type="button">C · Binned predicted probabilities against the actual positive rate in each bin - points on the diagonal mean the probabilities can be read as confidence</button>
+      <p class="qwhy">Bin the predictions, compare each bin's mean prediction to its observed frequency. On the diagonal, 0.8 really means ~80%. Sag below = overconfidence, bulge above = underconfidence - and the repair kit is Platt sigmoid or isotonic via CalibratedClassifierCV.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · Model A posts a lower Brier score than model B. What can you conclude about calibration?</p>
+      <button class="qopt" type="button">A · Nothing yet - Brier mixes calibration with discrimination, so a sharper model can win on Brier while being worse calibrated; check the reliability curve</button>
+      <button class="qopt" type="button">B · Model A is better calibrated - that is what the Brier score measures</button>
+      <button class="qopt" type="button">C · Model A is worse calibrated, since lower Brier rewards overconfidence</button>
+      <p class="qwhy">sklearn's own guide warns that a lower Brier does not necessarily mean better calibration - the score blends two ingredients and hides which one moved. Calibration is assessed with the curve; Brier and log loss track overall probability quality. b5's cost math trusts whichever answer you give here.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Practitioner session 3 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>ROC / AUC</b><span>TPR vs FPR across all thresholds. AUC = ranking quality: P(random positive scores above random negative). Prevalence-blind by construction.</span></div>
+      <div class="cheat-item"><b>Why ROC flatters</b><span>FPR = FP/(FP+TN); Lumen's 1,936 TNs swamp the denominator, so wasted flags barely move the curve. The flattery grows with the imbalance.</span></div>
+      <div class="cheat-item"><b>PR curve</b><span>Precision vs recall across all thresholds. Precision is prevalence-sensitive (Saito &amp; Rehmsmeier 2015) - the honest view on rare events. Baseline = the base rate.</span></div>
+      <div class="cheat-item"><b>The reporting rule</b><span>Imbalanced problem: report BOTH AUCs, trust PR-AUC's pessimism. Use average_precision_score - linear interpolation of PR curves is overly optimistic.</span></div>
+      <div class="cheat-item"><b>Calibration</b><span>Well-calibrated: predict_proba reads as confidence - 0.8 means ~80% convert. Good rankers are often badly calibrated; check, never assume.</span></div>
+      <div class="cheat-item"><b>Reliability diagram</b><span>Binned predicted vs actual; diagonal = perfect. Repair: CalibratedClassifierCV - Platt sigmoid (small data) or isotonic (past ~1,000 samples).</span></div>
+      <div class="cheat-item"><b>The Brier caveat</b><span>Lower Brier does NOT necessarily mean better calibration - it mixes calibration with discrimination. Assess calibration with the curve, not Brier alone.</span></div>
+      <div class="cheat-item"><b>Why b5 cares</b><span>Elkan's cost-optimal threshold rule assumes calibrated probabilities. Uncalibrated scores make cost-optimal thresholds lie. Calibrate first, then price.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Practitioner session 3 of 10 · learn-model-evaluation-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="b2-threshold-dial.html">← b2 · The threshold dial</a> &nbsp;·&nbsp; <a href="../index.html">All sessions</a> &nbsp;·&nbsp; <a href="b4-regression-ranking.html">Next: Regression + ranking →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/evalml-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

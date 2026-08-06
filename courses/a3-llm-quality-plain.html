@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leader session 3 · LLM quality metrics, in plain English - learn model evaluation with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-model-evaluation-with-phoebe</a> / Leader session 3 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Model Evaluation with Phoebe · Leader track · Session 3 of 6</div>
+    <h1>LLM quality metrics, <span class="accent">in plain English</span></h1>
+    <p class="sub">Your team's LLM quality report says "faithfulness 0.83, relevance 4.2, hallucination rate 3%." This session decodes every one of those rows into a plain-English question you can ask in a meeting, exposes the one distinction that decides which fix to fund (is the model lying about the world, or about the document?), and then turns you skeptical in exactly the right place: most of these scores are produced by another LLM, and tonight you will watch one of those judges fail - and get fixed - live.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Leader track</span>
+      <span class="chip audience">Executives · PMs · report readers</span>
+      <span class="chip audience">No code, decisions only</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · The quality metrics decoded</span>
+      <span class="a3" style="flex:5">18-42 · Live: catch the judge's bias</span>
+      <span class="a4" style="flex:1">42-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Where you are in the leader track</h2>
+    </div>
+    <p class="lede">Sessions a1 and a2 covered the classic side: why one accuracy number lies, and how the threshold turns precision and recall into money. Tonight the same literacy moves to LLM systems - the chat assistants, RAG search tools, and copilots your teams are shipping now. The metrics have new names, but the leader's job is unchanged: know which question each number answers, know which mistakes it hides, and know what to demand before trusting it. No formulas to memorize - four metrics, one distinction, and one rule about judges.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill peach">▶ Live evaluator - real math on real scores</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The four rows of any LLM quality report translated into plain-English questions, the world-vs-document hallucination distinction (which decides whether you fund a better model or better retrieval), and the leader rule for judge scores: never accept one without its human-agreement number.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: THE REPORT DECODED ============ -->
+  <section class="section" id="report-decoded">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers RAGAS metric docs, Microsoft Foundry RAG evaluators</span>
+      <h2>The quality report, decoded metric by metric <span class="tag concept">15 min live</span></h2>
+    </div>
+    <p class="lede">Every LLM quality dashboard is built from a handful of recurring metrics. Here is each one as the question it actually answers - plus the trap that catches executives who read the number without the question.</p>
+
+    <table class="clean">
+      <thead>
+        <tr><th>Metric</th><th>Plain-English question</th><th>Scale</th><th>The trap</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Faithfulness / groundedness</td>
+          <td>"Is every claim in the answer supported by the source material?"</td>
+          <td>RAGAS: claims supported divided by total claims, 0-1. Microsoft Foundry: judged 1-5, pass at 3.</td>
+          <td>Same concept, two different scales. A RAGAS 0.83 and a Foundry 4.2 are not comparable - never compare across vendors.</td>
+        </tr>
+        <tr>
+          <td>Relevance</td>
+          <td>"Does it answer the question that was asked?"</td>
+          <td>Usually judged, 1-5 or 0-1.</td>
+          <td>On-topic is NOT correct. An answer can be perfectly relevant and completely wrong - relevance never checks the facts.</td>
+        </tr>
+        <tr>
+          <td>Completeness</td>
+          <td>"Did the answer include everything critical, or did it miss something?"</td>
+          <td>Judged. Foundry's own framing: groundedness is the precision aspect, completeness is the recall aspect.</td>
+          <td>The forgotten row. Teams tune faithfulness up by answering less - completeness is the counterweight, and it is often not on the report at all.</td>
+        </tr>
+        <tr>
+          <td>Hallucination rate</td>
+          <td>"How often does it make things up?"</td>
+          <td>Benchmark-dependent - leaderboard leaders sit around 2-3% on HHEM-style tests.</td>
+          <td>There are TWO different definitions of "making things up," and vendors rarely say which one they counted. Part of tonight's whole point - see below.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout tip">
+      <strong>How to read any quality report in three questions</strong>
+      Which question does each row answer? Which scale and which pass bar was used (a 0.83 and a 4.2 are not comparable)? And is completeness on the sheet at all - because a system can score perfect faithfulness by refusing to say anything useful.
+    </div>
+
+    <p class="lede">Now the distinction that pays for the whole session. "Hallucination" is one word covering two different failures, and they need two different fixes. <strong>World-lies</strong> (what TruthfulQA-style benchmarks measure): the model states something false about reality - its parametric memory invented or repeated a falsehood. <strong>Document-lies</strong> (what HHEM and every faithfulness metric measure): the model says something the provided source material never says - even if it happens to be true in the real world. A leader who conflates them funds the wrong fix.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 410" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The two hallucinations: the model can lie about the world (parametric memory, fix the model) or lie about the provided document (grounding failure, fix the retrieval).">
+        <defs>
+          <marker id="q3arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#64748B"/>
+          </marker>
+        </defs>
+        <style>
+          .q3T { font: 700 14px Inter, sans-serif; fill: #FFFFFF; }
+          .q3S { font: 400 11.5px Inter, sans-serif; fill: #FFFFFF; opacity: .92; }
+          .q3I { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .q3X { font: 400 12px Inter, sans-serif; fill: #64748B; }
+          .q3N { font: 600 13px Inter, sans-serif; fill: #043029; }
+          .q3B { font: 700 12.5px Inter, sans-serif; fill: #991B1B; }
+        </style>
+        <text class="q3X" x="90" y="70">parametric lying - the model's memory is wrong</text>
+        <rect x="90" y="84" width="180" height="30" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="2"/>
+        <text class="q3B" x="104" y="104">FIX: a better model</text>
+        <rect x="60" y="155" width="210" height="100" rx="10" fill="#86198F"/>
+        <text class="q3T" x="80" y="185">THE MODEL</text>
+        <text class="q3S" x="80" y="207">answers a question</text>
+        <text class="q3S" x="80" y="227">from memory + context</text>
+        <line x1="272" y1="185" x2="592" y2="95" stroke="#64748B" stroke-width="2" marker-end="url(#q3arrow)"/>
+        <line x1="272" y1="225" x2="592" y2="305" stroke="#64748B" stroke-width="2" marker-end="url(#q3arrow)"/>
+        <rect x="600" y="40" width="250" height="110" rx="10" fill="#581C87"/>
+        <text class="q3T" x="620" y="70">LYING ABOUT THE WORLD</text>
+        <text class="q3S" x="620" y="92">TruthfulQA-style hallucination</text>
+        <text class="q3S" x="620" y="112">states a false real-world fact</text>
+        <rect x="600" y="260" width="250" height="110" rx="10" fill="#C026D3"/>
+        <text class="q3T" x="620" y="290">LYING ABOUT THE DOC</text>
+        <text class="q3S" x="620" y="312">HHEM / faithfulness failure</text>
+        <text class="q3S" x="620" y="332">a claim the source never makes</text>
+        <text class="q3X" x="90" y="330">grounding failure - the source was ignored</text>
+        <rect x="90" y="344" width="180" height="30" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="2"/>
+        <text class="q3B" x="104" y="364">FIX: better retrieval</text>
+        <rect x="60" y="384" width="14" height="14" rx="3" fill="#0E7C6B"/>
+        <text class="q3N" x="84" y="396">Two failures, two different fixes - a world-lie needs a better model, a document-lie needs better retrieval.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the two hallucinations, and which budget line fixes each</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>World-lies vs document-lies - the fix depends on the failure<span class="mini">6 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Run the two failures through a concrete example. Your RAG assistant answers a policy question:</p>
+        <ul>
+          <li><strong>Document-lie:</strong> the answer says "the refund window is 60 days" - true at a competitor, false in YOUR policy document, which says 30. Faithfulness catches this. The fix is retrieval and grounding: make sure the right passage is fetched and the model is held to it. Buying a bigger model changes little.</li>
+          <li><strong>World-lie:</strong> with no document in play, the assistant asserts a false general fact - the kind TruthfulQA's adversarial questions are built to trigger. No retrieval fix exists, because there is no document to be faithful to. The fix lives in model choice and training.</li>
+          <li><strong>The subtle case:</strong> an answer that is TRUE in the real world but appears nowhere in the retrieved source is still a faithfulness failure - the system stopped being grounded, and next time the unsupported claim may not be true.</li>
+        </ul>
+        <p>The meeting question this gives you: when someone reports "hallucination rate," ask <em>"measured against the world, or against the document?"</em> The answer tells you which team - model selection or retrieval - owns the fix.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why vendor numbers never compare<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>RAGAS defines faithfulness as an arithmetic ratio: claims in the response supported by the retrieved context, divided by total claims, on a 0-1 scale. Microsoft's Foundry defines groundedness as an LLM-judged 1-5 rating, thresholded to pass/fail at 3. Same underlying concept - is the answer supported by the source? - but different graders, different scales, different pass bars.</p>
+        <ul>
+          <li>A "0.83" and a "4.2" are not the same quantity in different units - they are different measurements. There is no conversion.</li>
+          <li>Metric design is a CHOICE the vendor made. When two tools disagree about the same system, neither is broken - they asked slightly different questions.</li>
+          <li>The leader's defense: compare a system against ITSELF over time on ONE fixed metric, not against another vendor's number.</li>
+        </ul>
+        <p>The practitioner track (b6) works both formulas hands-on; your job is only to refuse cross-vendor comparisons in review meetings.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The wider metric family - rows you may also meet<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Beyond the big four, RAG dashboards often carry the rest of the RAGAS family. Same method as tonight - translate each into its question:</p>
+        <ul>
+          <li><strong>Response relevancy</strong> - "does the answer address the question asked?" - the relevance row you already know.</li>
+          <li><strong>Context precision / context recall</strong> - the same two questions from session a2, asked of the RETRIEVAL step: of what was fetched, how much was useful, and of what was needed, how much was fetched. A bad answer often traces back here.</li>
+          <li><strong>Noise sensitivity</strong> - "does irrelevant fetched material drag the answer off course?"</li>
+          <li><strong>Factual correctness</strong> - "does the answer match a ground-truth reference?" Note this is measured against a REFERENCE answer, not against the retrieved context - distinct from faithfulness, and the two are routinely conflated in reports.</li>
+        </ul>
+        <p>You do not need to memorize these. You need the reflex: any unfamiliar metric row gets asked "what question do you answer, on what scale, judged by whom?"</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: JUDGE SKEPTICISM ============ -->
+  <section class="section" id="judge-skepticism">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers Zheng et al. 2023, TruthfulQA</span>
+      <h2>The judge behind the score <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Here is the fact that reframes every number from Part 1: most LLM quality scores are produced by another LLM. A "judge" model reads the answer and grades it - it is the only way to score thousands of free-text answers cheaply. That judge is itself a model, with documented failure modes. Zheng et al. (the MT-Bench paper) names four: <strong>position bias</strong> (favors whichever answer it saw first), <strong>verbosity bias</strong> (favors longer answers regardless of quality), <strong>self-enhancement bias</strong> (favors answers written in its own style), and <strong>limited reasoning ability</strong> (grades math and logic it cannot itself do).</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The 80% bar - and what it really means<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The same paper found that GPT-4-class judges reach "over 80% agreement" with human raters. Sounds mediocre - until you learn the bar: <strong>80% is also the human-human agreement rate</strong>. Two trained humans grading the same answers disagree about one time in five. So the best judges agree with humans about as often as humans agree with each other - and no judge can meaningfully beat that ceiling, because the ceiling is the noise in the task itself.</p>
+        <ul>
+          <li>A vendor claiming "95% judge accuracy" against human labels deserves a hard question, not applause - what got simplified until agreement looked that easy?</li>
+          <li>A judge at 80% agreement with humans is a GOOD judge. A judge with no reported agreement number is an unmeasured one.</li>
+          <li>The leader rule, verbatim, for your next review: <strong>never accept a judge score without its human-agreement number.</strong> A judge score is a model output, not a measurement - it becomes a measurement only after it is checked against humans.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What the paper does about the biases<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Zheng et al. do not stop at diagnosis - the paper's own mitigations are the ones to look for in any team's judging setup:</p>
+        <ul>
+          <li><strong>Against position bias:</strong> swap the answer order and keep only the verdicts that stay consistent both ways - a judge that flips with the order gets no vote on that pair.</li>
+          <li><strong>Against verbosity bias:</strong> exactly what tonight's demo does - measure the judge against human labels, find the length pattern, and control for it.</li>
+        </ul>
+        <p>The pattern behind both: the fix is procedural, not a better judge model. Ask a team "how do you control for the judge's biases?" and listen for a procedure, not a model name.</p>
+      </div>
+    </details>
+
+    <div class="callout tip">
+      <strong>The one-line policy this session earns</strong>
+      Any LLM quality report that reaches your desk must carry two footnotes: which definition of hallucination was counted (world or document), and the judge's agreement rate with human labels. Reports missing either go back.
+    </div>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>Bigger was less truthful.</strong> TruthfulQA - 817 adversarial questions across 38 categories, built to trigger learned falsehoods - made headlines at publication: the best model was truthful on just 58% of questions versus 94% for humans, and LARGER models were LESS truthful, because scale made them better imitators of popular human falsehoods. The inverse-scaling headline carries the leader lesson: capability is not honesty. A model that writes beautifully can still be confidently wrong, and no amount of "it's the newest model" settles a truthfulness question - only measurement does.</p>
+    </div>
+  </section>
+
+  <!-- ============ DEMO ============ -->
+  <section class="section" id="demo-judge">
+    <div class="section-kicker">
+      <span class="klabel">Live demo</span>
+      <h2>Catch the judge's bias, live <span class="tag demo">★ 24 min · watch + discuss</span></h2>
+    </div>
+    <p class="lede">Below is an LLM-as-judge calibration check - 24 answers, each with a fixed human label, graded by a scripted judge that carries the verbosity bias documented in Zheng et al. You do not need to run anything technical: two buttons, one lesson. This is the exact exercise you should demand from any team proposing to grade quality with a judge.</p>
+
+    <div class="steps">
+      <div class="step"><p>Press <strong>Raw judge</strong>. Agreement with the 24 human labels: <strong>58%</strong>. Look at the shape of the misses - 10 bad-but-long answers rated good. Every failure is the same failure: length is being mistaken for quality.</p></div>
+      <div class="step"><p>Say the diagnosis in Part 2's vocabulary: verbosity bias. Nobody tampered with this judge - it is doing what unmeasured judges do.</p></div>
+      <div class="step"><p>Press <strong>Length-controlled judge</strong>. Agreement jumps to <strong>88%</strong>, with 1 residual miss - a genuine borderline call, the kind no grader escapes. Note that 88% is at the human-human bar: this judge is now as good as a judge gets.</p></div>
+      <div class="step"><p>The leader takeaway, out loud: you MEASURE a judge before trusting it. The 58%-to-88% move cost no new model and no budget - it cost one calibration check against human labels. Teams skip it because nobody asks. You now ask.</p></div>
+      <div class="step"><p>Close with the room's own dashboards: which of your current LLM quality numbers has been through this exercise? Any score that has not is a raw-judge score until proven otherwise.</p></div>
+    </div>
+
+    <div class="evalbox" data-mode="judge"></div>
+
+    <div class="callout tip">
+      <strong>How to read the evaluator</strong>
+      The human labels are fixed; the judge is a scripted simulation of the verbosity bias documented in Zheng et al. 2023. The agreement statistics are computed live from the 24 graded answers - nothing is staged except the bias itself, which is the point.
+    </div>
+  </section>
+
+  <!-- ============ TAKE IT TO WORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Take it to work</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 20 min total</span></h2>
+    </div>
+    <ul>
+      <li>Pull up one LLM quality report your organization already receives. For each row, write the plain-English question it answers - and mark any row where you cannot tell which question it is.</li>
+      <li>Ask the owning team the hallucination question: measured against the world, or against the document? Note whether the answer comes quickly.</li>
+      <li>Ask for the judge's human-agreement number on your main quality metric. If it does not exist, you have found this quarter's cheapest quality investment - a one-day calibration check.</li>
+      <li>Optional depth: the practitioner track runs the faithfulness formula and the judge calibration hands-on in b6 and b7 - forward those to your technical leads.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">The leader track distills the canonical sources into decisions - definitions and formulas stay with the linked originals, and the practitioner track works them hands-on. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Zheng et al. 2023 - "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena"</span><span class="note">The four biases + the 80% bar · mitigations deepen in practitioner b7</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">RAGAS metric docs - the faithfulness formula and metric family</span><span class="note">Claims-supported / total-claims, 0-1 · pipelines live in learn-evals</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Microsoft Foundry RAG evaluators - groundedness, completeness, relevance</span><span class="note">1-5 judged, pass at 3 · the precision/recall framing quoted</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">TruthfulQA (arXiv 2109.07958) + Vectara HHEM hallucination leaderboard</span><span class="note">World-vs-document distinction · 58% vs 94%, leaders ~2-3%</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">1 · Your RAG assistant states a fact that is TRUE in the real world but appears nowhere in the retrieved document. What is this?</p>
+      <button class="qopt" type="button">A · Not a failure - the answer is true, so no metric should flag it</button>
+      <button class="qopt" type="button">B · A world-lie - the model's memory is wrong, so buy a better model</button>
+      <button class="qopt" type="button">C · A faithfulness failure - the answer is not grounded in the source, and the fix is retrieval and grounding, not a bigger model</button>
+      <p class="qwhy">Faithfulness measures support-by-the-document, not truth-about-the-world. An ungrounded answer that happens to be true today may be false next time - the system has stopped being constrained by its sources, which is exactly what faithfulness exists to catch.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">2 · A GPT-4-class judge reaches "over 80% agreement" with human raters. What does that number mean?</p>
+      <button class="qopt" type="button">A · It matches human-human agreement - the judge is about as consistent with humans as humans are with each other, which is the right bar</button>
+      <button class="qopt" type="button">B · The judge is wrong one time in five, so it should not be used</button>
+      <button class="qopt" type="button">C · The judge needs more training data to reach 100%</button>
+      <p class="qwhy">Two trained humans disagree about one time in five on this kind of grading, so 80% IS the ceiling - the noise lives in the task, not the judge. A judge at the human-human bar is a good judge; a claimed 95%+ deserves scrutiny, not celebration.</p>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">3 · A team presents "quality: 4.3/5, scored by our LLM judge." What do you ask for before accepting it?</p>
+      <button class="qopt" type="button">A · The judge's model name and version, to check it is a frontier model</button>
+      <button class="qopt" type="button">B · The judge's agreement rate against human labels - a judge score is a model output, not a measurement, until it is calibrated</button>
+      <button class="qopt" type="button">C · A second LLM judge, to average the two scores</button>
+      <p class="qwhy">The demo's whole arc: the raw judge scored answers confidently at 58% agreement, and only measuring it against humans exposed the verbosity bias. A frontier judge or a second judge can share the same bias - only the human-agreement number tells you what the score is worth.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Leader session 3 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>Faithfulness / groundedness</b><span>"Is every claim supported by the source?" RAGAS: claims-supported / total-claims, 0-1. Foundry: judged 1-5, pass at 3.</span></div>
+      <div class="cheat-item"><b>Relevance</b><span>"Does it answer the question?" On-topic is NOT correct - relevance never checks the facts.</span></div>
+      <div class="cheat-item"><b>Completeness</b><span>"Did it miss anything critical?" The recall aspect (Foundry's framing) - the counterweight to faithfulness, often missing from reports.</span></div>
+      <div class="cheat-item"><b>The two hallucinations</b><span>World-lie (TruthfulQA): false about reality - fix the model. Document-lie (HHEM / faithfulness): unsupported by the source - fix the retrieval.</span></div>
+      <div class="cheat-item"><b>The four judge biases</b><span>Position, verbosity, self-enhancement, limited reasoning - documented in Zheng et al. 2023. Judges are models, with model failure modes.</span></div>
+      <div class="cheat-item"><b>The 80% bar</b><span>Best judges hit "over 80% agreement" with humans - which EQUALS human-human agreement. That is the ceiling; claims above it deserve scrutiny.</span></div>
+      <div class="cheat-item"><b>The leader rule</b><span>Never accept a judge score without its human-agreement number. The demo's move: 58% raw, 88% after one calibration check.</span></div>
+      <div class="cheat-item"><b>Scales never compare</b><span>A RAGAS 0.83 and a Foundry 4.2 are different measurements, not different units. Compare a system against itself over time, on one fixed metric.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Leader session 3 of 6 · learn-model-evaluation-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="a2-precision-recall-money.html">← a2 · Precision, recall, and money</a> &nbsp;·&nbsp; <a href="../index.html">All sessions</a> &nbsp;·&nbsp; <a href="a4-speed-and-cost.html">Next: Speed and cost →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/evalml-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

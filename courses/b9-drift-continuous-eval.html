@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practitioner session 9 · Drift + continuous evaluation - learn model evaluation with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-model-evaluation-with-phoebe</a> / Practitioner session 9 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Model Evaluation with Phoebe · Practitioner track · Session 9 of 10</div>
+    <h1>Drift + <span class="accent">continuous evaluation</span></h1>
+    <p class="sub">Eight sessions of metrics, and every one of them was a snapshot. Tonight the snapshot becomes a film: capability evals that climb, regression evals that guard every merge, a golden set that grows from real production failures, and Rule #37's ladder that tells you WHO owns each offline-online gap. This is the session about the third project killer - static evals in a drifting world - and the loop that defeats it. b10 will write the plan onto the eval sheet; tonight you build the loop the plan describes.</p>
+    <div class="chip-row">
+      <span class="chip level">🔴 Practitioner track</span>
+      <span class="chip audience">DS · analysts · ML + AI engineers</span>
+      <span class="chip audience">Python · live evaluator on key pages</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · Evals as a process</span>
+      <span class="a3" style="flex:5">18-42 · Build-along: the continuous loop</span>
+      <span class="a4" style="flex:1">42-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ PART 1: EVALS AS A PROCESS ============ -->
+  <section class="section" id="evals-as-process">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers Anthropic "Demystifying evals for AI agents" + develop-tests</span>
+      <h2>The third project killer <span class="tag concept">8 min live</span></h2>
+    </div>
+    <p class="lede">The course spine names three project killers, and this is the last one: <strong>static evals in a drifting world</strong>. The story is always the same. The system passed its eval at launch. Then the data drifted, the vendor silently upgraded the model underneath it, and users found phrasings nobody had tested. Six months later a ticket arrives: "the AI stopped working" - and nobody can say when it stopped, or why, because after launch day nothing was measuring. The fix is not a better metric. It is turning evaluation from an event into a loop.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Left: the continuous loop - golden set to CI gate to ship to production sampling to new failures and around again. Right: the broken one-shot variant - eval at launch, months of silence, then the incident.">
+        <style>
+          .d9T { font: 700 14px Inter, sans-serif; fill: #FFFFFF; }
+          .d9S { font: 400 11.5px Inter, sans-serif; fill: #FFFFFF; opacity: .92; }
+          .d9I { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .d9X { font: 400 12px Inter, sans-serif; fill: #64748B; }
+          .d9N { font: 600 13px Inter, sans-serif; fill: #043029; }
+          .d9B { font: 700 13px Inter, sans-serif; fill: #991B1B; }
+          .d9Wire { stroke: #86198F; stroke-width: 2.5; fill: none; marker-end: url(#d9Hd); }
+          .d9Dash { stroke: #64748B; stroke-width: 2; fill: none; stroke-dasharray: 5 5; marker-end: url(#d9Gd); }
+        </style>
+        <defs>
+          <marker id="d9Hd" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0,0 L9,4.5 L0,9 z" fill="#86198F"/>
+          </marker>
+          <marker id="d9Gd" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0,0 L9,4.5 L0,9 z" fill="#64748B"/>
+          </marker>
+        </defs>
+        <text class="d9I" x="40" y="32">THE CONTINUOUS LOOP</text>
+        <text class="d9I" x="640" y="32">THE ONE-SHOT EVAL</text>
+        <rect x="40" y="48" width="160" height="64" rx="10" fill="#86198F"/>
+        <text class="d9T" x="56" y="74">GOLDEN SET</text>
+        <text class="d9S" x="56" y="94">20-50 real failures</text>
+        <rect x="240" y="48" width="160" height="64" rx="10" fill="#581C87"/>
+        <text class="d9T" x="256" y="74">CI GATE</text>
+        <text class="d9S" x="256" y="94">dip = blocked merge</text>
+        <rect x="440" y="48" width="130" height="64" rx="10" fill="#86198F"/>
+        <text class="d9T" x="456" y="74">SHIP</text>
+        <text class="d9S" x="456" y="94">version pinned</text>
+        <rect x="330" y="182" width="240" height="64" rx="10" fill="#581C87"/>
+        <text class="d9T" x="346" y="208">PRODUCTION SAMPLING</text>
+        <text class="d9S" x="346" y="228">score a live slice nightly</text>
+        <rect x="40" y="182" width="240" height="64" rx="10" fill="#C026D3"/>
+        <text class="d9T" x="56" y="208">NEW FAILURES</text>
+        <text class="d9S" x="56" y="228">feed the golden set</text>
+        <path class="d9Wire" d="M200,80 L235,80"/>
+        <path class="d9Wire" d="M400,80 L435,80"/>
+        <path class="d9Wire" d="M505,112 C505,145 470,158 462,177"/>
+        <path class="d9Wire" d="M330,214 L285,214"/>
+        <path class="d9Wire" d="M120,180 L120,117"/>
+        <text class="d9X" x="148" y="152">around again - every merge, every night</text>
+        <rect x="640" y="48" width="210" height="56" rx="10" fill="#FDF4FF" stroke="#C026D3" stroke-width="2"/>
+        <text class="d9I" x="658" y="72">EVAL AT LAUNCH</text>
+        <text class="d9X" x="658" y="90">passed once - shipped</text>
+        <path class="d9Dash" d="M745,104 L745,176"/>
+        <text class="d9X" x="758" y="128">data drifts</text>
+        <text class="d9X" x="758" y="144">vendor upgrades</text>
+        <text class="d9X" x="758" y="160">new phrasings</text>
+        <rect x="640" y="182" width="210" height="64" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="2"/>
+        <text class="d9B" x="658" y="208">THE INCIDENT</text>
+        <text class="d9X" x="658" y="228">"the AI stopped working"</text>
+        <rect x="40" y="300" width="14" height="14" rx="3" fill="#0E7C6B"/>
+        <text class="d9N" x="64" y="312">Left: failures grow the golden set - the evals move with the world. Right: nothing measured, nothing known.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the continuous loop vs the one-shot eval</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Anthropic's split: capability vs regression evals<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Anthropic's agent-eval guidance draws one line through every test you will ever write, and the line is the question the test answers:</p>
+        <ul>
+          <li><strong>Capability evals</strong> ask "what can it do?" They start at low pass rates and climb as you build - a capability eval at 35% is a roadmap, not a failure.</li>
+          <li><strong>Regression evals</strong> ask "does it still work?" They hold at ~100%, and any dip blocks the merge. A regression eval at 96% is not "pretty good" - it is an alarm.</li>
+        </ul>
+        <p>Most teams only ever build the first kind, run it once, and call the project evaluated. The second kind is what keeps b1-b8's numbers true next quarter: yesterday's hardest capability cases graduate into today's regression suite, and the suite runs on every change - your code, your prompts, your data, and (Part 2's point) the vendor's model.</p>
+        <p>The same guidance names the working posture: <strong>eval-driven development</strong> - write the evals BEFORE building the capability, the way test-driven developers write the test before the function. The eval defines "done"; the build chases it. Teams that eval after building inevitably eval what they built instead of what was needed.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Golden-set-first, and the pass@k recap<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>If you adopt one habit from tonight, adopt this one: before any build or fix, spend one hour collecting <strong>20-50 cases from real failures</strong> into a golden set. It is the highest-ROI hour in applied ML - it converts "the AI seems off" into a number you can watch move, and it is the seed the whole loop above grows from. The first project killer (no golden set before building) and the third (static evals) have the same cure: the set exists early, and it keeps growing.</p>
+        <p>For agents, recall the two aggregate scores from the agents course - same data, opposite questions:</p>
+        <ul>
+          <li><strong>pass@k</strong>: at least one of k trials succeeds - the capability CEILING. "Can it ever do this?"</li>
+          <li><strong>pass^k</strong>: all k trials succeed - the reliability FLOOR. "Can I depend on it?"</li>
+        </ul>
+        <p>Capability evals naturally report pass@k flavors; regression evals should think in pass^k, because production does not get k attempts.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The vendor upgrade nobody announced.</strong> A support-bot team saw resolution quality slide over a weekend. No deploy, no data change - the API provider had upgraded the underlying model in place. The team had no regression suite pinned to a model version, so the first detector was a customer complaint thread. A 40-case golden set on a nightly cron would have caught it Saturday morning, with the delta labeled and dated. That suite now exists; it was written the following Monday, which is the expensive way to schedule it.</p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: THE SKEW LADDER ============ -->
+  <section class="section" id="skew-ladder">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers Google Rules of ML #37 + #24</span>
+      <h2>Three gaps, three owners <span class="tag concept">10 min live</span></h2>
+    </div>
+    <p class="lede">"Offline says 0.83, production feels broken" is not one mystery - it is three possible gaps stacked in a ladder, and Rule #37 of Google's Rules of ML names each rung. Measure the same metric at four checkpoints - training data, holdout, next-day data, live traffic - and the LOCATION of the gap tells you which team owns the fix. Debugging all three rungs as one blob is how a two-day fix becomes a two-month standoff.</p>
+
+    <table class="clean">
+      <thead>
+        <tr><th>Gap</th><th>What it means</th><th>Who owns it</th><th>The fix lives in</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>1 · Train vs holdout</strong></td><td>Overfitting - the model memorized instead of learning</td><td>Modeling</td><td>Regularization, simpler models, more data</td></tr>
+        <tr><td><strong>2 · Holdout vs next-day</strong></td><td>Drift or stale features - the world moved since the snapshot</td><td>Data</td><td>Feature freshness, retraining cadence, drift checks</td></tr>
+        <tr><td><strong>3 · Next-day vs live</strong></td><td>Serving skew - the pipeline itself disagrees with training</td><td>Platform</td><td>The serving path: logging, transforms, feature parity</td></tr>
+      </tbody>
+    </table>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Rung 3 is the strange one - and the quote to keep<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Rungs 1 and 2 are statistics; rung 3 is not. A gap between next-day data and live traffic, in Rule #37's words, "typically signals engineering errors, since identical inputs should produce identical outputs." The model is fine, the data is fine - the serving pipeline is computing a feature differently than training did, dropping a field, or applying yesterday's encoder. That is why the ladder assigns it to platform, not to the modelers: no amount of retraining fixes a transform that disagrees with itself.</p>
+        <p>The diagnostic discipline: <strong>three gaps, three owners, three different fixes - never debug all three as one mystery.</strong> When someone says "the model got worse in prod," your first question is now: worse at which rung?</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Version pinning, or: your vendor is on the ladder too<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The classic ladder assumed the model only changes when YOU change it. LLM systems break that assumption - the model can change under your feet. The discipline that restores it:</p>
+        <ul>
+          <li><strong>Pin model versions</strong> - exact version strings in config, never "latest". An unpinned model is an unowned rung 3.</li>
+          <li><strong>Re-run the full suite on ANY model change</strong> - yours or the vendor's. A version bump is a deploy; treat it like one. Rule #24's companion habit applies: measure the delta between the new model and the current one on the same data before swapping.</li>
+          <li><strong>Judge models too</strong> - b7 made the judge a measurement instrument with a calibration number. A judge-model upgrade silently re-calibrates every score it has ever produced, so the judge's version is pinned and its human-agreement number is re-measured on change, same as any other model.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: THE TWO-HOP CHAIN + THE LOOP IN CODE ============ -->
+  <section class="section" id="proxy-chain">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers Google Rules of ML #39, Anthropic production practice</span>
+      <h2>The two-hop chain, completed <span class="tag demo">★ build-along · 14 min</span></h2>
+    </div>
+    <p class="lede">b5 planted the flag; tonight the full picture. Rule #39: your launch metrics are proxies. The chain is <strong>eval score -&gt; online metric -&gt; business goal</strong>, and each hop breaks independently, which makes it a diagnostic tool and not just a humility exercise. <strong>Offline up, revenue flat</strong> is usually hop 1-2: drift or serving skew (Part 2's ladder), or an eval metric detached from real user pain. <strong>Engagement up, satisfaction down</strong> is hop 2-3: the classic clickbait failure, where the online metric itself stopped meaning what you hoped. Name the hop before proposing the fix.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Production sampling in practice<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The loop's fourth box, concretely: score a slice of live traffic on the SAME metrics as your offline eval, and alert on deltas against the eval baseline. Not all traffic - a sample; not new metrics - the same ones, so a delta means the world moved, not the ruler. Practical shape:</p>
+        <ul>
+          <li>Sample 100-500 interactions a day (stratify by segment if b5's constraints are per-segment).</li>
+          <li>Score with the same graders the offline suite uses - code graders directly; LLM judges with the pinned judge version from b7.</li>
+          <li>Alert when a metric leaves its band vs the eval baseline; route the alert by the skew ladder's owner map.</li>
+          <li><strong>User feedback (thumbs up/down) is a cheap online signal with known biases</strong> - angry users click more than happy ones, and most users click nothing. Use it as a trend line and a failure-case miner, never as the metric itself.</li>
+        </ul>
+      </div>
+    </details>
+
+    <p class="lede">Now build the nightly job - the whole session in one pseudo-snippet. This is deliberately boring code: a cron, a sample, a comparison, an alert. The value is not in the cleverness; it is in the fact that it runs every night, forever.</p>
+
+    <div class="steps">
+      <div class="step"><p>Sample yesterday's traffic and score it with the exact metrics and graders the offline suite uses. Same ruler, new data.</p></div>
+      <div class="step"><p>Load the eval baseline recorded against the PINNED model version. If nobody wrote the baseline down at ship time, tonight's first action item writes it down.</p></div>
+      <div class="step"><p>Compare, and alert on any metric outside its band - routing by owner: modeling, data, or platform, per the ladder.</p></div>
+      <div class="step"><p>Queue the failures for golden-set review. This line is the loop closing: production's surprises become next week's regression cases.</p></div>
+    </div>
+
+<pre><code># nightly_eval.py - the continuous loop as a cron job
+sample   = sample_production_traffic(n=200, day="yesterday")
+scores   = run_metrics(sample, metrics=SAME_METRICS_AS_OFFLINE)
+baseline = load_baseline(model_version=PINNED)   # written at ship time
+
+for name, value in scores.items():
+    delta = value - baseline[name]
+    if abs(delta) > ALERT_BAND[name]:
+        page_the_owner(name, delta)              # skew ladder decides who
+
+queue_for_golden_set(scores.failures)            # the loop closes here</code></pre>
+
+    <div class="callout tip">
+      <strong>Setting the alert band</strong>
+      Run the job for two quiet weeks before wiring the pager - the day-to-day wobble you observe IS the band. Alerting on every wiggle trains everyone to ignore the alerts, which rebuilds the one-shot eval with extra steps.
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 30-40 min total</span></h2>
+    </div>
+    <ul>
+      <li>For one system you own, sort its existing tests into capability vs regression. If the regression pile is empty, promote your 5 hardest passing capability cases into it and wire them to block merges.</li>
+      <li>Spend the golden hour: collect 20-50 real failure cases for a system that has none. Date the file - the freshness date goes on b10's sheet.</li>
+      <li>Take one past "worse in prod" incident and place it on the skew ladder: which rung, which owner, and was it debugged that way at the time? Two sentences.</li>
+      <li>Check one production model or LLM dependency for version pinning. If it says "latest," draft the one-line config change and the re-run-the-suite ritual that goes with it.</li>
+      <li>Hands-on tracing, observability dashboards, and CI wiring for LLM evals live in the sibling course: learn-evals-with-phoebe. This session gave you the doctrine; that course gives you the harness.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">Certificates and graded assessments stay with the official providers (linked each session). This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Anthropic - "Demystifying evals for AI agents" + develop-tests</span><span class="note">Capability vs regression, eval-driven development, golden-set-first, pass@k vs pass^k</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Google Rules of ML - Rules #24, #37, #39</span><span class="note">The skew ladder + measuring model deltas · #39's chain, previewed in b5, completes here</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">OpenAI evals guide - the continuous-eval framing</span><span class="note">Concepts only - the platform is deprecating Nov 30, 2026; taxonomy stays with b7</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">learn-evals-with-phoebe (sibling course)</span><span class="note">Tracing, observability, and CI wiring hands-on live there - this course owns the metrics</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · In Anthropic's split, which statement describes a REGRESSION eval?</p>
+      <button class="qopt" type="button">A · It starts at a low pass rate and climbs as the capability is built</button>
+      <button class="qopt" type="button">B · It holds at ~100%, and any dip blocks the merge</button>
+      <button class="qopt" type="button">C · It runs once at launch to certify the system for production</button>
+      <p class="qwhy">Capability evals ("what can it do?") start low and climb; regression evals ("does it still work?") hold ~100% and gate every change. Option C is the one-shot pattern - the third project killer this whole session exists to kill.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · Holdout metrics look fine, but the same metric sags on next-day data. On Rule #37's ladder, who owns the fix?</p>
+      <button class="qopt" type="button">A · Modeling - this is overfitting, regularize harder</button>
+      <button class="qopt" type="button">B · Platform - identical inputs should produce identical outputs</button>
+      <button class="qopt" type="button">C · Data - this gap is drift or stale features; the world moved since the snapshot</button>
+      <p class="qwhy">Rung 2 (holdout vs next-day) belongs to data: freshness, retraining cadence, drift checks. A is rung 1 (train vs holdout); B is rung 3 (next-day vs live), which "typically signals engineering errors." Three gaps, three owners.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · The offline eval score improved for a quarter, but revenue is flat. Which hop of the two-hop chain most likely broke?</p>
+      <button class="qopt" type="button">A · Hop 1-2 (eval score to online metric) - drift, serving skew, or a metric detached from real user pain</button>
+      <button class="qopt" type="button">B · Hop 2-3 (online metric to business goal) - the clickbait failure</button>
+      <button class="qopt" type="button">C · Neither - a flat business metric means the eval needs a bigger model</button>
+      <p class="qwhy">Offline-up-revenue-flat is the signature of hop 1-2: the eval score moved but the online metric never followed. Hop 2-3's signature is different - engagement up, satisfaction down. Name the hop first; the fix follows from the location.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Practitioner session 9 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>Capability vs regression</b><span>"What can it do?" starts low and climbs. "Does it still work?" holds ~100% - any dip blocks the merge. Build both.</span></div>
+      <div class="cheat-item"><b>Eval-driven development</b><span>Write the evals BEFORE building the capability. The eval defines done; the build chases it.</span></div>
+      <div class="cheat-item"><b>Golden-set-first</b><span>20-50 cases from real failures, collected in one hour, before any fix. The highest-ROI hour in applied ML.</span></div>
+      <div class="cheat-item"><b>pass@k vs pass^k</b><span>At least one of k = capability ceiling. All k = reliability floor. Regression thinking is pass^k - production gets one attempt.</span></div>
+      <div class="cheat-item"><b>The skew ladder (Rule #37)</b><span>Train-vs-holdout = overfitting (modeling) · holdout-vs-next-day = drift (data) · next-day-vs-live = engineering error (platform).</span></div>
+      <div class="cheat-item"><b>Version pinning</b><span>Pin every model incl. the judge; re-run the full suite on ANY change, yours or the vendor's. Measure the delta before swapping (Rule #24).</span></div>
+      <div class="cheat-item"><b>Two-hop chain (Rule #39)</b><span>Eval -&gt; online -&gt; business. Offline-up-revenue-flat = hop 1-2. Engagement-up-satisfaction-down = hop 2-3.</span></div>
+      <div class="cheat-item"><b>Production sampling</b><span>Score a live slice nightly on the SAME metrics, alert on band exits, feed failures back to the golden set. Thumbs = trend line, not metric.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Practitioner session 9 of 10 · learn-model-evaluation-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="b8-operational-metrics.html">← b8 · Operational metrics</a> &nbsp;·&nbsp; <a href="../index.html">All sessions</a> &nbsp;·&nbsp; <a href="b10-capstone-eval-sheet.html">Next: Capstone →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

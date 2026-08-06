@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practitioner session 8 · Operational metrics - learn model evaluation with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-model-evaluation-with-phoebe</a> / Practitioner session 8 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Model Evaluation with Phoebe · Practitioner track · Session 8 of 10</div>
+    <h1>Operational <span class="accent">metrics</span></h1>
+    <p class="sub">Quality metrics tell you whether the answer is good. Tonight's metrics tell you whether anyone will wait for it and whether you can afford to serve it. You will learn the NVIDIA serving vocabulary - TTFT, ITL, the identity that ties them together - plus per-query cost arithmetic and the discipline of budgeting p95, not averages. Then the payoff: latency and price go INSIDE the eval sheet as first-class success criteria, completing the satisficing architecture b5 started. A system with rising judge scores and 8-second answers is not a good system - it is a churn machine with a nice dashboard.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Practitioner track</span>
+      <span class="chip audience">DS · analysts · ML + AI engineers</span>
+      <span class="chip audience">Python · live evaluator on key pages</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · The serving math</span>
+      <span class="a3" style="flex:5">18-42 · Build-along: budget the Lumen assistant</span>
+      <span class="a4" style="flex:1">42-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ PART 1: THE SERVING MATH ============ -->
+  <section class="section" id="serving-math">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers NVIDIA NIM benchmarking metrics (TTFT / ITL / TPS)</span>
+      <h2>The serving math <span class="tag concept">8 min live</span></h2>
+    </div>
+    <p class="lede">The NVIDIA benchmarking definitions, exactly - these are the industry's shared vocabulary, so learn them as written. <strong>TTFT</strong> (time to first token) = submit -&gt; first token; it contains the queue wait, the prefill of your prompt, and the network hop, and it owns the "is it thinking?" UX moment. <strong>ITL</strong> (inter-token latency, also called TPOT) = (e2e - TTFT) / (output_tokens - 1) - the decode smoothness, how fluid the streaming feels. And the identity that ties them: <strong>e2e = TTFT + (tokens - 1) x ITL</strong>. Sanity-check any vendor claim with it - the three numbers must reconcile, and when they do not, that is your first question.</p>
+
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The TTFT / ITL / TPS vocabulary read straight from the NVIDIA definitions, the identity as a vendor lie-detector, the batching tradeoff (system throughput vs each user's experience), per-query cost arithmetic with its four levers, and latency + price written into the eval sheet as owner-signed constraints.
+    </div>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The request timeline: queue, prefill, first token, streaming decode, done - with TTFT and ITL brackets and the identity equation.">
+        <style>
+          .p8T { font: 700 13px Inter, sans-serif; fill: #FFFFFF; }
+          .p8S { font: 400 11.5px Inter, sans-serif; fill: #FFFFFF; opacity: .92; }
+          .p8I { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .p8X { font: 400 12px Inter, sans-serif; fill: #64748B; }
+          .p8M { font: 700 12px Inter, sans-serif; fill: #C026D3; }
+          .p8N { font: 600 13px Inter, sans-serif; fill: #043029; }
+        </style>
+        <text class="p8I" x="60" y="34">ONE REQUEST, START TO FINISH</text>
+        <text class="p8I" x="470" y="68">ITL / TPOT = gap between tokens</text>
+        <line x1="520" y1="74" x2="520" y2="94" stroke="#0E7C6B" stroke-width="2"/>
+        <line x1="560" y1="74" x2="560" y2="94" stroke="#0E7C6B" stroke-width="2"/>
+        <line x1="520" y1="76" x2="560" y2="76" stroke="#0E7C6B" stroke-width="2"/>
+        <rect x="60" y="100" width="110" height="40" rx="6" fill="#64748B"/>
+        <text class="p8T" x="76" y="124">QUEUE</text>
+        <rect x="170" y="100" width="150" height="40" rx="6" fill="#86198F"/>
+        <text class="p8T" x="186" y="124">PREFILL</text>
+        <rect x="320" y="100" width="440" height="40" rx="6" fill="#581C87"/>
+        <text class="p8T" x="344" y="118">STREAMING DECODE</text>
+        <text class="p8S" x="344" y="133">one tick = one token</text>
+        <line x1="440" y1="100" x2="440" y2="140" stroke="#F0ABFC" stroke-width="1.5"/>
+        <line x1="480" y1="100" x2="480" y2="140" stroke="#F0ABFC" stroke-width="1.5"/>
+        <line x1="520" y1="100" x2="520" y2="140" stroke="#F0ABFC" stroke-width="1.5"/>
+        <line x1="560" y1="100" x2="560" y2="140" stroke="#F0ABFC" stroke-width="1.5"/>
+        <line x1="600" y1="100" x2="600" y2="140" stroke="#F0ABFC" stroke-width="1.5"/>
+        <line x1="640" y1="100" x2="640" y2="140" stroke="#F0ABFC" stroke-width="1.5"/>
+        <line x1="680" y1="100" x2="680" y2="140" stroke="#F0ABFC" stroke-width="1.5"/>
+        <line x1="720" y1="100" x2="720" y2="140" stroke="#F0ABFC" stroke-width="1.5"/>
+        <line x1="320" y1="88" x2="320" y2="152" stroke="#C026D3" stroke-width="3"/>
+        <text class="p8M" x="286" y="82">FIRST TOKEN</text>
+        <text class="p8I" x="764" y="124">DONE</text>
+        <line x1="60" y1="166" x2="320" y2="166" stroke="#0E7C6B" stroke-width="2"/>
+        <line x1="60" y1="158" x2="60" y2="166" stroke="#0E7C6B" stroke-width="2"/>
+        <line x1="320" y1="158" x2="320" y2="166" stroke="#0E7C6B" stroke-width="2"/>
+        <text class="p8N" x="60" y="186">TTFT = submit -&gt; first token (queue + prefill + network) - the "is it thinking?" moment</text>
+        <line x1="60" y1="210" x2="760" y2="210" stroke="#0E7C6B" stroke-width="2"/>
+        <line x1="60" y1="202" x2="60" y2="210" stroke="#0E7C6B" stroke-width="2"/>
+        <line x1="760" y1="202" x2="760" y2="210" stroke="#0E7C6B" stroke-width="2"/>
+        <text class="p8N" x="60" y="230">e2e = the whole bar, submit to done</text>
+        <rect x="60" y="262" width="14" height="14" rx="3" fill="#0E7C6B"/>
+        <text class="p8N" x="84" y="274">The identity: e2e = TTFT + (tokens - 1) x ITL. Sanity-check every vendor claim - if it does not add up, ask why.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the request timeline with the TTFT and ITL brackets and the identity</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>System TPS vs per-user TPS: the batching tradeoff<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Two throughput numbers that vendors love to blur: <strong>system TPS</strong> = total output tokens / wall time, across ALL concurrent requests - the infra bill's metric. <strong>Per-user TPS</strong> - what one person actually experiences in their stream. Under batching they diverge, by design: batching more requests together raises system throughput while degrading each user's ITL.</p>
+        <ul>
+          <li>Big batches: cheaper per token, choppier for every individual user.</li>
+          <li>Small batches: smoother streams, a larger serving bill.</li>
+          <li>There is no correct setting - <strong>you choose, per product.</strong> A batch-overnight summarizer and a live chat assistant should not share a batching config, or a latency budget.</li>
+        </ul>
+        <p>When a vendor quotes one glorious TPS number, ask which one it is, and at what concurrency. The identity from the figure catches the rest.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Percentile discipline: budget p95, never averages<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Latency distributions have long right tails: most requests are fine, and a few are terrible. An average blends the terrible into the fine and reports "fine." Users do not experience your average - the one 9-second answer is what they remember and what they quote in the churn survey.</p>
+        <p>So the budget is written in percentiles: <strong>p95 TTFT &lt;= 800ms</strong> means 95% of requests see a first token inside 800ms, and you are watching the slowest 5% explicitly. For anything user-facing, budget p95 or p99; use the average only for capacity planning. One slow tail kills perceived quality - and the average will never tell you it is happening.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The identity as three lines of Python<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Worth keeping in a scratch notebook for vendor meetings:</p>
+<pre><code># e2e = TTFT + (tokens - 1) x ITL - reconcile any latency claim
+ttft, itl, out_tokens = 0.42, 0.03, 120   # seconds, seconds, tokens
+e2e = ttft + (out_tokens - 1) * itl
+print(f"implied e2e: {e2e:.2f}s")          # 3.99s - does the claimed e2e match?</code></pre>
+        <p>If a datasheet claims sub-second answers with those components, the numbers do not reconcile - someone is quoting TTFT as e2e, or averaging away the tail. Either way, you now have the question.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: COST PER QUERY ============ -->
+  <section class="section" id="cost-per-query">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · the money column</span>
+      <h2>Cost per query, and the ROI arithmetic <span class="tag concept">8 min live</span></h2>
+    </div>
+    <p class="lede">The cost of one query is not mysterious: <strong>tokens in x input price + tokens out x output price + retries</strong>. What teams skip is multiplying it by volume and putting it next to the quality number - which is the only place it means anything. The levers, in rough order of cheapness: <strong>model tier per step</strong> (not every step needs the big model), <strong>prompt caching</strong> (stop paying full price for the same system prompt), <strong>output-length discipline</strong> (you pay per output token; rambling is a line item), and <strong>max-turn caps</strong> (an agent that loops is a bill that loops).</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Build-along: budget the Lumen assistant<span class="mini">14 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The Lumen support assistant, choosing between two models. Put quality and cost on the same sheet and let the arithmetic speak:</p>
+        <table class="clean">
+          <thead>
+            <tr><th></th><th>Model A</th><th>Model B</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Quality (judge score, b7-calibrated)</strong></td><td>0.86</td><td>0.88</td></tr>
+            <tr><td><strong>Cost per query</strong></td><td>$0.004</td><td>$0.021</td></tr>
+            <tr><td><strong>Volume</strong></td><td>40,000 queries/mo</td><td>40,000 queries/mo</td></tr>
+            <tr><td><strong>Monthly cost</strong></td><td><strong>$160</strong></td><td><strong>$840</strong></td></tr>
+          </tbody>
+        </table>
+        <p>Model B buys 2 quality points for <strong>$680/mo more</strong> - roughly 5x the cost. Is 2 points worth $680 a month? Maybe! If those points sit exactly where escalations happen, possibly yes. The lesson is not the verdict - it is that <strong>this is a product decision, and it belongs on the sheet</strong>, made by someone who can see both columns. The general rule of thumb: a 2% quality win at 5x cost is usually a loss.</p>
+        <div class="steps">
+          <div class="step"><p>Compute your own version: your assistant's average tokens in/out, your models' prices, your monthly volume. One spreadsheet row per candidate model.</p></div>
+          <div class="step"><p>Add the retry rate - a 10% retry rate is a 10% surcharge on everything, and it hides in logs, not in price sheets.</p></div>
+          <div class="step"><p>Now apply one lever (caching, shorter outputs, or a cheaper model on the easy step) and recompute. The cheapest quality point is usually the one you did not have to buy back.</p></div>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: OPERATIONS INSIDE THE EVAL SHEET ============ -->
+  <section class="section" id="eval-sheet">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers Anthropic define-success, Ng satisficing vs optimizing</span>
+      <h2>Latency and price go inside the eval sheet <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Anthropic's own define-success guidance lists latency and price among its success-criteria categories - they are not infra footnotes, they are eval criteria with the same standing as quality. The instrument for holding them together is Ng's satisficing-vs-optimizing pattern from b5, now completed for an LLM system: <strong>one metric to maximize, everything else a hard constraint.</strong></p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The satisficing architecture, completed<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The Lumen assistant's eval sheet, in one sentence:</p>
+<pre><code>maximize   task success on the golden set
+subject to faithfulness &gt;= 0.9
+           p95 TTFT     &lt;= 800ms
+           cost         &lt;= $0.02/query</code></pre>
+        <p>Three rules that make it real rather than decorative:</p>
+        <ul>
+          <li><strong>Every constraint is owner-signed.</strong> Support owns the faithfulness floor, product owns the latency budget, finance owns the cost cap. A constraint nobody signed is a suggestion.</li>
+          <li><strong>Constraints are pass/fail, not tradeable.</strong> A model that scores 0.95 on quality but blows the latency budget does not ship - that is the entire point of writing it down.</li>
+          <li><strong>The optimizing metric stays singular.</strong> One number to climb keeps iteration fast (Ng's single-number doctrine); the constraints keep the climb from wandering somewhere expensive.</li>
+        </ul>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The assistant that got better and lost its users.</strong> A team shipped an assistant and watched judge scores rise release after release - richer answers, better citations, longer reasoning. Answers also crept from 2 seconds to 8. Users churned to the old search box. The postmortem's one line: latency was never a success criterion, so nobody was failing - every dashboard was green while the product died. One row on the eval sheet would have caught it in week one.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where the sheet goes next<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>You now hold every column of the eval sheet: the classic metrics and their costs (b1-b5), LLM quality metrics (b6), a calibrated grader to compute them (b7), and tonight's latency and price constraints. b9 makes the whole thing continuous - drift, regression evals, the two-hop proxy chain - and b10 assembles the full sheet for Lumen's classic model and a RAG assistant, every number defended.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 20-30 min total</span></h2>
+    </div>
+    <ul>
+      <li>Take any LLM feature you can measure and compute its real cost per query from logs: tokens in, tokens out, retries. Multiply by monthly volume. Show someone the number.</li>
+      <li>Find one vendor latency claim and reconcile it with the identity: e2e = TTFT + (tokens - 1) x ITL. Write down what is missing from the claim (percentile? concurrency? which TPS?).</li>
+      <li>Draft the satisficing sentence for a system you own: one metric to maximize, two or three constraints with numbers - then find the owner for each constraint and get the sign-off. That conversation IS the deliverable.</li>
+      <li>Check one latency dashboard you rely on: does it show p95/p99 or an average? If average, you have this week's cheapest fix.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">This session teaches the NVIDIA serving vocabulary as the industry standard, then wires latency and price into the eval sheet using Anthropic's success-criteria categories and Ng's satisficing pattern. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">NVIDIA NIM benchmarking metrics - TTFT, ITL/TPOT, system vs per-user TPS</span><span class="note">Part 1 · the identity + the batching tradeoff, definitions quoted exactly</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Anthropic define-success - latency + price among the success-criteria categories</span><span class="note">Part 3 · operations as first-class eval criteria</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Ng, Structuring ML Projects - satisficing vs optimizing metrics</span><span class="note">The architecture from b5, completed here for LLM systems</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">evalml canon - the Lumen assistant budget + eval-sheet constraints</span><span class="note">Worked example · the full sheet assembles in b10</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · Users complain the assistant "sits there thinking forever" before anything appears, but once text starts it flows fine. Which metric owns that complaint?</p>
+      <button class="qopt" type="button">A · ITL - the decode is too slow between tokens</button>
+      <button class="qopt" type="button">B · TTFT - the queue + prefill + network stretch before the first token</button>
+      <button class="qopt" type="button">C · System TPS - total throughput is too low</button>
+      <p class="qwhy">The dead air before the first character is TTFT's territory - queue, prefill, network. ITL owns the opposite complaint: text that starts fast but stutters as it streams. Matching the user's complaint to the right metric is what makes the fix findable.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · A vendor claims: e2e 1.5s, TTFT 400ms, 100 output tokens, ITL 30ms. What does the identity say?</p>
+      <button class="qopt" type="button">A · The claim checks out - the numbers reconcile</button>
+      <button class="qopt" type="button">B · Nothing - the identity only applies to batched serving</button>
+      <button class="qopt" type="button">C · It does not add up: 0.4 + 99 x 0.03 = 3.37s, not 1.5s - ask which number is wrong</button>
+      <p class="qwhy">e2e = TTFT + (tokens - 1) x ITL = 0.4 + 99 x 0.03 = 3.37s - more than double the claimed 1.5s. Maybe the token count is smaller, maybe the ITL is a best case, maybe e2e is a p50 while the rest are means. The identity does not tell you which - it tells you to ask.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · Why does the latency budget say "p95 TTFT &lt;= 800ms" instead of "average TTFT &lt;= 800ms"?</p>
+      <button class="qopt" type="button">A · Latency has a long right tail - an average hides the slow requests users actually remember</button>
+      <button class="qopt" type="button">B · p95 is easier to compute than an average</button>
+      <button class="qopt" type="button">C · Averages are fine for latency; p95 is just convention</button>
+      <p class="qwhy">Most requests are fine and a few are terrible; the average blends them and reports "fine." A p95 budget watches the slowest 5% explicitly - and one slow tail kills perceived quality faster than a mediocre median ever will. Averages are for capacity planning, percentiles are for users.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Practitioner session 8 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>TTFT</b><span>Submit -&gt; first token: queue + prefill + network. Owns the "is it thinking?" moment - the perceived-responsiveness metric.</span></div>
+      <div class="cheat-item"><b>ITL / TPOT</b><span>(e2e - TTFT) / (output_tokens - 1). Decode smoothness - how fluid the stream feels once it starts.</span></div>
+      <div class="cheat-item"><b>The identity</b><span>e2e = TTFT + (tokens - 1) x ITL. Reconcile every vendor latency claim with it; numbers that break it are your first question.</span></div>
+      <div class="cheat-item"><b>Batching tradeoff</b><span>System TPS (total tokens / wall time) rises with batching while each user's ITL degrades. No correct setting - choose per product.</span></div>
+      <div class="cheat-item"><b>Percentile discipline</b><span>Budget p95/p99, never averages - one slow tail kills perceived quality and the average will never show it. Averages are for capacity planning only.</span></div>
+      <div class="cheat-item"><b>Cost per query</b><span>Tokens in x input price + tokens out x output price + retries. Levers: model tier per step, prompt caching, output-length discipline, max-turn caps.</span></div>
+      <div class="cheat-item"><b>The ROI arithmetic</b><span>Lumen: 0.86 at $160/mo vs 0.88 at $840/mo - 2 points for $680. A 2% quality win at 5x cost is usually a loss; either way it is a product decision, on the sheet.</span></div>
+      <div class="cheat-item"><b>The satisficing sheet</b><span>Maximize task success on the golden set; subject to faithfulness &gt;= 0.9, p95 TTFT &lt;= 800ms, cost &lt;= $0.02/query. Every constraint owner-signed, pass/fail.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Practitioner session 8 of 10 · learn-model-evaluation-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="b7-grader-problem.html">← b7 · The grader problem</a> &nbsp;·&nbsp; <a href="../index.html">All sessions</a> &nbsp;·&nbsp; <a href="b9-drift-continuous-eval.html">Next: Drift + continuous eval →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

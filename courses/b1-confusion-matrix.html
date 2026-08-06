@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practitioner session 1 · The confusion matrix, cold - learn model evaluation with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-model-evaluation-with-phoebe</a> / Practitioner session 1 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Model Evaluation with Phoebe · Practitioner track · Session 1 of 10</div>
+    <h1>The confusion matrix, <span class="accent">cold</span></h1>
+    <p class="sub">Every evaluation metric you will ever use - classic or LLM - is an opinion about which mistakes matter. Tonight you learn the artifact those opinions are computed from: the confusion matrix, read until it is boring. You will meet Lumen's conversion model (the one the intro-ML course built), watch a 96.8%-accurate model be completely useless, and drag a real threshold on 2,000 real scored sessions in your browser. By b10 you will write a full evaluation sheet - metrics, costs, and ship gates - for a classic model and an LLM system, and defend every number on it.</p>
+    <div class="chip-row">
+      <span class="chip level">🟢 Practitioner track</span>
+      <span class="chip audience">DS · analysts · ML + AI engineers</span>
+      <span class="chip audience">Python · live evaluator on key pages</span>
+      <span class="chip time">Start here</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · The matrix + the accuracy paradox</span>
+      <span class="a3" style="flex:5">18-42 · Build-along: drag the threshold</span>
+      <span class="a4" style="flex:1">42-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>How this track works</h2>
+    </div>
+    <p class="lede">Ten sessions, one running case: <strong>Lumen Skincare's conversion model</strong> - the classifier the intro-ML course trained on 40,000 checkout sessions with a ~3.2% conversion rate. That course built the model; this course decides whether it is any good, what it is worth in dollars, and when to ship it. b1-b5 are the classic half (matrix, threshold, curves, regression and ranking, then the cost matrix - the session everything funnels into). b6-b8 are the LLM half (quality metrics, the grader problem, speed and cost). b9 makes evaluation continuous, b10 assembles the full eval sheet. Sibling courses: <strong>learn-intro-ml</strong> teaches the sklearn mechanics; <strong>learn-evals</strong> teaches the LLM eval harness hands-on. This course owns the metrics themselves.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill peach">▶ Live evaluator - real math on real scores</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The confusion matrix read fluently (which cell is which mistake, and who pays for it), the accuracy paradox demonstrated on Lumen's own base rate, and the habit this whole course is built on: before quoting any metric, ask "which mistakes does this number hide?"
+    </div>
+  </section>
+
+  <!-- ============ PART 1: THE MATRIX ============ -->
+  <section class="section" id="the-matrix">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers sklearn confusion_matrix, Google MLCC "Thresholds and the confusion matrix"</span>
+      <h2>Four cells, two kinds of pain <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">A binary classifier's predictions land in exactly four buckets. Two are correct (true positives, true negatives). Two are mistakes - and they are <em>different</em> mistakes, paid for by different people. A <strong>false positive</strong> at Lumen: the model flags a session as "will convert," marketing spends outreach money, nobody buys. A <strong>false negative</strong>: a real converter goes unflagged, no nudge arrives, a ~$74 order quietly does not happen. Every metric in this course is some ratio of these four cells - the matrix is the raw truth, the metrics are summaries with opinions.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The confusion matrix: predicted vs actual, four cells, with the two error types and who pays for each.">
+        <style>
+          .cmT { font: 700 14px Inter, sans-serif; fill: #FFFFFF; }
+          .cmS { font: 400 11.5px Inter, sans-serif; fill: #FFFFFF; opacity: .92; }
+          .cmI { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .cmX { font: 400 12px Inter, sans-serif; fill: #64748B; }
+          .cmN { font: 600 13px Inter, sans-serif; fill: #043029; }
+          .cmB { font: 700 12.5px Inter, sans-serif; fill: #991B1B; }
+        </style>
+        <text class="cmI" x="330" y="34">ACTUAL: converted</text>
+        <text class="cmI" x="580" y="34">ACTUAL: did not</text>
+        <text class="cmI" x="60" y="92">MODEL says</text>
+        <text class="cmI" x="60" y="110">"will convert"</text>
+        <text class="cmI" x="60" y="212">MODEL says</text>
+        <text class="cmI" x="60" y="230">"will not"</text>
+        <rect x="300" y="50" width="240" height="110" rx="10" fill="#86198F"/>
+        <text class="cmT" x="320" y="80">TRUE POSITIVE</text>
+        <text class="cmS" x="320" y="102">flagged, and they bought</text>
+        <text class="cmS" x="320" y="122">the outreach paid off</text>
+        <rect x="560" y="50" width="240" height="110" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="2"/>
+        <text class="cmB" x="580" y="80">FALSE POSITIVE</text>
+        <text class="cmX" x="580" y="102">flagged, never bought</text>
+        <text class="cmX" x="580" y="122">cost: wasted outreach (~$2)</text>
+        <rect x="300" y="170" width="240" height="110" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="2"/>
+        <text class="cmB" x="320" y="200">FALSE NEGATIVE</text>
+        <text class="cmX" x="320" y="222">a real buyer, missed</text>
+        <text class="cmX" x="320" y="242">cost: a lost order (~$74)</text>
+        <rect x="560" y="170" width="240" height="110" rx="10" fill="#581C87"/>
+        <text class="cmT" x="580" y="200">TRUE NEGATIVE</text>
+        <text class="cmS" x="580" y="222">not flagged, didn't buy</text>
+        <text class="cmS" x="580" y="242">correctly left alone</text>
+        <rect x="60" y="304" width="14" height="14" rx="3" fill="#0E7C6B"/>
+        <text class="cmN" x="84" y="316">The two error cells cost different amounts - $2 vs $74 at Lumen. Remember that asymmetry: b5 turns it into money.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the confusion matrix with Lumen's two error prices</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The accuracy paradox, on Lumen's numbers<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Lumen's conversion rate is ~3.2%. So consider the laziest possible model: <code>predict "will not convert", always</code>. Its confusion matrix has two occupied cells - all the true negatives, all the false negatives - and its accuracy is <strong>96.8%</strong>. A model that never finds a single customer outscores, on accuracy, most models that actually work.</p>
+        <p>Google's ML Crash Course states the general form: on data where a class appears 1% of the time, a model predicting negative 100% of the time scores 99% accuracy "despite being useless." This is not a curiosity - most valuable classification problems ARE rare-event problems: fraud, churn, conversion, defects, disease. Which means:</p>
+        <ul>
+          <li><strong>Accuracy is a rough progress indicator for balanced data only</strong> (Google's own metric table).</li>
+          <li>On imbalanced data, accuracy mostly measures the base rate, not the model.</li>
+          <li>sklearn ships <code>balanced_accuracy_score</code> (the macro-average of per-class recall) precisely because plain accuracy gives "inflated performance estimates on imbalanced datasets" - its docs' words.</li>
+        </ul>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The 99%-accurate fraud model.</strong> A bank's new fraud model reported 99.2% accuracy and got fast-tracked. First month in production it caught almost nothing: fraud was 0.4% of transactions, and the model had learned to say "legitimate" nearly always. Nobody had asked for the confusion matrix. One glance at the FN cell would have killed the launch in review - which is exactly the glance you now always take.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The matrix in sklearn, 60 seconds<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The intro-ML course covers this hands-on (its b7); here is the refresher:</p>
+<pre><code>from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+
+cm = confusion_matrix(y_test, model.predict(X_test))
+# rows = actual, columns = predicted (sklearn's convention - CHECK it,
+# other libraries and half the diagrams online transpose it)
+ConfusionMatrixDisplay(cm).plot()</code></pre>
+        <p>One habit worth stealing: print the matrix with labels, never as bare numbers. A transposed reading silently swaps precision and recall - a real and embarrassing class of bug.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: THE FOUR QUESTIONS ============ -->
+  <section class="section" id="four-questions">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers Google MLCC "Accuracy, recall, precision", sklearn metrics guide</span>
+      <h2>Every metric answers one question <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">The four cells combine into ratios, and each ratio answers exactly one question. Learn the QUESTION, not the formula, and you will never mix them up again: <strong>Accuracy</strong> - what fraction of everything did we get right? <strong>Precision</strong> - when we flag someone, how often are we right? <strong>Recall</strong> - of the real converters, how many did we catch? The fourth question - <strong>what does each mistake cost?</strong> - has no classic name, and it is the one the business actually asks. It gets its own session (b5).</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three metrics as three questions, each reading different cells of the matrix, and the fourth question - cost - that b5 answers.">
+        <style>
+          .fqT { font: 700 14px Inter, sans-serif; fill: #FFFFFF; }
+          .fqS { font: 400 11.5px Inter, sans-serif; fill: #FFFFFF; opacity: .92; }
+          .fqI { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .fqX { font: 400 12px Inter, sans-serif; fill: #64748B; }
+          .fqN { font: 600 13px Inter, sans-serif; fill: #043029; }
+        </style>
+        <rect x="40" y="40" width="256" height="88" rx="10" fill="#86198F"/>
+        <text class="fqT" x="58" y="68">PRECISION</text>
+        <text class="fqS" x="58" y="90">"When we flag, are we right?"</text>
+        <text class="fqS" x="58" y="110">reads: TP / (TP + FP)</text>
+        <rect x="312" y="40" width="256" height="88" rx="10" fill="#C026D3"/>
+        <text class="fqT" x="330" y="68">RECALL</text>
+        <text class="fqS" x="330" y="90">"How many did we catch?"</text>
+        <text class="fqS" x="330" y="110">reads: TP / (TP + FN)</text>
+        <rect x="584" y="40" width="256" height="88" rx="10" fill="#581C87"/>
+        <text class="fqT" x="602" y="68">ACCURACY</text>
+        <text class="fqS" x="602" y="90">"Right overall?" (careful)</text>
+        <text class="fqS" x="602" y="110">reads: (TP + TN) / all</text>
+        <rect x="176" y="168" width="528" height="66" rx="10" fill="#FDF4FF" stroke="#C026D3" stroke-width="2"/>
+        <text class="fqI" x="196" y="194">THE FOURTH QUESTION: "what does each mistake cost?"</text>
+        <text class="fqX" x="196" y="216">no classic name, owns session b5 - the $2-vs-$74 asymmetry becomes the decision</text>
+        <rect x="40" y="262" width="14" height="14" rx="3" fill="#0E7C6B"/>
+        <text class="fqN" x="64" y="274">Google's table: recall when false negatives cost more · precision when false positives cost more · accuracy only when balanced.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - three questions with names, and the fourth that pays the bills</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Which question does YOUR problem ask first?<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The fastest metric-literacy drill there is - name the dominant error cost, and the lead metric follows:</p>
+        <ul>
+          <li><strong>Cancer screening, fraud, safety incidents</strong> - a miss is catastrophic, an extra check is cheap: lead with <strong>recall</strong>.</li>
+          <li><strong>Spam filtering, auto-takedowns, alerts a human team must triage</strong> - a false alarm burns trust or labor: lead with <strong>precision</strong>.</li>
+          <li><strong>Lumen conversion outreach</strong> - a miss costs ~$74, a false alarm ~$2: recall-leaning, and b5 makes it exact.</li>
+        </ul>
+        <p>Notice what you just did: you chose a metric by choosing whose pain matters more. That is not a technicality - it is a business decision wearing a math costume, and it should be made by someone who knows it is being made.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where the LLM half will rhyme with this<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Hold onto the precision/recall pair - it comes back wearing new clothes in the LLM sessions:</p>
+        <ul>
+          <li>Microsoft's Foundry docs define <strong>groundedness as the precision aspect</strong> of a RAG answer (no fabricated content) and <strong>completeness as the recall aspect</strong> (no critical information missed) - the same two questions, asked of sentences instead of sessions (b6).</li>
+          <li>An LLM judge that calls answers "good" has its own precision and recall against human labels - and its own documented biases (b7).</li>
+          <li>Even pass@k vs pass^k (from the agents course) is the same shape: capability ceiling vs reliability floor.</li>
+        </ul>
+        <p>One matrix, many costumes. If you can read the four cells, the whole metric zoo becomes familiar.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Demo 1 of 2</span>
+      <h2>Drag the threshold, watch the cells trade <span class="tag demo">★ 12 min · everyone runs it</span></h2>
+    </div>
+    <p class="lede">Below is Lumen's conversion model evaluated on a real 2,000-session slice - the scores are fixed, the thresholding and every metric are computed live in your browser. The model outputs a score per session; the <strong>threshold</strong> decides which scores count as "will convert." Drag it and watch the four cells - and every metric built on them - move together.</p>
+
+    <div class="steps">
+      <div class="step"><p>Read the default (threshold 0.50): precision <strong>21.5%</strong>, recall <strong>63.6%</strong>. Most flags are wrong, and a third of buyers are missed - and this is a REASONABLE model on a 3.2% base rate. Calibrate your expectations to rare events.</p></div>
+      <div class="step"><p>Drag right to ~0.9: precision rises toward 100%, recall collapses. Every flag is right, almost nobody is caught. Note accuracy stays serenely high the whole way - the paradox from Part 1, live.</p></div>
+      <div class="step"><p>Drag left to ~0.1: recall hits 100%, precision falls to single digits. You caught everyone by flagging half the store.</p></div>
+      <div class="step"><p>Say the lesson out loud: precision and recall trade through the threshold. A model does not HAVE one precision and one recall - it has a curve of them, and someone picks a point.</p></div>
+      <div class="step"><p>Leave the two buttons alone tonight. They are b5's story - if you already pressed one, you have met Goodhart's law early.</p></div>
+    </div>
+
+    <div class="evalbox" data-mode="threshold" data-thresh="0.5"></div>
+
+    <div class="callout tip">
+      <strong>How to read the evaluator</strong>
+      The five tiles are the metric summary; the four cells below them are the raw matrix with dollar costs on the error cells. Everything recomputes on every drag - 2,000 embedded sessions, deterministic seed 42, the same Lumen data family the intro-ML course generates.
+    </div>
+  </section>
+
+  <!-- ============ DEMO 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Demo 2 of 2</span>
+      <h2>Break accuracy on purpose <span class="tag demo">★ 8 min · explore</span></h2>
+    </div>
+    <p class="lede">Push the threshold to 0.98 - the model now flags almost nobody, which is nearly the "always say no" model from Part 1. Watch the tiles: accuracy sits near 97%, F1 and recall are wreckage, and the error cost climbs. One slider position, three different verdicts, depending on which tile you trust.</p>
+
+    <div class="steps">
+      <div class="step"><p>At threshold 0.98, write down all five tiles. Rank the tiles by how alarmed they are. Accuracy is the calmest - and the most wrong about the situation.</p></div>
+      <div class="step"><p>Find the threshold where F1 peaks by feel (drag slowly around 0.55-0.65). Notice the error-cost tile does NOT bottom out at the same place. Hold that thought - it is the entire plot of b5.</p></div>
+      <div class="step"><p>Set the FN cost box to 5 (pretend a missed buyer barely matters). Watch the cost-vs-F1 disagreement shrink. The metrics did not change - your business did. That is why no metric is "correct" absent a cost story.</p></div>
+    </div>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>This slider is a real production control.</strong> sklearn's own docs now say the default 0.5 cutoff is "most certainly not ideal for most use cases" and ship <code>TunedThresholdClassifierCV</code> to tune it against a business scorer. Teams that treat the threshold as a fixed constant are leaving the single cheapest model improvement on the table - no retraining, one number.</p>
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 20-30 min total</span></h2>
+    </div>
+    <ul>
+      <li>Drag the evaluator until you can predict, before looking, which direction each of the five tiles moves when the threshold rises. Say each one's reason in the four-cell vocabulary.</li>
+      <li>Draw the confusion matrix from memory for a problem YOU own - name the two error types in business language and put a rough dollar or hour figure on each. Bring it to b5; it becomes your cost matrix.</li>
+      <li>Find one metric quoted in a report or vendor deck this week and ask the Part 2 question: which mistakes does this number hide? Write two sentences.</li>
+      <li>Optional refresher if the sklearn side felt rusty: intro-ML b7 (classification metrics hands-on) - this course assumes that muscle memory.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">This track teaches the working core of the canonical metric sources - sklearn's evaluation guides, Google's crash-course classification module, Ng's metric doctrines, the key papers, and the LLM-era vendor guidance - with a live evaluator on the key pages. Certificates and graded assessments stay with the official providers (linked each session). This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Google ML Crash Course - "Thresholds and the confusion matrix" + "Accuracy, recall, precision"</span><span class="note">Parts 1-2 + Demo 1 · ROC/AUC lesson lands in b3</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">sklearn metrics guide - confusion_matrix, accuracy, balanced_accuracy_score</span><span class="note">The imbalance warning quoted · full API tour continues b2-b4</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">sklearn threshold-tuning guide - the 0.5-is-not-ideal doctrine</span><span class="note">Previewed in Demo 2 · TunedThresholdClassifierCV in b5</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Ng, Advanced Learning Algorithms W3 - error metrics for skewed datasets</span><span class="note">The paradox framing · P/R tradeoff deepens in b2</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Lumen canon (learn-intro-ml) - the 3.2% base rate and the model under evaluation</span><span class="note">The running case · reused, never re-derived</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · Lumen's "always predict no" model scores 96.8% accuracy. Why?</p>
+      <button class="qopt" type="button">A · The model has learned the customers' true behavior</button>
+      <button class="qopt" type="button">B · Only ~3.2% of sessions convert, so saying "no" is right ~96.8% of the time while finding zero customers</button>
+      <button class="qopt" type="button">C · The test set was too small to measure accuracy properly</button>
+      <p class="qwhy">Accuracy on imbalanced data mostly measures the base rate. Rare-event problems - fraud, churn, conversion, disease - are exactly where accuracy flatters useless models. Read the matrix instead.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · Marketing complains: "half the sessions you flag never buy." Which metric are they complaining about?</p>
+      <button class="qopt" type="button">A · Recall - the model is missing real buyers</button>
+      <button class="qopt" type="button">B · Accuracy - the model is wrong too often overall</button>
+      <button class="qopt" type="button">C · Precision - of the flagged sessions, too few are real converters</button>
+      <p class="qwhy">"When we flag, are we right?" is precision's question - TP / (TP + FP). Recall would be the complaint from finance: "we missed buyers." Matching the stakeholder's pain to the metric is the literacy this course trains.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · Why does dragging the threshold change precision and recall in opposite directions?</p>
+      <button class="qopt" type="button">A · Raising it flags fewer, surer sessions (precision up) while letting more real buyers slip past (recall down)</button>
+      <button class="qopt" type="button">B · It retrains the model with different weights each time</button>
+      <button class="qopt" type="button">C · It does not - they always move together</button>
+      <p class="qwhy">The scores never change - only the cut line does. Fewer, more confident flags = cleaner flags but more misses. A model has a CURVE of precision-recall pairs; the threshold picks the operating point, and b5 shows who should pick it.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Practitioner session 1 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The four cells</b><span>TP / FP / FN / TN. The two error cells are different mistakes with different prices - Lumen: FP ~$2 outreach, FN ~$74 lost order.</span></div>
+      <div class="cheat-item"><b>Accuracy paradox</b><span>3.2% base rate -> "always no" scores 96.8%. Accuracy on imbalanced data measures the base rate, not the model.</span></div>
+      <div class="cheat-item"><b>Precision</b><span>"When we flag, are we right?" TP/(TP+FP). Lead with it when false positives burn money or trust.</span></div>
+      <div class="cheat-item"><b>Recall</b><span>"How many did we catch?" TP/(TP+FN). Lead with it when a miss is the expensive error.</span></div>
+      <div class="cheat-item"><b>The threshold</b><span>P and R trade through it. A model has a curve of operating points, not one precision. Default 0.5 is "most certainly not ideal" - sklearn's words.</span></div>
+      <div class="cheat-item"><b>The fourth question</b><span>"What does each mistake cost?" No classic name, owns b5 - where F1-optimal and dollar-optimal visibly part ways.</span></div>
+      <div class="cheat-item"><b>Imbalance tools</b><span>balanced_accuracy_score (macro-avg recall) · PR-curve thinking (b3) · never accuracy alone below ~20% minority share.</span></div>
+      <div class="cheat-item"><b>Running case</b><span>Lumen's conversion model on a 2,000-session slice, seed 42 - same data family as intro-ML. The evaluator computes everything live.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Practitioner session 1 of 10 · learn-model-evaluation-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="../index.html">← All sessions</a> &nbsp;·&nbsp; <a href="b2-threshold-dial.html">Next: The threshold dial →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/evalml-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

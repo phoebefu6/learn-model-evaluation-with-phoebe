@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leader session 5 · The three project killers - learn model evaluation with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-model-evaluation-with-phoebe</a> / Leader session 5 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Model Evaluation with Phoebe · Leader track · Session 5 of 6</div>
+    <h1>The three project <span class="accent">killers</span></h1>
+    <p class="sub">Sessions a1-a4 gave you the metric literacy: what one number hides, what a threshold costs, what LLM quality scores mean, what speed and price budgets look like. Tonight is the pattern-recognition session. Across failed AI projects the same three killers show up again and again - no golden set before building, optimizing a proxy nobody wired to money, and static evals in a world that keeps moving. Each one has a governance fix you can mandate without writing a line of code. You leave with the fixes, the skew ladder that tells you WHO owns an offline-online gap, and a pre-mortem to run on your own flagship project this week.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Leader track</span>
+      <span class="chip audience">Executives · PMs · report readers</span>
+      <span class="chip audience">No code, decisions only</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · The three killers</span>
+      <span class="a3" style="flex:5">18-42 · The governance moves</span>
+      <span class="a4" style="flex:1">42-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Why this session exists</h2>
+    </div>
+    <p class="lede">AI projects rarely die of exotic causes. They die of the same three preventable ones, and all three are visible from the leadership seat long before they are visible in a dashboard. The good news: none of the fixes require you to touch a model. They are mandates - things you require to exist before you fund, ship, or renew. Tonight names the killers, prices the fixes, and gives you the diagnostic (Rule #37's skew ladder) for the day someone says "it worked offline."</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      Three failure patterns you can spot in a status meeting, one governance mandate per killer, the three-gap skew ladder with a named owner per gap, and a one-page pre-mortem to run on your flagship AI project before the killers run it for you.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: THE THREE KILLERS ============ -->
+  <section class="section" id="the-killers">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers Anthropic "Demystifying evals for AI agents", Rules of ML #39, Ng's metric doctrines</span>
+      <h2>Three bombs, three defuse moves <span class="tag concept">15 min live</span></h2>
+    </div>
+    <p class="lede">Each killer detonates at a different phase: killer 1 is armed on day 0 and explodes at launch, killer 2 detonates a quarter after launch when finance reads the numbers, killer 3 goes off around month 6 when the world has moved and nobody noticed. The defuse moves are all cheap - if you make them early.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three project killers as bombs on a project timeline from build to launch to month six, each with its defuse move below the line.">
+        <style>
+          .k5T { font: 700 13px Inter, sans-serif; fill: #FFFFFF; }
+          .k5S { font: 400 11.5px Inter, sans-serif; fill: #FFFFFF; opacity: .92; }
+          .k5I { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .k5X { font: 400 12px Inter, sans-serif; fill: #64748B; }
+          .k5N { font: 600 13px Inter, sans-serif; fill: #043029; }
+          .k5B { font: 700 12.5px Inter, sans-serif; fill: #991B1B; }
+        </style>
+        <defs>
+          <marker id="k5-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="#1E293B"/>
+          </marker>
+        </defs>
+        <rect x="45" y="36" width="250" height="100" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="2"/>
+        <text class="k5B" x="63" y="64">KILLER 1 · NO GOLDEN SET</text>
+        <text class="k5X" x="63" y="88">shipped on vibes, every</text>
+        <text class="k5X" x="63" y="108">change is a gamble</text>
+        <rect x="315" y="36" width="250" height="100" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="2"/>
+        <text class="k5B" x="333" y="64">KILLER 2 · GOODHART</text>
+        <text class="k5X" x="333" y="88">F1 up for a quarter,</text>
+        <text class="k5X" x="333" y="108">finance flat</text>
+        <rect x="585" y="36" width="250" height="100" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="2"/>
+        <text class="k5B" x="603" y="64">KILLER 3 · STATIC EVALS</text>
+        <text class="k5X" x="603" y="88">passed at launch, then</text>
+        <text class="k5X" x="603" y="108">the world drifted</text>
+        <line x1="50" y1="182" x2="812" y2="182" stroke="#1E293B" stroke-width="2" marker-end="url(#k5-arr)"/>
+        <circle cx="170" cy="182" r="6" fill="#86198F"/>
+        <circle cx="440" cy="182" r="6" fill="#86198F"/>
+        <circle cx="710" cy="182" r="6" fill="#86198F"/>
+        <text class="k5I" x="148" y="208">BUILD</text>
+        <text class="k5I" x="412" y="208">LAUNCH</text>
+        <text class="k5I" x="678" y="208">MONTH 6</text>
+        <rect x="45" y="228" width="250" height="84" rx="10" fill="#0E7C6B"/>
+        <text class="k5T" x="63" y="254">GOLDEN SET AT DAY 0</text>
+        <text class="k5S" x="63" y="276">20-50 real cases before</text>
+        <text class="k5S" x="63" y="294">any system is built</text>
+        <rect x="315" y="228" width="250" height="84" rx="10" fill="#0E7C6B"/>
+        <text class="k5T" x="333" y="254">PRICES ON THE SHEET</text>
+        <text class="k5S" x="333" y="276">every eval declares $ +</text>
+        <text class="k5S" x="333" y="294">one business KPI</text>
+        <rect x="585" y="228" width="250" height="84" rx="10" fill="#0E7C6B"/>
+        <text class="k5T" x="603" y="254">CONTINUOUS EVAL LOOP</text>
+        <text class="k5S" x="603" y="276">CI + sampled production</text>
+        <text class="k5S" x="603" y="294">scoring, pinned versions</text>
+        <rect x="45" y="344" width="14" height="14" rx="3" fill="#0E7C6B"/>
+        <text class="k5N" x="69" y="356">Each defuse move is cheap at day 0 and brutal at month 6 - the golden set is the highest-ROI hour.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - three bombs on the project timeline, and the defuse move for each</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Killer 1 · No golden set before building<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>How it looks:</strong> the team ships on vibes. Someone tries the system on a few examples, it "seems good," it launches. From then on every prompt tweak, model swap, and vendor upgrade is a gamble - nobody can say whether the change helped or hurt, so regressions surface the worst possible way: as customer incidents.</p>
+        <p><strong>The mandate:</strong> before the system is built, 20-50 real cases must exist - actual inputs your users will send, with what "good" looks like written down. This is Anthropic's eval-driven development: write evals for capabilities <em>before</em> building them, the way test-driven development writes the test first. And their grading advice is a relief for busy teams: "prioritize volume over quality" of graded items - many rough judgments beat three perfect ones.</p>
+        <p><strong>The price:</strong> roughly one workshop hour with the people who know the real cases. That hour is the single highest-ROI hour in any AI project - it converts every future change from a gamble into a measurement.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The demo that never stabilized.</strong> A support-bot team demoed brilliantly and shipped without a golden set. Every improvement to one intent quietly broke another; each fix generated two new complaints. Three months in, they finally wrote 40 real tickets down as a golden set - and discovered their "improved" bot scored worse than the launch version. The set took an afternoon. The three months were the cost of not having it.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Killer 2 · Optimizing a proxy unwired to money<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>How it looks:</strong> the dashboard climbs and the business does not. F1 is up for a quarter, finance is flat. The judge score is up, and users are churning on latency the judge never sees. This is the a2 lesson at program scale - Goodhart's law: when a measure becomes a target, it stops measuring. You met the miniature in a2's live demo, where the F1-optimal threshold cost <strong>$704 more</strong> than the cost-optimal one, and the dollar-best threshold had the worst-looking F1 on the card.</p>
+        <p><strong>The mandate:</strong> every eval sheet declares its prices (what a false positive costs, what a false negative costs) and names the one business KPI its metric is supposed to move. No prices, no funding. This is also Ng's doctrine made governance: ONE optimizing metric so iteration is fast, with the rest as satisficing floors - quality subject to latency and cost budgets, not quality in a vacuum.</p>
+        <p><strong>The tell in a meeting:</strong> ask "if this metric goes up 10 points, what line item moves?" A confident answer means the wiring exists. A pause means you are funding a proxy.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Killer 3 · Static evals in a drifting world<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>How it looks:</strong> the system passed every eval at launch. Then the data drifted, the vendor silently upgraded the underlying model, and users found phrasings nobody tested. Six months later someone says "the AI stopped working" - and nobody can say when, because nothing was measuring in between. A launch-day eval is a photograph; the world is a movie.</p>
+        <p><strong>The mandate:</strong> two eval families, run continuously. <strong>Capability evals</strong> track what you are trying to make the system do - they start low and climb. <strong>Regression evals</strong> guard what already works - Anthropic's rule is that regression suites hold at ~100%, and any dip blocks the change. Then wire evals into CI so nothing ships unmeasured, sample and score production traffic so drift shows up in weeks not quarters, and pin model versions so a vendor upgrade is a decision you make, not one that happens to you.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The silent vendor upgrade.</strong> A team's extraction pipeline degraded over a weekend. No deploy, no data change - the API provider had upgraded the default model version. Because the team ran a nightly regression eval, Monday's run flagged the dip, they pinned the previous version, and users never noticed. The identical event at a sister team without evals surfaced five weeks later as an executive escalation.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>How the killers chain together<span class="mini">4 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The three killers are usually presented as separate risks, but in failed projects they arrive as a chain:</p>
+        <ul>
+          <li><strong>Killer 1 enables killer 2.</strong> Without a golden set, the only numbers a team can report are generic proxies - benchmark scores, judge averages, F1 on stale data. Proxies unwired to money are all that exists, so proxies get optimized.</li>
+          <li><strong>Killer 2 masks killer 3.</strong> A proxy that keeps climbing looks like health. Drift hides comfortably underneath a rising dashboard - the number goes up while the product quietly gets worse for real users.</li>
+          <li><strong>Killer 3 re-arms killer 1.</strong> Once "the AI stopped working," trust in measurement collapses, the team reverts to shipping on vibes, and the cycle restarts with less budget.</li>
+        </ul>
+        <p>Which is why the mandates come as a set of three, not a menu. If your team wants the hands-on version: the practitioner track covers the golden-set and drift machinery in b9, and the Goodhart demo - with a button that visibly loses $704 - in b5.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: THE GOVERNANCE MOVES ============ -->
+  <section class="section" id="governance-moves">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers Rules of ML #37, Anthropic capability vs regression evals</span>
+      <h2>The skew ladder, and the budget line <span class="tag concept">24 min live</span></h2>
+    </div>
+    <p class="lede">When someone tells you "it worked offline but production disagrees," you do not need to referee. Google's Rule #37 breaks the offline-online gap into three rungs, and each rung has a different owner. Ask which rung the gap sits on, and the meeting routes itself.</p>
+
+    <table class="clean">
+      <thead>
+        <tr><th>The gap</th><th>What it means</th><th>Who owns it</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Training data vs holdout</td><td>Overfitting - the model memorized instead of learning</td><td>The DS team</td></tr>
+        <tr><td>Holdout vs next-day data</td><td>Drift - the world moved since the training snapshot</td><td>The data owner</td></tr>
+        <tr><td>Next-day data vs live serving</td><td>An engineering bug - same data, different answers, so the pipeline differs</td><td>The platform team</td></tr>
+      </tbody>
+    </table>
+
+    <div class="steps">
+      <div class="step"><p>Next time someone says "it worked offline," ask for the three comparisons by name: training vs holdout, holdout vs next-day, next-day vs live. Do not accept a single blended "offline score."</p></div>
+      <div class="step"><p>Find the rung where the numbers diverge most. That rung IS the diagnosis - you do not need to understand the model to read a gap.</p></div>
+      <div class="step"><p>Route the fix to that rung's owner: DS for overfitting, the data owner for drift, the platform team for the serving gap. Resist the reflex to send everything to the DS team.</p></div>
+      <div class="step"><p>If nobody can produce the three numbers at all, you have learned something bigger: there is no continuous eval loop, and killer 3 is armed. Schedule that conversation first.</p></div>
+    </div>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Reading the ladder in a status meeting<span class="mini">8 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The ladder turns a vague dispute into three checkable questions:</p>
+        <ul>
+          <li><strong>"Does it score much better on training data than on held-out data?"</strong> If yes: overfitting. The DS team tightens the model. Classic, well-understood, theirs to fix.</li>
+          <li><strong>"Does yesterday's holdout score hold on today's fresh data?"</strong> If no: drift. Nobody coded a bug - the customers changed. The data owner refreshes the training window and the golden set.</li>
+          <li><strong>"Does the same example get the same score offline and in live serving?"</strong> If no: this is the sneaky one. Rule #37 calls the next-day-vs-live gap an engineering bug - a feature computed differently in the serving path, a stale cache, a version mismatch. No amount of modeling fixes it, because it is not a modeling problem.</li>
+        </ul>
+        <p>Three gaps, three owners. The leadership failure mode is sending all three to the DS team - two of the three are not theirs.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The three-week blame loop.</strong> A recommendation model "collapsed in production" and the DS team spent three weeks retraining, with no improvement. When someone finally ran the ladder, train-vs-holdout and holdout-vs-next-day were both clean - the gap was next-day-vs-live. A feature was computed from a table that updated hourly offline and daily in serving. One engineering fix, same afternoon. The ladder question at week zero would have saved three weeks of the wrong team fixing the wrong problem.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The budget line every AI initiative needs<span class="mini">6 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>All three defuse moves - the golden set, the priced eval sheet, the continuous loop - share one budget implication: <strong>eval infrastructure is not optional scope. It is the product's immune system.</strong> A body without one does not feel sick; it just dies of the first infection.</p>
+        <p>Practically, that means the project plan you approve should show eval work as a first-class line: hours for the golden-set workshop before build, the CI eval gate before launch, and sampled production scoring after. When a team offers to "add evals later to hit the date," they are proposing to ship without an immune system - and later, famously, never comes.</p>
+        <div class="callout tip">
+          <strong>The one-sentence mandate</strong>
+          "No golden set, no build. No prices, no launch. No production eval, no renewal." Three gates, one sentence, and every one of tonight's killers is covered.
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Five phrases that mean a killer is armed<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Status meetings leak the killers in ordinary sentences. Five to catch:</p>
+        <ul>
+          <li><strong>"We'll add evals after launch to hit the date."</strong> Killer 1, stated as a plan. The golden set costs an hour; the date argument never survives that fact.</li>
+          <li><strong>"The demo went great."</strong> Offered as evidence, this is killer 1 in dress clothes - a demo is a handful of curated cases, not a golden set.</li>
+          <li><strong>"F1 improved again this sprint."</strong> With no dollars or business KPI attached, that is killer 2's soundtrack. Ask what line item moves.</li>
+          <li><strong>"We just use whatever model version the vendor serves."</strong> Killer 3, pre-armed - the vendor's next silent upgrade becomes your unmeasured incident.</li>
+          <li><strong>"It worked offline."</strong> Not a killer by itself - it is your cue to run the skew ladder and route the gap to its owner.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: SELF-STUDY ============ -->
+  <section class="section" id="pre-mortem">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · self-study</span>
+      <h2>The pre-mortem - this week <span class="tag exercise">◐ 30 min</span></h2>
+    </div>
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Which killer is closest to your flagship project?<span class="mini">30 min, one page</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Pick the AI project you care most about and write one page - three questions, honest answers:</p>
+        <ul>
+          <li><strong>Does a golden set exist?</strong> Not "we test it" - a named artifact with 20-50 real cases and expected outcomes, that anyone can run. If no: killer 1 is armed. The fix is one workshop hour.</li>
+          <li><strong>Who owns the prices?</strong> Can anyone state what a false positive and a false negative cost, and which business KPI the eval metric is wired to? A name, not a shrug. If no: killer 2 is armed, and every reported improvement is unverifiable.</li>
+          <li><strong>When did an eval last run against production?</strong> A date, from monitoring - not a launch memo. If the answer is "at launch," killer 3 is armed and counting.</li>
+        </ul>
+        <p>Then rank the three by proximity and bring the page to a6 - the governance playbook session turns your pre-mortem into a standing scorecard and a review cadence.</p>
+        <div class="callout tip">
+          <strong>Do it before the next steering meeting</strong>
+          A pre-mortem written the week before a funding or renewal decision changes the decision. Written the week after, it becomes a post-mortem - same page, very different meeting.
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">The leader track distills the canonical sources into decisions - the practitioner track (b1-b10) carries the hands-on math and the live evaluator. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Anthropic - "Demystifying evals for AI agents" + define-success docs</span><span class="note">Eval-driven development, volume over quality, capability vs regression suites at ~100%</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Google Rules of Machine Learning - Rule #37 (training/serving skew ladder) + Rule #39 (launch metrics as proxies)</span><span class="note">Part 2's ladder · the proxy chain closes in a6</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Ng, Structuring ML Projects - single optimizing metric + satisficing floors</span><span class="note">The killer 2 fix · taught fully in a4</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">evalml canon - the $704 Goodhart gap from a2's live demo</span><span class="note">Quoted as the program-scale warning · the demo itself lives in a2</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">1 · What did this session call the single highest-ROI hour in any AI project?</p>
+      <button class="qopt" type="button">A · A hyperparameter tuning session before launch</button>
+      <button class="qopt" type="button">B · The executive demo that secures the budget</button>
+      <button class="qopt" type="button">C · The workshop that writes 20-50 real cases into a golden set before the system is built</button>
+      <p class="qwhy">Eval-driven development: write evals for capabilities before building them, and "prioritize volume over quality" of graded items. That hour converts every future change from a gamble into a measurement - nothing else in the project has that exchange rate.</p>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">2 · F1 has climbed all quarter; finance sees nothing. Most likely diagnosis?</p>
+      <button class="qopt" type="button">A · The model needs more training data - fund a labeling push</button>
+      <button class="qopt" type="button">B · Goodhart at program scale - the team is optimizing a proxy nobody wired to money</button>
+      <button class="qopt" type="button">C · Finance is reporting on a lagged quarter - wait it out</button>
+      <p class="qwhy">The a2 demo at program scale: the F1-optimal threshold cost $704 more than the cost-optimal one. When a measure becomes a target it stops measuring - the fix is prices on the eval sheet and one named business KPI, not more optimization.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">3 · The model scores the same on next-day data, but live serving disagrees. Whose problem is it?</p>
+      <button class="qopt" type="button">A · The DS team's - the model has overfit and needs retraining</button>
+      <button class="qopt" type="button">B · The data owner's - the world has drifted since training</button>
+      <button class="qopt" type="button">C · The platform team's - Rule #37 calls a next-day-vs-live gap an engineering bug</button>
+      <p class="qwhy">Three gaps, three owners: train-vs-holdout = overfitting (DS team), holdout-vs-next-day = drift (data owner), next-day-vs-live = engineering bug (platform team). Same data scoring differently means the pipeline differs - no amount of modeling fixes it.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Leader session 5 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>Killer 1 · no golden set</b><span>Shipping on vibes; regressions surface as customer incidents. Fix: 20-50 real cases exist BEFORE the build. One workshop hour.</span></div>
+      <div class="cheat-item"><b>Killer 2 · unwired proxy</b><span>Goodhart: F1 up, finance flat. Fix: every eval sheet declares its prices + one business KPI. The a2 gap: $704.</span></div>
+      <div class="cheat-item"><b>Killer 3 · static evals</b><span>Passed at launch, then drift + silent vendor upgrades. Fix: eval in CI, sampled production scoring, pinned model versions.</span></div>
+      <div class="cheat-item"><b>Eval-driven development</b><span>Anthropic: write evals for capabilities before building them; "prioritize volume over quality" of graded items.</span></div>
+      <div class="cheat-item"><b>Capability vs regression</b><span>Capability evals start low and climb; regression suites hold ~100% and any dip blocks the change.</span></div>
+      <div class="cheat-item"><b>The skew ladder (Rule #37)</b><span>train-vs-holdout = overfitting (DS) · holdout-vs-next-day = drift (data owner) · next-day-vs-live = engineering bug (platform).</span></div>
+      <div class="cheat-item"><b>The budget line</b><span>Eval infrastructure is not optional scope - it is the product's immune system. "Add evals later" means ship without one.</span></div>
+      <div class="cheat-item"><b>The pre-mortem</b><span>One page: does a golden set exist · who owns the prices · when did an eval last run against production? Bring it to a6.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Leader session 5 of 6 · learn-model-evaluation-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="a4-speed-and-cost.html">← a4 · Speed and cost</a> &nbsp;·&nbsp; <a href="../index.html">All sessions</a> &nbsp;·&nbsp; <a href="a6-eval-governance.html">Next: Your eval governance playbook →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

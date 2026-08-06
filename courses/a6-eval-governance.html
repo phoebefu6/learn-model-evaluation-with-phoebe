@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leader session 6 · Your eval governance playbook - learn model evaluation with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-model-evaluation-with-phoebe</a> / Leader session 6 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Model Evaluation with Phoebe · Leader track · Session 6 of 6</div>
+    <h1>Your eval governance <span class="accent">playbook</span></h1>
+    <p class="sub">Final session, and everything converges. a1 taught you why one number lies, a2 put prices on mistakes, a3 decoded LLM quality scores, a4 added speed and cost budgets, a5 named the three project killers. Tonight you assemble the working artifact: the one-page scorecard to demand before ANY model ships, the vendor-grilling questions that separate real eval discipline from demo theater, and the quarterly review cadence that keeps it all alive. No code, no math - just the questions, the owners, and the standing document you can mandate on Monday.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Leader track</span>
+      <span class="chip audience">Executives · PMs · report readers</span>
+      <span class="chip audience">No code, decisions only</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · The scorecard to demand</span>
+      <span class="a3" style="flex:5">18-42 · Workshop: your playbook</span>
+      <span class="a4" style="flex:1">42-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>The whole course on one page</h2>
+    </div>
+    <p class="lede">Every session in this track has been building slots in one document. The confusion matrix and its base rate (a1). The cost matrix and the operating point (a2). LLM quality scores with a calibrated grader (a3). Latency and cost against declared budgets (a4). The golden set and the continuous loop (a5). Tonight they become an eight-slot scorecard - the thing you ask for, by name, before anything ships. If you remember one artifact from six sessions, make it this one.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The eight-slot pre-ship scorecard, four vendor-grilling questions with the answers to expect, a quarterly review cadence with named owners, and the two-hop proxy chain as the frame for every eval claim you will ever hear.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: THE SCORECARD ============ -->
+  <section class="section" id="the-scorecard">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · the course's synthesis - a1-a5 as eight demands</span>
+      <h2>The scorecard to demand before any model ships <span class="tag concept">15 min live</span></h2>
+    </div>
+    <p class="lede">One page, eight slots. Each slot is a session of this course compressed into a demand, and each has a failure smell you can detect from the leadership seat: a metric with no base rate, a price with no owner, a judge score with no agreement number. A team with real eval discipline fills this in an afternoon. A team that cannot fill it is telling you something more important than any metric would.</p>
+
+    <div class="steps">
+      <div class="step"><p><strong>The confusion matrix with the base rate.</strong> Never a bare accuracy - a1's whole lesson. "96.8% accurate" on a 3.2% base rate can describe a model that finds nobody. The matrix plus the base rate is the minimum honest unit of reporting.</p></div>
+      <div class="step"><p><strong>The cost matrix, with named owners for the prices.</strong> What does a false positive cost, what does a false negative cost, and WHO signed off on those numbers? A price nobody owns is a guess wearing a suit. This is the slot most often missing in real reviews.</p></div>
+      <div class="step"><p><strong>The chosen operating point, and who chose it.</strong> A threshold is a business decision, not a default. If the answer is "0.5, because that is the default," nobody made the decision - it made itself.</p></div>
+      <div class="step"><p><strong>For LLM systems: quality metrics WITH their grader's human-agreement number.</strong> A judge score without agreement against human labels is a rumor. The bar from a3: "over 80%" agreement, which equals human-human agreement - a judge cannot beat the humans it imitates.</p></div>
+      <div class="step"><p><strong>Latency (p95 TTFT) and cost per query, against declared budgets.</strong> Speed and price are success criteria on Anthropic's own list, not infra footnotes. "Fast enough" is not a budget; "p95 TTFT under 1.5s at under $0.04 per query" is.</p></div>
+      <div class="step"><p><strong>The golden set size, and when it last ran.</strong> A dated artifact, not an assurance. 20-50 real cases minimum, and a run date measured in days, not quarters.</p></div>
+      <div class="step"><p><strong>The regression-eval status - still ~100%?</strong> Regression suites guard what already works and are meant to hold at ~100%; any dip blocks the change. A green regression line is the cheapest sleep aid in AI.</p></div>
+      <div class="step"><p><strong>The online metric each offline number is a proxy for.</strong> Every offline score must name the online metric it predicts, which in turn serves a business goal. If the chain cannot be named, slot 8 is empty - and so is the claim.</p></div>
+    </div>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The pre-ship scorecard as a one-page document mockup with eight labeled slots, from the confusion matrix to the online proxy metric.">
+        <style>
+          .g6T { font: 700 13.5px Inter, sans-serif; fill: #FFFFFF; }
+          .g6C { font: 700 13px Inter, sans-serif; fill: #FFFFFF; }
+          .g6I { font: 600 12px Inter, sans-serif; fill: #1E293B; }
+          .g6X { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .g6N { font: 600 13px Inter, sans-serif; fill: #043029; }
+        </style>
+        <rect x="170" y="24" width="540" height="478" rx="10" fill="#FFFFFF" stroke="#1E293B" stroke-width="2"/>
+        <rect x="178" y="32" width="524" height="40" rx="8" fill="#581C87"/>
+        <text class="g6T" x="196" y="57">THE PRE-SHIP SCORECARD · one page, eight slots</text>
+        <rect x="192" y="92" width="26" height="26" rx="6" fill="#86198F"/>
+        <text class="g6C" x="201" y="110">1</text>
+        <text class="g6I" x="232" y="105">Confusion matrix WITH the base rate</text>
+        <text class="g6X" x="232" y="123">never accept a bare accuracy</text>
+        <rect x="192" y="140" width="26" height="26" rx="6" fill="#86198F"/>
+        <text class="g6C" x="201" y="158">2</text>
+        <text class="g6I" x="232" y="153">Cost matrix with named owners for the prices</text>
+        <text class="g6X" x="232" y="171">a price nobody owns is a guess</text>
+        <rect x="192" y="188" width="26" height="26" rx="6" fill="#86198F"/>
+        <text class="g6C" x="201" y="206">3</text>
+        <text class="g6I" x="232" y="201">The chosen operating point + who chose it</text>
+        <text class="g6X" x="232" y="219">a threshold is a business decision</text>
+        <rect x="192" y="236" width="26" height="26" rx="6" fill="#C026D3"/>
+        <text class="g6C" x="201" y="254">4</text>
+        <text class="g6I" x="232" y="249">LLM quality metrics WITH grader human-agreement</text>
+        <text class="g6X" x="232" y="267">a judge score without agreement is a rumor</text>
+        <rect x="192" y="284" width="26" height="26" rx="6" fill="#C026D3"/>
+        <text class="g6C" x="201" y="302">5</text>
+        <text class="g6I" x="232" y="297">Latency (p95 TTFT) + cost per query vs budgets</text>
+        <text class="g6X" x="232" y="315">speed and price are success criteria</text>
+        <rect x="192" y="332" width="26" height="26" rx="6" fill="#581C87"/>
+        <text class="g6C" x="201" y="350">6</text>
+        <text class="g6I" x="232" y="345">Golden set size + when it last ran</text>
+        <text class="g6X" x="232" y="363">20-50 real cases, with a run date</text>
+        <rect x="192" y="380" width="26" height="26" rx="6" fill="#581C87"/>
+        <text class="g6C" x="201" y="398">7</text>
+        <text class="g6I" x="232" y="393">Regression-eval status - still ~100%?</text>
+        <text class="g6X" x="232" y="411">what used to work must keep working</text>
+        <rect x="192" y="428" width="26" height="26" rx="6" fill="#581C87"/>
+        <text class="g6C" x="201" y="446">8</text>
+        <text class="g6I" x="232" y="441">The online metric each offline number is a proxy for</text>
+        <text class="g6X" x="232" y="459">name hop 1 as hop 1</text>
+        <rect x="170" y="524" width="14" height="14" rx="3" fill="#0E7C6B"/>
+        <text class="g6N" x="194" y="536">Eight slots, one page. A blank slot is not a formatting problem - it is the risk you are shipping.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the one-page pre-ship scorecard with its eight slots</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>How to use it without becoming the bottleneck<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The scorecard is a demand, not a form you police. Three usage rules keep it light:</p>
+        <ul>
+          <li><strong>The team fills it, you read it.</strong> Fifteen minutes of reading replaces an hour of interrogation, because the blanks do the interrogating.</li>
+          <li><strong>Blanks are findings, not failures.</strong> "We have no cost matrix owner" said out loud is progress - it names the exact next meeting. What you are eliminating is the silent blank.</li>
+          <li><strong>One page, enforced.</strong> A 30-page eval appendix is how weak numbers hide. The one-page constraint forces the eight numbers that matter to stand in the open.</li>
+        </ul>
+        <div class="callout tip">
+          <strong>The fastest read</strong>
+          Check slots 2 and 8 first - the cost matrix owners and the proxy chain. In practice they are the most often missing, and a team that has both almost always has the other six.
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where each slot was taught - the reread map<span class="mini">4 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>If a slot feels shaky when you try to demand it, here is where it came from:</p>
+        <ul>
+          <li><strong>Slot 1</strong> (matrix + base rate) - a1, the accuracy paradox: a 96.8%-accurate model on a 3.2% base rate that finds nobody.</li>
+          <li><strong>Slots 2-3</strong> (cost matrix, operating point) - a2, where the F1-optimal threshold cost $704 more than the dollar-optimal one, and someone had to choose.</li>
+          <li><strong>Slot 4</strong> (judge agreement) - a3, judge skepticism: a judge score is a model output until calibrated against humans.</li>
+          <li><strong>Slot 5</strong> (latency + cost budgets) - a4, satisficing metrics: quality subject to speed and price floors.</li>
+          <li><strong>Slots 6-8</strong> (golden set, regression status, proxy chain) - a5's three killers, turned from incidents into standing fields.</li>
+        </ul>
+        <p>The scorecard is not new material - it is the six sessions made demandable.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: VENDOR GRILLING ============ -->
+  <section class="section" id="vendor-grilling">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers Zheng et al. judge bar, Rules of ML #39</span>
+      <h2>Vendor grilling - discipline vs demo theater <span class="tag concept">14 min live</span></h2>
+    </div>
+    <p class="lede">Every vendor deck shows a benchmark win and a delighted-user quote. The same four questions cut through all of them, because they ask for the numbers demo theater cannot fake. None require you to know the math - only to know that the numbers must exist.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The four questions, and the answers to expect<span class="mini">8 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>"Show me the retention data, not the engagement data."</strong> Engagement is the proxy; retention is closer to the money. A vendor who pivots back to engagement three times is telling you which number they have.</li>
+          <li><strong>"What is your judge's agreement with human labels?"</strong> If their quality scores come from an LLM judge, this number must exist. The bar: "over 80%", which equals human-human agreement. "Our judge is GPT-4-class" is not an answer - it is the setup for the question.</li>
+          <li><strong>"What happened to your metrics when the base model last changed?"</strong> Real discipline produces a before-and-after regression report within a day of any model change. If they cannot show one, they are not measuring - they are hoping.</li>
+          <li><strong>"Walk me through one case your system failed last month."</strong> Teams with golden sets and production sampling have failure cases catalogued and love talking about them. Demo theater has never seen a failure, which tells you nobody looked.</li>
+        </ul>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>Concepts outlive vendor products.</strong> OpenAI's own evals platform is being deprecated on Nov 30, 2026. Any process built on a vendor's eval buttons inherits the vendor's roadmap. The concepts - golden sets, graders, agreement bars, regression suites - transfer intact across every platform. Demand the concepts, not the product tour.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The closing frame: the two-hop proxy chain<span class="mini">6 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Rule #39's insight, and the frame to hold every eval claim in: <strong>eval score -> online metric -> business goal.</strong> Two hops, and each hop can break. The offline eval predicts the online metric imperfectly (hop 1); the online metric serves the business goal imperfectly (hop 2). A benchmark win is a hop-1 event - real, worth having, and two broken links away from revenue.</p>
+        <p>The discipline is not cynicism - it is precision: <strong>celebrate hop 1 as hop 1.</strong> "The eval improved, which historically predicts a lift in conversion, which we will confirm in the next release" is a leader's sentence. "The eval improved, ship it and book the value" is how killer 2 gets funded for another quarter.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Put the grilling in writing<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Questions asked in a meeting can be charmed away; questions in a procurement document cannot. Three clauses worth adding to your next RFP or renewal:</p>
+        <ul>
+          <li><strong>Evidence clause:</strong> "Vendor will provide, for the proposed system, its evaluation methodology including golden set size, grading method, and - where an LLM judge is used - the judge's measured agreement with human labels."</li>
+          <li><strong>Change clause:</strong> "Vendor will notify us before changes to the underlying model version, and will provide before-and-after regression results for any such change."</li>
+          <li><strong>Exit clause:</strong> "Evaluation artifacts (golden sets, scoring rubrics, historical results) relating to our deployment are deliverables, portable at contract end."</li>
+        </ul>
+        <p>The third clause is the quiet power move: it makes the concepts yours even when the product is not - the same reason this course teaches taxonomies, not vendor buttons.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: REVIEW CADENCE ============ -->
+  <section class="section" id="review-cadence">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · the standing routine</span>
+      <h2>The quarterly eval review <span class="tag concept">10 min live</span></h2>
+    </div>
+    <p class="lede">A scorecard checked once is a photograph; a5 taught you why photographs fail. The fix is a review cadence run like a financial audit - scheduled, owned, and boring in the best way. Quarterly is the default; monthly if the domain moves fast.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What the quarterly review checks, and who owns what<span class="mini">7 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Three checks, thirty minutes, four times a year:</p>
+        <ul>
+          <li><strong>Golden set freshness.</strong> Do the 20-50 cases still look like this quarter's real traffic? Users invent new phrasings; the set must follow them.</li>
+          <li><strong>Drift check.</strong> Sampled production scores vs the launch baseline - is the gap growing? This is a5's killer 3 on a leash.</li>
+          <li><strong>Price re-validation.</strong> Are the FP and FN costs still true? Margins move, order values move - a2's operating point is only as good as the prices behind it.</li>
+        </ul>
+        <p>And the ownership map, so the review never becomes everyone's job and therefore no one's:</p>
+        <table class="clean">
+          <thead>
+            <tr><th>Asset</th><th>Owner</th><th>Accountable for</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>The prices (cost matrix)</td><td>The product owner</td><td>FP/FN costs current, business KPI named</td></tr>
+            <tr><td>The metrics</td><td>The DS team</td><td>Right metric per decision, base rates attached</td></tr>
+            <tr><td>The CI gate</td><td>The platform team</td><td>Nothing ships unmeasured, regression suite ~100%</td></tr>
+          </tbody>
+        </table>
+        <p>Notice the pattern: it is the skew ladder's three owners again, now with standing responsibilities instead of incident response. Governance is just incident response moved before the incident.</p>
+        <div class="callout tip">
+          <strong>The 30-minute agenda, verbatim</strong>
+          Minute 0-10: golden set freshness (owner: DS, with the product owner sampling five cases). Minute 10-20: drift check against the launch baseline (platform brings the chart). Minute 20-30: price re-validation (product owner brings this quarter's FP/FN costs). If any check fails, the scorecard reopens - not the codebase.
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 4: WHERE NEXT ============ -->
+  <section class="section" id="where-next">
+    <div class="section-kicker">
+      <span class="klabel">Part 4 · self-study</span>
+      <h2>Where to go next <span class="tag exercise">◐ 10 min read</span></h2>
+    </div>
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Three onward paths, by role<span class="mini">10 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>You write the eval sheets, or your team does:</strong> the practitioner track of this course (b1-b10) is the hands-on version of everything you just learned - the live threshold evaluator, the $704 Goodhart demo you can drag yourself, the judge you calibrate from 58% to 88% agreement, and the b10 capstone that writes a full eval sheet.</li>
+          <li><strong>You want the LLM eval machinery hands-on:</strong> the sibling <strong>learn-evals</strong> course owns the harness - golden sets as code, RAGAS pipelines, tracing, CI wiring. This course taught you what the numbers mean; that one makes them run.</li>
+          <li><strong>The classic-ML mechanics felt distant:</strong> <strong>learn-intro-ml</strong> teaches the sklearn side - training the very Lumen conversion model this course has been evaluating, plus the metrics computed from scratch.</li>
+        </ul>
+        <p>And the standing homework from a5, now upgraded: run the pre-mortem on your flagship project, then bring the eight-slot scorecard to its next review. The first time a blank slot changes a ship decision, this course has paid for itself.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">This closing session is the full-course synthesis - every source the leader track touched, compressed into the scorecard, the grilling questions, and the cadence. This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Anthropic - define-success + "Demystifying evals for AI agents"</span><span class="note">Success criteria incl. latency + price, golden sets, regression ~100% - scorecard slots 4-7</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Google Rules of Machine Learning - Rule #39 (launch metrics as proxies)</span><span class="note">The two-hop proxy chain - slot 8 and the closing frame</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Zheng et al. 2023 - LLM-as-judge agreement bar</span><span class="note">"Over 80%" = human-human agreement - the vendor-grilling criterion</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">sklearn cost-sensitive guide + Elkan 2001</span><span class="note">Behind slots 2-3: the cost matrix and the tuned operating point (taught in a2)</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Ng, Structuring ML Projects - single optimizing metric + satisficing floors</span><span class="note">Behind slots 1-5: one number to optimize, budgets as floors (taught in a4)</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · Which scorecard slot is most often missing in real reviews?</p>
+      <button class="qopt" type="button">A · The confusion matrix - teams rarely compute it</button>
+      <button class="qopt" type="button">B · The cost matrix with named owners - metrics get computed, but nobody wants to own the prices</button>
+      <button class="qopt" type="button">C · Latency numbers - they are too hard to measure</button>
+      <p class="qwhy">Computing metrics is comfortable, technical work; owning the FP/FN prices means signing your name to business assumptions. That is why slot 2 goes blank - and why a priced sheet with an owner is the strongest single signal of eval discipline.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">2 · A team reports a big offline eval win. What is the proxy-chain rule?</p>
+      <button class="qopt" type="button">A · Celebrate hop 1 as hop 1 - eval score -> online metric -> business goal, and each hop can break</button>
+      <button class="qopt" type="button">B · Book the projected value now - offline wins reliably become revenue</button>
+      <button class="qopt" type="button">C · Ignore it - offline evals carry no information about production</button>
+      <p class="qwhy">Rule #39: launch metrics are proxies for long-term goals. The win is real AND two hops from money - so name the online metric it should move, confirm it in the next release, and never skip a hop in the story you tell upward.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">3 · A vendor says "our LLM judge scores us 4.6 out of 5." When does that number mean anything?</p>
+      <button class="qopt" type="button">A · When the judge is a larger model than the one being judged</button>
+      <button class="qopt" type="button">B · When the score is above 4.0 across at least three benchmarks</button>
+      <button class="qopt" type="button">C · When the judge's agreement with human labels is reported - "over 80%", the human-human bar</button>
+      <p class="qwhy">A judge score is a model output, not a measurement, until it is calibrated against human labels. The bar is "over 80%" agreement - which equals human-human agreement, the ceiling a judge cannot beat. No agreement number, no meaning.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Leader session 6 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The scorecard</b><span>Eight slots, one page, before ANY model ships. The team fills it, you read it - blanks are findings, and they do the interrogating.</span></div>
+      <div class="cheat-item"><b>Slots 1-3 · classic</b><span>Confusion matrix WITH base rate · cost matrix with named price owners · the chosen operating point + who chose it.</span></div>
+      <div class="cheat-item"><b>Slots 4-5 · LLM + budgets</b><span>Quality metrics WITH the grader's human-agreement number · p95 TTFT + cost per query against declared budgets.</span></div>
+      <div class="cheat-item"><b>Slots 6-8 · staying alive</b><span>Golden set size + last run date · regression suite still ~100% · the online metric each offline number is a proxy for.</span></div>
+      <div class="cheat-item"><b>Vendor grilling</b><span>Retention not engagement · judge agreement with humans ("over 80%" = the human-human bar) · what happened when the base model changed · show me a failure.</span></div>
+      <div class="cheat-item"><b>Concepts outlive products</b><span>OpenAI's evals platform sunsets Nov 30, 2026. Golden sets, graders, agreement bars, regression suites transfer across every vendor.</span></div>
+      <div class="cheat-item"><b>The proxy chain</b><span>Eval score -> online metric -> business goal. Two hops, each can break. Celebrate hop 1 as hop 1 - never book it as revenue.</span></div>
+      <div class="cheat-item"><b>The cadence</b><span>Quarterly, like a financial audit: golden set freshness, drift check, price re-validation. Product owner owns prices, DS owns metrics, platform owns the CI gate.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Leader session 6 of 6 · learn-model-evaluation-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="a5-three-project-killers.html">← a5 · The three project killers</a> &nbsp;·&nbsp; <a href="../index.html">All sessions</a> &nbsp;·&nbsp; <a href="../index.html">Back to all sessions →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

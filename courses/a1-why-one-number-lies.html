@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leader session 1 · Why one number lies - learn model evaluation with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-model-evaluation-with-phoebe</a> / Leader session 1 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Model Evaluation with Phoebe · Leader track · Session 1 of 6</div>
+    <h1>Why one number <span class="accent">lies</span></h1>
+    <p class="sub">Every model report you will ever sign off on leads with a single number, and that number has an opinion it is not disclosing. Tonight you learn the trick behind the most common one: a model at Lumen Skincare that scores 96.8% accuracy while finding zero customers. No code, no formulas to memorize - just the four kinds of mistake every classifier makes, the one question that exposes any single number, and a real threshold you drag yourself. You leave with five questions to ask the next time a team or a vendor slides one impressive number across the table.</p>
+    <div class="chip-row">
+      <span class="chip level">🟢 Leader track</span>
+      <span class="chip audience">Executives · PMs · report readers</span>
+      <span class="chip audience">No code, decisions only</span>
+      <span class="chip time">Start here</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · The paradox + the four cells</span>
+      <span class="a3" style="flex:5">18-42 · Live: drag a real threshold</span>
+      <span class="a4" style="flex:1">42-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>How the leader track works</h2>
+    </div>
+    <p class="lede">Six sessions, 45 minutes each, and every one ends the same way: with questions to ask your teams, not homework to code. The shared case is <strong>Lumen Skincare's conversion model</strong> - an $18M/yr DTC brand whose classifier scores every checkout session for "will this person buy?" (about 3.2% actually do, average order ~$74). a1 and a2 cover the classic side: why single numbers mislead, and how thresholds and costs turn metrics into money. a3 and a4 translate the LLM metric zoo - quality, speed, cost - into plain language. a5 names the three ways evaluation projects die, and a6 hands you the governance playbook. One more thing worth knowing: the <strong>practitioner track</strong> of this course teaches your data scientists to WRITE the evaluation sheets. This track teaches you to READ them - and to notice what is missing.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill peach">▶ Live evaluator - real math on real scores</span>
+      <span class="pill inkpill">Official sources covered</span>
+    </div>
+    <table class="clean">
+      <thead><tr><th>Session</th><th>The decision it equips you for</th></tr></thead>
+      <tbody>
+        <tr><td><strong>a1 · Why one number lies</strong></td><td>Tonight - reading any model report without being fooled by its headline number</td></tr>
+        <tr><td>a2 · Precision, recall, and money</td><td>Who sets the threshold, and what optimizing the wrong metric costs in dollars</td></tr>
+        <tr><td>a3 · LLM quality metrics, plain</td><td>Reading groundedness, hallucination, and judge scores with healthy skepticism</td></tr>
+        <tr><td>a4 · Speed and cost</td><td>Latency and price as first-class metrics, not infrastructure footnotes</td></tr>
+        <tr><td>a5 · The three project killers</td><td>Spotting the failure patterns that quietly sink evaluation efforts</td></tr>
+        <tr><td>a6 · Your eval governance playbook</td><td>The scorecard to demand, the vendor grilling, the review cadence</td></tr>
+      </tbody>
+    </table>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The accuracy paradox demonstrated on a real base rate (96.8% accurate, zero customers found), the four mistake types in business language with their price tags, the one question that exposes any single number, and five questions to ask about any model report before you trust it.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: THE PARADOX ============ -->
+  <section class="section" id="the-paradox">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers Google MLCC accuracy lessons + the Lumen canon</span>
+      <h2>The 96.8% model that finds nobody <span class="tag concept">15 min live</span></h2>
+    </div>
+    <p class="lede">Lumen's conversion rate is about 3.2%. So here is a model your team could build in zero minutes: <strong>always say "will not buy."</strong> It is right about 96.8% of the time - a grade most real models would envy - and it finds exactly zero customers. That is the accuracy paradox, and it is not a curiosity: fraud, churn, conversion, defects, and disease are all rare-event problems, which means the problems where models are most valuable are exactly the problems where accuracy flatters useless models.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A report card showing accuracy 96.8% with a checkmark, and below it the hidden confusion matrix revealing zero buyers found and every real buyer missed.">
+        <style>
+          .o1T { font: 700 14px Inter, sans-serif; fill: #FFFFFF; }
+          .o1S { font: 400 11.5px Inter, sans-serif; fill: #FFFFFF; opacity: .92; }
+          .o1H { font: 700 20px Inter, sans-serif; fill: #FFFFFF; }
+          .o1I { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .o1X { font: 400 12px Inter, sans-serif; fill: #64748B; }
+          .o1N { font: 600 13px Inter, sans-serif; fill: #043029; }
+          .o1B { font: 700 13px Inter, sans-serif; fill: #991B1B; }
+          .o1Y { font: 400 12px Inter, sans-serif; fill: #991B1B; }
+        </style>
+        <rect x="250" y="24" width="380" height="78" rx="12" fill="#86198F"/>
+        <text class="o1H" x="290" y="60">Accuracy 96.8% ✓</text>
+        <text class="o1S" x="290" y="84">the number the report leads with</text>
+        <path d="M 440 110 L 440 138 L 432 130 M 440 138 L 448 130" stroke="#64748B" stroke-width="2" fill="none"/>
+        <text class="o1X" x="330" y="156">lift the hood: the same model, in four cells</text>
+        <text class="o1I" x="316" y="184">ACTUAL: bought</text>
+        <text class="o1I" x="586" y="184">ACTUAL: did not</text>
+        <text class="o1I" x="66" y="234">MODEL says</text>
+        <text class="o1I" x="66" y="252">"will buy"</text>
+        <text class="o1I" x="66" y="330">MODEL says</text>
+        <text class="o1I" x="66" y="348">"will not"</text>
+        <rect x="300" y="196" width="240" height="86" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="2"/>
+        <text class="o1B" x="320" y="224">BUYERS FOUND: 0</text>
+        <text class="o1Y" x="320" y="246">it never flags anyone,</text>
+        <text class="o1Y" x="320" y="264">so it never finds anyone</text>
+        <rect x="560" y="196" width="240" height="86" rx="10" fill="#FDF4FF" stroke="#C026D3" stroke-width="2"/>
+        <text class="o1I" x="580" y="224">FALSE ALARMS: 0</text>
+        <text class="o1X" x="580" y="246">no wasted outreach -</text>
+        <text class="o1X" x="580" y="264">the only cell that looks fine</text>
+        <rect x="300" y="292" width="240" height="86" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="2"/>
+        <text class="o1B" x="320" y="320">MISSED: every buyer</text>
+        <text class="o1Y" x="320" y="342">all real converters slip by,</text>
+        <text class="o1Y" x="320" y="360">~$74 an order, uncounted</text>
+        <rect x="560" y="292" width="240" height="86" rx="10" fill="#581C87"/>
+        <text class="o1T" x="580" y="320">EVERYONE ELSE</text>
+        <text class="o1S" x="580" y="342">correctly ignored - 96.8%</text>
+        <text class="o1S" x="580" y="360">of sessions, hence the grade</text>
+        <rect x="66" y="394" width="14" height="14" rx="3" fill="#0E7C6B"/>
+        <text class="o1N" x="90" y="406">The report card and the matrix describe the SAME model. Only one of them shows the zero.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the number vs the truth: 96.8% on top, zero catches underneath</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The paradox in one boardroom sentence<span class="mini">7 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Google's ML Crash Course states the general form almost word for word: on data where a class appears 1% of the time, a model predicting negative 100% of the time scores 99% accuracy "despite being useless." The boardroom version: <strong>on rare-event problems, accuracy mostly measures how rare the event is, not how good the model is.</strong></p>
+        <ul>
+          <li>Google's own guidance: accuracy is a rough progress indicator for <strong>balanced</strong> data only.</li>
+          <li>Lumen's base rate is 3.2% - so 96.8% accuracy is the score for doing nothing at all.</li>
+          <li>The valuable problems - fraud, churn, conversion, safety, disease - are almost all rare-event problems. The lie lives exactly where the money is.</li>
+        </ul>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The 99%-accurate fraud model.</strong> This story pattern repeats across the industry: a bank's new fraud model reports 99%+ accuracy and gets fast-tracked. First month in production it catches almost nothing - fraud was a fraction of a percent of transactions, and the model had learned to say "legitimate" nearly always. Nobody in the approval chain had asked to see the mistakes broken out by type. One glance at the missed-fraud line would have stopped the launch. That glance is what this session installs.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Four cells, four line items on your P&amp;L<span class="mini">8 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every yes/no model produces exactly four outcomes. Your teams call them TP, FP, FN, TN; you can call them by what they cost. At Lumen the two mistakes have wildly different prices - and no single number tells you which mistake it is making.</p>
+        <table class="clean">
+          <thead><tr><th>Outcome</th><th>In business language</th><th>Who feels it</th><th>Price at Lumen</th></tr></thead>
+          <tbody>
+            <tr><td>True positive</td><td>Flag-and-right: flagged a session, they bought</td><td>Everyone smiles</td><td>the win</td></tr>
+            <tr><td>False positive</td><td>Flag-and-wasted: flagged, nobody bought</td><td>Marketing's budget</td><td>~$2 wasted outreach</td></tr>
+            <tr><td>False negative</td><td>Missed-buyer: a real buyer, never nudged</td><td>Finance's revenue line</td><td>~$74 lost order</td></tr>
+            <tr><td>True negative</td><td>Correctly-ignored: no flag, no purchase</td><td>Nobody - and that is fine</td><td>free</td></tr>
+          </tbody>
+        </table>
+        <p>Hold the asymmetry: a miss costs about <strong>37 times</strong> a false alarm here. Session a2 turns that ratio into a dollar figure your teams can optimize - and shows why the metric they usually optimize ignores it completely.</p>
+        <div class="callout tip">
+          <strong>Say the cells in your own words</strong>
+          The fastest fluency drill: for one model in your org, say all four outcomes aloud in business language, with a rough price on the two mistakes. If you can do that, you can read any evaluation this course will show you.
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>When a matrix lands in your inbox: a 60-second reading drill<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Sooner or later a team will actually send you the four cells. Read them in this order and you cannot be fooled:</p>
+        <ul>
+          <li><strong>1 · Find the base rate first.</strong> Add up the "actually happened" column and divide by the total. Everything else is judged against it.</li>
+          <li><strong>2 · Go straight to the miss cell.</strong> The false negatives are where the expensive silence lives - the 96.8% model hides all its damage there.</li>
+          <li><strong>3 · Check the labels before trusting anything.</strong> Different tools draw the matrix rotated or transposed - confirm which axis is "model says" and which is "actually happened" before you read a single count.</li>
+          <li><strong>4 · Compare to the do-nothing model.</strong> Would always-say-no produce a similar-looking matrix? If yes, the model is decoration.</li>
+          <li><strong>5 · Ask for prices on the two error cells.</strong> Counts without costs are half a story - and a2 is about the other half.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: SELF-DEFENSE ============ -->
+  <section class="section" id="self-defense">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers metric literacy · sklearn imbalance warning · Ng's skewed-data framing</span>
+      <h2>Metric literacy as self-defense <span class="tag concept">7 min live + self-study</span></h2>
+    </div>
+    <p class="lede">You do not need to compute a single metric to defend yourself against one. You need exactly one question, asked out loud, every time someone quotes a single number: <strong>"which mistakes does this number hide?"</strong> Accuracy hides which of the two error types it is making. A precision figure hides the buyers being missed. A recall figure hides the outreach being wasted. Every summary is a choice about what not to show - your job is to ask for the part that was chosen away.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The one question - and the rare case where accuracy is fine<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>"Which mistakes does this hide?" works on any metric because every metric is a ratio of the four cells - it keeps some, drops others. Andrew Ng teaches the same defense to engineers as "error metrics for skewed datasets": on rare events, stop trusting the average and look at the error types separately. The toolmakers agree - scikit-learn, the standard ML library, ships an alternative to plain accuracy precisely because accuracy gives "inflated performance estimates" on imbalanced data. Their words, in the documentation.</p>
+        <p>Is accuracy ever fine? Yes, when BOTH of these hold - and notice how rarely they do:</p>
+        <ul>
+          <li><strong>Balanced classes</strong> - the outcomes are roughly 50/50, so the do-nothing model scores 50%, not 96.8%.</li>
+          <li><strong>Equal costs</strong> - both mistake types hurt about the same, so it is fair to average them.</li>
+        </ul>
+        <p>Lumen fails both tests: 3.2% base rate, and a 37x cost gap between the two errors. Most problems worth modeling fail both.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The leader's five questions for any model report<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Ask these in order. A strong team answers all five in under two minutes; a weak report survives none of them.</p>
+        <table class="clean">
+          <thead><tr><th>#</th><th>The question</th><th>What a good answer sounds like</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>What is the base rate?</td><td>"3.2% convert - so doing nothing scores 96.8%, and here is how far we beat that."</td></tr>
+            <tr><td>2</td><td>Show me the confusion matrix.</td><td>Four labeled cells with counts, already in the deck - not "we can pull that."</td></tr>
+            <tr><td>3</td><td>Who chose the threshold, and why?</td><td>A name and a reason. "The default" means nobody chose - a2 is about this.</td></tr>
+            <tr><td>4</td><td>What does each error type cost?</td><td>Two different prices, even rough ones - a miss and a false alarm are different invoices.</td></tr>
+            <tr><td>5</td><td>Evaluated on what slice?</td><td>Which data, from when, and whether it looks like next quarter's customers. (a5 goes deep here.)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Precision vs recall: just listen to who is complaining<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Your teams will say "precision" and "recall" constantly. You never need the formulas - you need to know whose complaint each one is:</p>
+        <ul>
+          <li><strong>Marketing complains = precision.</strong> "Half the sessions you flag never buy" - the flags are polluted. Precision asks: when we flag, are we right?</li>
+          <li><strong>Finance complains = recall.</strong> "We missed buyers worth $74 each" - real money walked past unflagged. Recall asks: of the real buyers, how many did we catch?</li>
+        </ul>
+        <p>The two complaints trade against each other through the threshold - flag more people and marketing suffers, flag fewer and finance does. You will feel that trade in your own hands in the demo below, and a2 shows who should be choosing the balance point (spoiler: someone who knows both prices).</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Five red flags in a metric slide<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Pattern-match these before your next vendor meeting or internal review. None of them proves the model is bad - each one proves a question was skipped:</p>
+        <ul>
+          <li><strong>Accuracy with no base rate next to it.</strong> You now know why: without the base rate, the number is unreadable. Ask question 1.</li>
+          <li><strong>One blended score and nothing else.</strong> A single number is a summary with an opinion. Ask which mistakes it hides.</li>
+          <li><strong>No mention of a threshold anywhere.</strong> Every yes/no model has the dial - silence means the default is doing the deciding.</li>
+          <li><strong>"Up to" phrasing.</strong> "Up to 99% accurate" describes the best point on a curve under the friendliest conditions - ask for the operating point they actually run at.</li>
+          <li><strong>Error types never separated.</strong> If misses and false alarms are never shown apart, nobody has priced them - and the 37x asymmetries stay invisible.</li>
+        </ul>
+        <p>The pattern behind all five: a summary was offered where a decision should be. The five questions from the previous card are the antidote, one for one.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO ============ -->
+  <section class="section" id="demo">
+    <div class="section-kicker">
+      <span class="klabel">Live demo</span>
+      <h2>Drag a real threshold <span class="tag demo">★ 20 min · everyone tries it</span></h2>
+    </div>
+    <p class="lede">Below is Lumen's actual conversion model, evaluated on a 2,000-session slice - the scores are real, and every tile recomputes live in your browser as you drag. The slider is the model's <strong>threshold</strong>: how sure it must be before it flags a session as "will buy." No code, no setup. Drag it and watch which numbers panic and which stay eerily calm.</p>
+
+    <div class="steps">
+      <div class="step"><p>Read the default tiles first (threshold 0.50): precision <strong>21.5%</strong>, recall <strong>63.6%</strong>. Most flags are wrong AND a third of buyers are missed - and this is a perfectly reasonable model on a 3.2% base rate. Calibrate your expectations: rare-event models live in this range, and a vendor promising 95% on both is describing a unicorn.</p></div>
+      <div class="step"><p>Drag the slider right and watch two things at once: <strong>accuracy stays serene</strong> - drifting calmly in the high 90s - <strong>while recall dies</strong>, collapsing toward zero as the model flags almost nobody. That is Part 1's paradox, live: the headline number cannot feel the buyers being lost.</p></div>
+      <div class="step"><p>Now drag left toward 0.1: recall climbs to 100% - every buyer caught - while precision falls to single digits, because you flagged half the store to do it. Feel the trade in your hand: this is marketing's complaint and finance's complaint on one slider.</p></div>
+      <div class="step"><p>You will notice two buttons under the slider. Leave them alone tonight - they are the entire plot of a2, and they are worth $704. If you already pressed one: yes, the "best" metric and the cheapest outcome disagree. Hold that thought until next session.</p></div>
+    </div>
+
+    <div class="evalbox" data-mode="threshold" data-thresh="0.5"></div>
+
+    <div class="callout tip">
+      <strong>How to read the evaluator</strong>
+      The tiles on top are the metric summary; the four cells below are the raw matrix with dollar costs on the two error cells (a false alarm $2, a missed buyer $74 - the Part 1 price list). Everything recomputes on every drag: 2,000 embedded sessions, the same Lumen data your practitioner colleagues use in their track.
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Questions to ask your teams</span>
+      <h2>This week, in your own meetings <span class="tag exercise">◐ 15 min total</span></h2>
+    </div>
+    <ul>
+      <li>Find one single-number claim in a report, dashboard, or vendor deck this week and ask the question out loud: "which mistakes does this number hide?" Write down what happens next.</li>
+      <li>Ask one team for the confusion matrix behind a model you sponsor. If it arrives quickly with labels and counts, good sign. If it takes days, you have learned something more important than the numbers.</li>
+      <li>Ask what the base rate is for a prediction problem you fund. Then compute the do-nothing score yourself: 100% minus the base rate. That is the floor any accuracy claim must clear by a lot.</li>
+      <li>Put rough prices on the two mistake types for one decision your org automates - even "$2-ish vs $74-ish" precision is enough. Bring them to a2; they become the cost matrix that picks the threshold.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">The leader track teaches the decision-relevant core of the canonical metric sources - Google's crash-course classification module, scikit-learn's evaluation guidance, and Ng's metric doctrines - in business language, with the live evaluator doing the math. Certificates and hands-on assessments stay with the official providers (and with the practitioner track). This page covers:</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Google ML Crash Course - "Thresholds and the confusion matrix" + "Accuracy, recall, precision"</span><span class="note">Parts 1-2 + the demo, translated to leader language</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Lumen canon (learn-intro-ml) - the 3.2% base rate, ~$74 order, and the model under evaluation</span><span class="note">The running case for all six sessions</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">sklearn metrics guide - the imbalance warning ("inflated performance estimates")</span><span class="note">Quoted as evidence · the API tour lives in the practitioner track</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Ng, Advanced Learning Algorithms W3 - error metrics for skewed datasets</span><span class="note">The framing only · the tradeoff becomes money in a2</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · A model at Lumen scores 96.8% accuracy while finding zero customers. What causes this?</p>
+      <button class="qopt" type="button">A · The model was trained on too little data to find buyers</button>
+      <button class="qopt" type="button">B · Only ~3.2% of sessions convert, so always saying "no" is right ~96.8% of the time</button>
+      <button class="qopt" type="button">C · Accuracy was computed with a bug - the true figure is much lower</button>
+      <p class="qwhy">On rare events, accuracy mostly measures the base rate, not the model. Doing nothing scores 96.8% at Lumen. That is why the valuable problems - fraud, churn, conversion, disease - are exactly where accuracy flatters useless models.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">2 · Marketing storms in: "half the sessions your model flags never buy anything." Which metric is that complaint about?</p>
+      <button class="qopt" type="button">A · Precision - when we flag, how often are we right?</button>
+      <button class="qopt" type="button">B · Recall - of the real buyers, how many did we catch?</button>
+      <button class="qopt" type="button">C · Accuracy - what fraction of everything did we get right?</button>
+      <p class="qwhy">Polluted flags are precision's complaint, and it comes from whoever pays for the false alarms - here, marketing's outreach budget. Missed buyers would be finance's complaint, and that one is recall. Match the stakeholder to the metric and you never mix them up.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">3 · A vendor deck leads with one impressive number. What is the single question that exposes it?</p>
+      <button class="qopt" type="button">A · "What accuracy does your model reach on balanced data?"</button>
+      <button class="qopt" type="button">B · "How large was the training set?"</button>
+      <button class="qopt" type="button">C · "Which mistakes does this number hide?"</button>
+      <p class="qwhy">Every metric is a ratio of the four cells - it keeps some mistakes visible and drops others. Asking which ones were dropped forces the confusion matrix onto the table, and the four cells with prices attached tell you what the summary chose not to say.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Leader session 1 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The accuracy paradox</b><span>3.2% base rate means "always say no" scores 96.8% and finds nobody. On rare events, accuracy measures the base rate, not the model.</span></div>
+      <div class="cheat-item"><b>The four cells, priced</b><span>Flag-and-right (win) · flag-and-wasted (~$2, marketing) · missed-buyer (~$74, finance) · correctly-ignored (free). A 37x gap between the mistakes.</span></div>
+      <div class="cheat-item"><b>The one question</b><span>"Which mistakes does this number hide?" Works on any single metric, because every metric drops some of the four cells.</span></div>
+      <div class="cheat-item"><b>When accuracy IS fine</b><span>Balanced classes AND equal error costs - both at once. Rare in practice; Lumen fails both tests.</span></div>
+      <div class="cheat-item"><b>The five questions</b><span>Base rate? Confusion matrix? Who chose the threshold? Cost per error type? Evaluated on what slice?</span></div>
+      <div class="cheat-item"><b>Whose complaint</b><span>Marketing complains about polluted flags = precision. Finance complains about missed buyers = recall. Listen to the stakeholder, skip the formula.</span></div>
+      <div class="cheat-item"><b>The threshold</b><span>Every yes/no model has a dial, and precision and recall trade through it. "The default" is an answer that means nobody chose - a2 fixes that.</span></div>
+      <div class="cheat-item"><b>Calibrated expectations</b><span>Precision 21.5% / recall 63.6% is a REASONABLE model on a 3.2% base rate. A vendor promising 95% on both is describing a unicorn.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Leader session 1 of 6 · learn-model-evaluation-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="../index.html">← All sessions</a> &nbsp;·&nbsp; <a href="a2-precision-recall-money.html">Next: Precision, recall, and money →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/evalml-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>
