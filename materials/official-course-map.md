@@ -94,7 +94,7 @@ Embeds: `<div class="evalbox" data-mode="threshold" data-thresh="0.5"></div>` (d
 | b9 Drift + continuous eval | capability vs regression evals, golden-set-first, Rule #37 skew ladder, two-hop chain | | | | | | | | | ✓ | ◐ | | ✓ |
 | b10 Capstone: the eval sheet | full eval spec for Lumen (classic) + a RAG assistant (LLM): metrics, costs, gates | ✓ | | ✓ | | ◐ | ✓ | ◐ | ◐ | ✓ | | | ✓ |
 
-✓ = ~80% of that source's working content for the topic. ◐ = partial/contextual. Certificates/graded assessments stay official; hands-on RAGAS pipelines live in learn-evals-with-phoebe.
+✓ = ~80% of that source's working content for the topic. ◐ = partial/contextual. Certificates/graded assessments stay official; hands-on RAGAS pipelines live in learn-ai-evals-with-phoebe.
 
 ## Overlap analysis
 Shared core taught ONCE: confusion-matrix arithmetic (b1), the threshold dial (b2, reused in b5), grader taxonomy (b7 - S9/S10 agree code/model/human). Unique deltas: S4-only (PR-vs-ROC) -> b3. S1-only (calibration warning, TunedThresholdClassifierCV, scoring-function doctrine) -> b3/b4/b5. S5-only (bias list + 80% bar) -> b7. S8-only (latency identity) -> b8. S11-only (world-vs-document) -> b6. S12-only (skew ladder, proxy chain) -> b9.
@@ -103,7 +103,7 @@ Shared core taught ONCE: confusion-matrix arithmetic (b1), the threshold dial (b
 The Goodhart trap as a BUTTON (optimize-F1 visibly loses $704) · a judge you calibrate yourself (58% -> 88%) · classic + LLM metric families in one arc with the same money-first lens · the two-hop proxy chain taught as governance · latency/cost as first-class metrics (Anthropic's own success-criteria list), not infra footnotes.
 
 ## Not covered by design (honest list)
-- Hands-on RAGAS/LangSmith pipelines, tracing, CI wiring -> learn-evals-with-phoebe
+- Hands-on RAGAS/LangSmith pipelines, tracing, CI wiring -> learn-ai-evals-with-phoebe
 - sklearn mechanics from scratch -> learn-intro-ml-with-phoebe (b7/b8)
 - Fairness/bias metrics (demographic parity etc.) - named as the next frontier, not taught
 - Statistical significance of eval deltas -> learn-statistics / learn-experimentation
