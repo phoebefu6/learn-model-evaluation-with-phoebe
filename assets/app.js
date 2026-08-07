@@ -138,13 +138,8 @@
     if (m) {
       var current = parseInt(m[1], 10);
       var pages = mx
-        ? ["a1-what-an-agent-is.html", "a2-anatomy-plain.html",
-           "a3-workflows-vs-agents.html", "a4-risk-governance.html",
-           "a5-agents-in-your-org.html", "a6-roadmap.html"]
-        : ["b1-agent-loop.html", "b2-tools-first-agent.html", "b3-workflow-patterns.html",
-           "b4-memory-context.html", "b5-planning-reasoning.html", "b6-multi-agent.html",
-           "b7-guardrails.html", "b8-agent-evals.html", "b9-ship-observe.html",
-           "b10-capstone.html"];
+        ? ["a1-why-one-number-lies.html", "a2-precision-recall-money.html", "a3-llm-quality-plain.html", "a4-speed-and-cost.html", "a5-three-project-killers.html", "a6-eval-governance.html"]
+        : ["b1-confusion-matrix.html", "b2-threshold-dial.html", "b3-curves-calibration.html", "b4-regression-ranking.html", "b5-cost-matrix.html", "b6-llm-quality-metrics.html", "b7-grader-problem.html", "b8-operational-metrics.html", "b9-drift-continuous-eval.html", "b10-capstone-eval-sheet.html"];
       var journey = document.createElement("div");
       journey.className = "journey";
       var jl = document.createElement("span");
