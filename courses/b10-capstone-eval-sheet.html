@@ -129,6 +129,47 @@
       <div class="step"><p>Change the FN price to $40 and press <strong>Optimize $</strong>: the decision moves. The sheet is alive - when finance re-prices a lost order, the threshold re-tunes. That is slot 8 working, not a flaw.</p></div>
     </div>
 
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three rows checking Sheet 1 against the live evaluator. Slot 3, minimize expected cost, lands at 1,146 dollars at threshold 0.22 and is the chosen operating point. Slot 4, precision at least 8 percent, measures 8.8 percent and clears the floor only just, which proves the constraint is real. The red team's alternative, optimize F1 at threshold 0.61 with F1 0.706, costs 1,850 dollars, which is 704 dollars worse and is rejected. Every line is verified against the evaluator rather than asserted.">
+        <style>
+          .w0aT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w0aL { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w0aS { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .w0aV { font: 700 20px Inter, sans-serif; fill: #1E293B; }
+          .w0aC { font: 700 11px Inter, sans-serif; fill: #FFFFFF; letter-spacing: .04em; }
+          .w0aN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="380" fill="#FCF8FC"/>
+        <text class="w0aT" x="40" y="26">Sheet 1, checked line by line against the evaluator</text>
+        <text class="w0aS" x="40" y="48">Nothing here is asserted: each number is read off the same 2,000-session slice the sheet names.</text>
+
+        <rect x="40" y="96" width="800" height="64" rx="10" fill="#FDF4FF" stroke="#C026D3" stroke-width="1.5"/>
+        <text class="w0aL" x="58" y="122">Slot 3 - minimize expected cost</text>
+        <text class="w0aS" x="58" y="142">the sheet's one optimizing metric</text>
+        <text class="w0aV" x="430" y="136">$1,146 at t=0.22</text>
+        <rect x="640" y="114" width="182" height="28" rx="14" fill="#86198F"/>
+        <text class="w0aC" x="731" y="133" text-anchor="middle">CHOSEN POINT</text>
+
+        <rect x="40" y="176" width="800" height="64" rx="10" fill="#E3F4F0" stroke="#0E7C6B" stroke-width="1.5"/>
+        <text class="w0aL" x="58" y="202">Slot 4 - precision &gt;= 8%</text>
+        <text class="w0aS" x="58" y="222">ops absorbs the alert volume</text>
+        <text class="w0aV" x="430" y="216">8.8% measured</text>
+        <rect x="640" y="194" width="182" height="28" rx="14" fill="#0E7C6B"/>
+        <text class="w0aC" x="731" y="213" text-anchor="middle">CLEARS, BARELY</text>
+
+        <rect x="40" y="256" width="800" height="64" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="w0aL" x="58" y="282">Red team - Optimize F1</text>
+        <text class="w0aS" x="58" y="302">F1 0.706 at t=0.61</text>
+        <text class="w0aV" x="430" y="296">$1,850</text>
+        <rect x="640" y="274" width="182" height="28" rx="14" fill="#991B1B"/>
+        <text class="w0aC" x="731" y="293" text-anchor="middle">$704 WORSE</text>
+
+        <text class="w0aN" x="40" y="352">Every line on the sheet is checked against the evaluator, on demand, in the review.</text>
+        <text class="w0aN" x="40" y="372">The precision floor is a real constraint, not decoration - the chosen point only just clears it.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - a sheet you can defend is a sheet whose numbers you can reproduce live</figcaption>
+    </figure>
+
     <div class="evalbox" data-mode="threshold" data-thresh="0.22"></div>
 
     <div class="callout tip">
@@ -150,6 +191,44 @@
       <div class="step"><p>Switch to the length-controlled judge: <strong>88%</strong> - passes the bar. Write BOTH numbers into slot 6: the bar, and the measured agreement. Now the faithfulness floor in slot 4 means something.</p></div>
       <div class="step"><p>Note the discipline this created: before this course, "faithfulness 0.92 ✓" looked like a fact. Now you read it as "0.92 according to WHOM, agreeing with humans HOW often?" - the b7 reflex, institutionalized in a slot.</p></div>
     </div>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two agreement tracks measured against the bar Sheet 2 sets in slot 6. The sheet requires at least 85 percent agreement with human labels. The raw judge reaches 58 percent, short of the bar, so the sheet rejects its own grader. The length-controlled judge reaches 88 percent, past the bar, so the faithfulness floor in slot 4 finally means something. Both numbers get written into slot 6: the bar, and the measured agreement.">
+        <style>
+          .w0bT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w0bA { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .w0bL { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w0bB { font: 700 11px Inter, sans-serif; fill: #86198F; }
+          .w0bR { font: 700 20px Inter, sans-serif; fill: #991B1B; }
+          .w0bP { font: 700 20px Inter, sans-serif; fill: #0E7C6B; }
+          .w0bX { font: 400 12px Inter, sans-serif; fill: #991B1B; }
+          .w0bY { font: 400 12px Inter, sans-serif; fill: #043029; }
+          .w0bN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="300" fill="#FCF8FC"/>
+        <text class="w0bT" x="40" y="26">Slot 6 is a gate, and the sheet rejects its own grader</text>
+        <text class="w0bA" x="40" y="48">Slot 6 demands the judge's human-agreement number before any faithfulness score counts.</text>
+
+        <text class="w0bB" x="800" y="84" text-anchor="end">the sheet's bar: 85%</text>
+        <line x1="716" y1="90" x2="716" y2="222" stroke="#86198F" stroke-width="2.5" stroke-dasharray="5 4"/>
+
+        <text class="w0bL" x="228" y="117" text-anchor="end">Raw judge</text>
+        <rect x="240" y="96" width="560" height="32" rx="6" fill="#E2E8F0"/>
+        <rect x="240" y="96" width="325" height="32" rx="6" fill="#991B1B"/>
+        <text class="w0bR" x="577" y="117">58%</text>
+        <text class="w0bX" x="240" y="148">short of the bar - an eval built on it would measure verbosity</text>
+
+        <text class="w0bL" x="228" y="207" text-anchor="end">Length-controlled</text>
+        <rect x="240" y="186" width="560" height="32" rx="6" fill="#E2E8F0"/>
+        <rect x="240" y="186" width="493" height="32" rx="6" fill="#0E7C6B"/>
+        <text class="w0bP" x="745" y="207">88%</text>
+        <text class="w0bY" x="240" y="238">clears the bar, so the faithfulness floor in slot 4 means something</text>
+
+        <text class="w0bN" x="40" y="270">Write both numbers into slot 6: the bar you require, and the agreement you measured.</text>
+        <text class="w0bN" x="40" y="290">Without it, "faithfulness 0.92" is a rumor with a decimal point attached.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the sheet threw out its grader before the grader could mislead it</figcaption>
+    </figure>
 
     <div class="evalbox" data-mode="judge"></div>
 

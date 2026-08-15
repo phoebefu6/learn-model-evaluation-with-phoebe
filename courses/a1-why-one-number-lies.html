@@ -141,6 +141,48 @@
       <summary><span class="mode live">Live</span>Four cells, four line items on your P&amp;L<span class="mini">8 min</span><span class="caret">▶</span></summary>
       <div class="body">
         <p>Every yes/no model produces exactly four outcomes. Your teams call them TP, FP, FN, TN; you can call them by what they cost. At Lumen the two mistakes have wildly different prices - and no single number tells you which mistake it is making.</p>
+
+        <figure class="zoomable">
+          <svg viewBox="0 0 880 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A bar chart pricing the four outcomes of Lumen's conversion model on one dollar scale. A missed buyer costs about 74 dollars in lost order value and its bar runs 37 times longer than the false alarm bar, which costs about 2 dollars in wasted outreach. The other two outcomes, flag-and-right and correctly-ignored, carry no invoice at all. Only two of the four cells cost money, and they are nowhere near the same amount.">
+            <style>
+              .v1aT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+              .v1aK { font: 600 11.5px Inter, sans-serif; fill: #1E293B; }
+              .v1aL { font: 600 12px Inter, sans-serif; fill: #1E293B; }
+              .v1aV { font: 700 12px Inter, sans-serif; fill: #FFFFFF; }
+              .v1aO { font: 700 12px Inter, sans-serif; fill: #991B1B; }
+              .v1aF { font: 600 12px Inter, sans-serif; fill: #0E7C6B; }
+              .v1aN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+            </style>
+            <rect x="0" y="0" width="880" height="320" fill="#FCF8FC"/>
+            <text class="v1aT" x="40" y="28">The four outcomes, priced - bar length is dollars, one shared scale</text>
+            <rect x="40" y="42" width="14" height="14" rx="3" fill="#991B1B"/>
+            <text class="v1aK" x="60" y="54">a mistake with an invoice</text>
+            <rect x="236" y="42" width="14" height="14" rx="3" fill="#0E7C6B"/>
+            <text class="v1aK" x="256" y="54">no invoice</text>
+
+            <text class="v1aL" x="240" y="97" text-anchor="end">Flag-and-right</text>
+            <rect x="260" y="76" width="300" height="32" rx="8" fill="none" stroke="#0E7C6B" stroke-width="1.6"/>
+            <text class="v1aF" x="274" y="97">no invoice - this is the win</text>
+
+            <text class="v1aL" x="240" y="149" text-anchor="end">Flag-and-wasted</text>
+            <rect x="260" y="128" width="13" height="32" fill="#991B1B"/>
+            <text class="v1aO" x="285" y="149">$2 wasted outreach - marketing</text>
+
+            <text class="v1aL" x="240" y="201" text-anchor="end">Missed-buyer</text>
+            <rect x="260" y="180" width="480" height="32" fill="#991B1B"/>
+            <text class="v1aV" x="272" y="201">$74 lost order - finance</text>
+            <text class="v1aV" x="728" y="201" text-anchor="end">37x the false alarm</text>
+
+            <text class="v1aL" x="240" y="253" text-anchor="end">Correctly-ignored</text>
+            <rect x="260" y="232" width="300" height="32" rx="8" fill="none" stroke="#0E7C6B" stroke-width="1.6"/>
+            <text class="v1aF" x="274" y="253">no invoice - and that is fine</text>
+
+            <text class="v1aN" x="40" y="290">No single metric can see this gap: accuracy counts a missed buyer and a false alarm as one mistake each.</text>
+            <text class="v1aN" x="40" y="310">Two invoices, 37x apart. Which one the model prefers to send is set by the threshold - that is session a2.</text>
+          </svg>
+          <figcaption>🔍 Click to zoom - only two of the four cells send an invoice, and they are 37x apart</figcaption>
+        </figure>
+
         <table class="clean">
           <thead><tr><th>Outcome</th><th>In business language</th><th>Who feels it</th><th>Price at Lumen</th></tr></thead>
           <tbody>
@@ -180,6 +222,71 @@
       <h2>Metric literacy as self-defense <span class="tag concept">7 min live + self-study</span></h2>
     </div>
     <p class="lede">You do not need to compute a single metric to defend yourself against one. You need exactly one question, asked out loud, every time someone quotes a single number: <strong>"which mistakes does this number hide?"</strong> Accuracy hides which of the two error types it is making. A precision figure hides the buyers being missed. A recall figure hides the outreach being wasted. Every summary is a choice about what not to show - your job is to ask for the part that was chosen away.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A matrix showing which of the four outcome cells each headline metric actually uses. Accuracy touches all four cells but blends them into one average, so a missed buyer and a false alarm look identical. Precision counts flag-and-right and flag-and-wasted and is blind to missed buyers. Recall counts flag-and-right and missed-buyer and is blind to wasted outreach. Neither precision nor recall uses the correctly-ignored cell. Every metric is a ratio that keeps some cells and drops others.">
+        <style>
+          .v1bT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .v1bK { font: 600 11.5px Inter, sans-serif; fill: #1E293B; }
+          .v1bH { font: 700 11px Inter, sans-serif; fill: #1E293B; }
+          .v1bR { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .v1bS { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .v1bC { font: 700 12px Inter, sans-serif; fill: #FFFFFF; }
+          .v1bU { font: 600 12px Inter, sans-serif; fill: #64748B; }
+          .v1bN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="320" fill="#FCF8FC"/>
+        <text class="v1bT" x="40" y="28">Which of the four cells each headline number actually uses</text>
+        <rect x="40" y="42" width="14" height="14" rx="3" fill="#0E7C6B"/>
+        <text class="v1bK" x="60" y="54">counted separately</text>
+        <rect x="196" y="42" width="14" height="14" rx="3" fill="#86198F"/>
+        <text class="v1bK" x="216" y="54">blended into one average</text>
+        <rect x="392" y="42" width="14" height="14" rx="3" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+        <text class="v1bK" x="412" y="54">not in the ratio</text>
+
+        <text class="v1bH" x="320" y="78" text-anchor="middle">flag-and-right</text>
+        <text class="v1bH" x="464" y="78" text-anchor="middle">flag-and-wasted</text>
+        <text class="v1bH" x="608" y="78" text-anchor="middle">missed-buyer</text>
+        <text class="v1bH" x="752" y="78" text-anchor="middle">correctly-ignored</text>
+
+        <text class="v1bR" x="238" y="110" text-anchor="end">Accuracy</text>
+        <text class="v1bS" x="238" y="127" text-anchor="end">fraction of all right</text>
+        <rect x="250" y="88" width="140" height="52" rx="8" fill="#86198F"/>
+        <text class="v1bC" x="320" y="119" text-anchor="middle">blended</text>
+        <rect x="394" y="88" width="140" height="52" rx="8" fill="#86198F"/>
+        <text class="v1bC" x="464" y="119" text-anchor="middle">blended</text>
+        <rect x="538" y="88" width="140" height="52" rx="8" fill="#86198F"/>
+        <text class="v1bC" x="608" y="119" text-anchor="middle">blended</text>
+        <rect x="682" y="88" width="140" height="52" rx="8" fill="#86198F"/>
+        <text class="v1bC" x="752" y="119" text-anchor="middle">blended</text>
+
+        <text class="v1bR" x="238" y="170" text-anchor="end">Precision</text>
+        <text class="v1bS" x="238" y="187" text-anchor="end">when we flag, are we right?</text>
+        <rect x="250" y="148" width="140" height="52" rx="8" fill="#0E7C6B"/>
+        <text class="v1bC" x="320" y="179" text-anchor="middle">counted</text>
+        <rect x="394" y="148" width="140" height="52" rx="8" fill="#0E7C6B"/>
+        <text class="v1bC" x="464" y="179" text-anchor="middle">counted</text>
+        <rect x="538" y="148" width="140" height="52" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+        <text class="v1bU" x="608" y="179" text-anchor="middle">invisible</text>
+        <rect x="682" y="148" width="140" height="52" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+        <text class="v1bU" x="752" y="179" text-anchor="middle">invisible</text>
+
+        <text class="v1bR" x="238" y="230" text-anchor="end">Recall</text>
+        <text class="v1bS" x="238" y="247" text-anchor="end">of real buyers, how many?</text>
+        <rect x="250" y="208" width="140" height="52" rx="8" fill="#0E7C6B"/>
+        <text class="v1bC" x="320" y="239" text-anchor="middle">counted</text>
+        <rect x="394" y="208" width="140" height="52" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+        <text class="v1bU" x="464" y="239" text-anchor="middle">invisible</text>
+        <rect x="538" y="208" width="140" height="52" rx="8" fill="#0E7C6B"/>
+        <text class="v1bC" x="608" y="239" text-anchor="middle">counted</text>
+        <rect x="682" y="208" width="140" height="52" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+        <text class="v1bU" x="752" y="239" text-anchor="middle">invisible</text>
+
+        <text class="v1bN" x="40" y="292">Accuracy touches all four but blends them, so a missed buyer and a false alarm look identical to it.</text>
+        <text class="v1bN" x="40" y="312">Precision is blind to the buyers you missed. Recall is blind to the outreach you wasted. Ask what was dropped.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - every metric drops cells on purpose; ask which ones</figcaption>
+    </figure>
 
     <details class="card">
       <summary><span class="mode live">Live</span>The one question - and the rare case where accuracy is fine<span class="mini">4 min</span><span class="caret">▶</span></summary>

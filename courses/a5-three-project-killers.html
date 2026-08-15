@@ -150,6 +150,46 @@
       </div>
     </details>
 
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A time chart of the two eval families. The regression suite runs flat at about 100 percent release after release, dips once when a vendor silently upgrades the model, and returns to 100 percent after the version is pinned; any dip blocks the change. The capability suite starts low and climbs slowly across the same releases. Guarding what already works and building what does not yet work are two different shapes, and one report cannot carry both.">
+        <style>
+          .v5bT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .v5bK { font: 600 11.5px Inter, sans-serif; fill: #1E293B; }
+          .v5bA { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .v5bG { font: 700 12px Inter, sans-serif; fill: #0E7C6B; }
+          .v5bM { font: 700 12px Inter, sans-serif; fill: #86198F; }
+          .v5bD { font: 700 12px Inter, sans-serif; fill: #991B1B; }
+          .v5bN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="340" fill="#FCF8FC"/>
+        <text class="v5bT" x="40" y="26">Two eval families, two different shapes across releases</text>
+        <rect x="40" y="40" width="14" height="14" rx="3" fill="#0E7C6B"/>
+        <text class="v5bK" x="60" y="52">regression evals - guard what works</text>
+        <rect x="306" y="40" width="14" height="14" rx="3" fill="#86198F"/>
+        <text class="v5bK" x="326" y="52">capability evals - what you are building</text>
+        <rect x="604" y="40" width="14" height="14" rx="3" fill="#991B1B"/>
+        <text class="v5bK" x="624" y="52">a dip that blocks the change</text>
+
+        <line x1="120" y1="94" x2="120" y2="250" stroke="#E2E8F0" stroke-width="2"/>
+        <line x1="120" y1="250" x2="810" y2="250" stroke="#E2E8F0" stroke-width="2"/>
+        <text class="v5bA" x="110" y="104" text-anchor="end">100%</text>
+        <text class="v5bA" x="110" y="254" text-anchor="end">0%</text>
+
+        <path d="M120,100 H520 L560,150 L600,100 H800" fill="none" stroke="#0E7C6B" stroke-width="2.5"/>
+        <path d="M120,236 L290,222 L460,206 L630,192 L800,178" fill="none" stroke="#86198F" stroke-width="2.5"/>
+        <circle cx="560" cy="150" r="6" fill="#991B1B"/>
+
+        <text class="v5bG" x="132" y="124">holds at about 100%</text>
+        <text class="v5bD" x="616" y="150">any dip blocks the change</text>
+        <text class="v5bM" x="790" y="206" text-anchor="end">capability evals start low and climb</text>
+        <text class="v5bA" x="465" y="274" text-anchor="middle">time, release by release</text>
+
+        <text class="v5bN" x="40" y="306">Regression suites guard what already works and hold at about 100%; any dip blocks the change.</text>
+        <text class="v5bN" x="40" y="326">A nightly regression run turned a silent vendor upgrade into a Monday morning decision.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - one suite must stay flat at the top, the other is supposed to climb</figcaption>
+    </figure>
+
     <details class="card">
       <summary><span class="mode self">Self-study</span>How the killers chain together<span class="mini">4 min read</span><span class="caret">▶</span></summary>
       <div class="body">
@@ -171,6 +211,63 @@
       <h2>The skew ladder, and the budget line <span class="tag concept">24 min live</span></h2>
     </div>
     <p class="lede">When someone tells you "it worked offline but production disagrees," you do not need to referee. Google's Rule #37 breaks the offline-online gap into three rungs, and each rung has a different owner. Ask which rung the gap sits on, and the meeting routes itself.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Rule 37's skew ladder drawn as four scoring places on one rail: training data, holdout data, next-day data and live serving. The three gaps between them are three different diagnoses with three different owners. Training versus holdout is overfitting, owned by the data science team. Holdout versus next-day is drift, owned by the data owner. Next-day versus live serving is an engineering bug, owned by the platform team. The rung where the numbers diverge is the diagnosis.">
+        <style>
+          .v5aT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .v5aA { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .v5aL { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .v5aG { font: 700 9.5px Inter, sans-serif; fill: #FFFFFF; letter-spacing: .04em; }
+          .v5aD { font: 700 13px Inter, sans-serif; fill: #86198F; }
+          .v5aM { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .v5aO { font: 700 11px Inter, sans-serif; fill: #0E7C6B; }
+          .v5aN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="310" fill="#FCF8FC"/>
+        <text class="v5aT" x="40" y="26">The skew ladder: four places a model gets scored, three gaps between them</text>
+        <text class="v5aA" x="40" y="48">Each gap is a different diagnosis with a different owner - ask which one the numbers disagree on.</text>
+
+        <text class="v5aL" x="90" y="88" text-anchor="middle">Training data</text>
+        <text class="v5aL" x="320" y="88" text-anchor="middle">Holdout data</text>
+        <text class="v5aL" x="550" y="88" text-anchor="middle">Next-day data</text>
+        <text class="v5aL" x="780" y="88" text-anchor="middle">Live serving</text>
+        <line x1="90" y1="110" x2="780" y2="110" stroke="#CBD5E1" stroke-width="3"/>
+        <circle cx="90" cy="110" r="7" fill="#86198F"/>
+        <circle cx="320" cy="110" r="7" fill="#86198F"/>
+        <circle cx="550" cy="110" r="7" fill="#86198F"/>
+        <circle cx="780" cy="110" r="7" fill="#86198F"/>
+        <line x1="90" y1="118" x2="90" y2="150" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <line x1="320" y1="118" x2="320" y2="150" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <line x1="550" y1="118" x2="550" y2="150" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <line x1="780" y1="118" x2="780" y2="150" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+        <rect x="100" y="150" width="210" height="90" rx="10" fill="#FDF4FF" stroke="#C026D3" stroke-width="2"/>
+        <rect x="114" y="164" width="54" height="16" rx="8" fill="#86198F"/>
+        <text class="v5aG" x="141" y="176" text-anchor="middle">GAP 1</text>
+        <text class="v5aD" x="114" y="204">Overfitting</text>
+        <text class="v5aM" x="114" y="222">memorized, not learned</text>
+        <text class="v5aO" x="114" y="236">owner: the DS team</text>
+
+        <rect x="330" y="150" width="210" height="90" rx="10" fill="#FDF4FF" stroke="#C026D3" stroke-width="2"/>
+        <rect x="344" y="164" width="54" height="16" rx="8" fill="#86198F"/>
+        <text class="v5aG" x="371" y="176" text-anchor="middle">GAP 2</text>
+        <text class="v5aD" x="344" y="204">Drift</text>
+        <text class="v5aM" x="344" y="222">the world moved on</text>
+        <text class="v5aO" x="344" y="236">owner: the data owner</text>
+
+        <rect x="560" y="150" width="210" height="90" rx="10" fill="#FDF4FF" stroke="#C026D3" stroke-width="2"/>
+        <rect x="574" y="164" width="54" height="16" rx="8" fill="#86198F"/>
+        <text class="v5aG" x="601" y="176" text-anchor="middle">GAP 3</text>
+        <text class="v5aD" x="574" y="204">Engineering bug</text>
+        <text class="v5aM" x="574" y="222">same data, other answers</text>
+        <text class="v5aO" x="574" y="236">owner: the platform team</text>
+
+        <text class="v5aN" x="40" y="272">Ask for the three comparisons by name. The rung where the numbers diverge most is the diagnosis.</text>
+        <text class="v5aN" x="40" y="292">Two of the three gaps are not the DS team's to fix - routing them all there is the classic error.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - "it worked offline" is three different problems with three different owners</figcaption>
+    </figure>
 
     <table class="clean">
       <thead>

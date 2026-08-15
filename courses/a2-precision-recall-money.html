@@ -156,6 +156,41 @@
     </div>
     <p class="lede">Goodhart's law: when a measure becomes a target, it stops being a good measure. Here is the mechanism in evaluation: <strong>every summary metric hides a cost assumption.</strong> F1 - the metric teams most love to optimize - silently assumes both mistake types cost the same. At Lumen they differ by 37x. So a team maximizing F1 is optimizing for a fictional business where a $2 error and a $74 error are equally painful - and the harder they optimize, the more precisely they hit the wrong target.</p>
 
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A bar chart of cost ratios between the two mistake types. F1 assumes a ratio of 1 to 1, drawn as a stub. Lumen's outreach model has a 37 to 1 ratio, a 74 dollar missed buyer against a 2 dollar false alarm. The churn business in the case study has a ratio near 39 to 1, a 310 dollar churned customer against an 8 dollar retention offer. Real businesses sit dozens of times away from the ratio the metric quietly assumes.">
+        <style>
+          .v2aT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .v2aK { font: 600 11.5px Inter, sans-serif; fill: #1E293B; }
+          .v2aL { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .v2aV { font: 700 12px Inter, sans-serif; fill: #FFFFFF; }
+          .v2aO { font: 700 12px Inter, sans-serif; fill: #64748B; }
+          .v2aN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="300" fill="#FCF8FC"/>
+        <text class="v2aT" x="40" y="24">The cost ratio F1 assumes, next to the ratios real businesses have</text>
+        <rect x="40" y="36" width="14" height="14" rx="3" fill="#CBD5E1"/>
+        <text class="v2aK" x="60" y="48">what the metric assumes</text>
+        <rect x="228" y="36" width="14" height="14" rx="3" fill="#86198F"/>
+        <text class="v2aK" x="248" y="48">what the business actually costs</text>
+
+        <text class="v2aL" x="240" y="106" text-anchor="end">F1's assumption</text>
+        <rect x="260" y="84" width="12" height="34" fill="#CBD5E1"/>
+        <text class="v2aO" x="284" y="106">1 to 1 - both mistakes cost the same</text>
+
+        <text class="v2aL" x="240" y="166" text-anchor="end">Lumen outreach model</text>
+        <rect x="260" y="144" width="444" height="34" fill="#86198F"/>
+        <text class="v2aV" x="272" y="166">$74 miss vs $2 false alarm = 37 to 1</text>
+
+        <text class="v2aL" x="240" y="226" text-anchor="end">The churn business</text>
+        <rect x="260" y="204" width="468" height="34" fill="#86198F"/>
+        <text class="v2aV" x="272" y="226">$310 churn vs $8 offer = 39 to 1</text>
+
+        <text class="v2aN" x="40" y="270">Bar length is the cost ratio: how many times dearer the expensive mistake is than the cheap one.</text>
+        <text class="v2aN" x="40" y="290">F1 assumes 1 to 1. Optimize it at Lumen and you are tuning for a business that does not exist.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - F1's hidden assumption is off by a factor of 37 at Lumen</figcaption>
+    </figure>
+
     <details class="card">
       <summary><span class="mode live">Live</span>The governance fix: one optimizing number, everything else floors<span class="mini">5 min</span><span class="caret">▶</span></summary>
       <div class="body">
@@ -210,6 +245,63 @@
     </div>
 
     <p class="lede">The scoreboard, for the record - three operating points of the SAME model on the SAME 2,000 sessions. Read the last two rows together: the row a dashboard would celebrate and the row the business should choose are different rows.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Paired bars for three operating points of the same Lumen model on the same 2,000 sessions. At threshold 0.50 F1 is 0.321 and error cost is 1,736 dollars. At threshold 0.61, the F1-optimal point, F1 rises to 0.706 while error cost rises to 1,850 dollars, the worst of the three. At threshold 0.22, the cost-optimal point, F1 falls to 0.161 while error cost drops to 1,146 dollars, a 704 dollar saving. The tallest F1 bar sits beside the most expensive cost bar.">
+        <style>
+          .v2bT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .v2bK { font: 600 11.5px Inter, sans-serif; fill: #1E293B; }
+          .v2bH { font: 700 11px Inter, sans-serif; fill: #1E293B; }
+          .v2bL { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .v2bS { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .v2bV { font: 700 12px Inter, sans-serif; fill: #FFFFFF; }
+          .v2bO { font: 700 12px Inter, sans-serif; fill: #86198F; }
+          .v2bG { font: 700 12px Inter, sans-serif; fill: #0E7C6B; }
+          .v2bN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="330" fill="#FCF8FC"/>
+        <text class="v2bT" x="40" y="26">Three operating points of one model - the metric ranking is upside down</text>
+        <rect x="40" y="40" width="14" height="14" rx="3" fill="#C026D3"/>
+        <text class="v2bK" x="60" y="52">F1 score, 0 to 0.8 scale</text>
+        <rect x="246" y="40" width="14" height="14" rx="3" fill="#581C87"/>
+        <text class="v2bK" x="266" y="52">error cost in dollars</text>
+        <rect x="424" y="40" width="14" height="14" rx="3" fill="#FCF8FC" stroke="#0E7C6B" stroke-width="2.5"/>
+        <text class="v2bK" x="444" y="52">the cost-optimal point</text>
+
+        <text class="v2bH" x="339" y="84" text-anchor="middle">F1 - the dashboard's favorite</text>
+        <text class="v2bH" x="675" y="84" text-anchor="middle">Error cost per 2,000 sessions</text>
+
+        <text class="v2bL" x="232" y="108" text-anchor="end">Default (nobody chose)</text>
+        <text class="v2bS" x="232" y="125" text-anchor="end">threshold 0.50</text>
+        <rect x="244" y="96" width="76" height="26" rx="4" fill="#C026D3"/>
+        <text class="v2bO" x="328" y="114">0.321</text>
+        <rect x="560" y="96" width="200" height="26" rx="4" fill="#581C87"/>
+        <text class="v2bV" x="750" y="114" text-anchor="end">$1,736</text>
+
+        <text class="v2bL" x="232" y="168" text-anchor="end">Optimize F1</text>
+        <text class="v2bS" x="232" y="185" text-anchor="end">threshold 0.61</text>
+        <rect x="244" y="156" width="168" height="26" rx="4" fill="#C026D3"/>
+        <text class="v2bO" x="420" y="174">0.706</text>
+        <rect x="560" y="156" width="213" height="26" rx="4" fill="#581C87"/>
+        <text class="v2bV" x="763" y="174" text-anchor="end">$1,850</text>
+
+        <text class="v2bL" x="232" y="228" text-anchor="end">Optimize $</text>
+        <text class="v2bS" x="232" y="245" text-anchor="end">threshold 0.22</text>
+        <rect x="244" y="216" width="38" height="26" rx="4" fill="#C026D3"/>
+        <text class="v2bO" x="290" y="234">0.161</text>
+        <rect x="560" y="216" width="132" height="26" rx="4" fill="#581C87"/>
+        <text class="v2bV" x="682" y="234" text-anchor="end">$1,146</text>
+        <rect x="560" y="216" width="132" height="26" rx="4" fill="none" stroke="#0E7C6B" stroke-width="2.5"/>
+
+        <line x1="692" y1="156" x2="692" y2="256" stroke="#0E7C6B" stroke-width="2" stroke-dasharray="5 4"/>
+        <text class="v2bG" x="732" y="272" text-anchor="middle">$704 - the Goodhart gap</text>
+
+        <text class="v2bN" x="40" y="300">Optimize F1 wins the dashboard at 0.706 and costs $1,850. Optimize $ scores 0.161 and costs $1,146.</text>
+        <text class="v2bN" x="40" y="320">Same model, same 2,000 sessions, only the threshold moved. The ugliest metric row is the cheapest row.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the best F1 row is the most expensive row, by $704</figcaption>
+    </figure>
+
     <table class="clean">
       <thead><tr><th>Operating point</th><th>Threshold</th><th>Precision</th><th>Recall</th><th>F1</th><th>Error cost</th></tr></thead>
       <tbody>

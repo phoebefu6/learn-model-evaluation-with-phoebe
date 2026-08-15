@@ -148,6 +148,64 @@ average_precision_score(y_test, scores) # PR-AUC done right: step-wise,
     </div>
     <p class="lede">Everything so far treated model scores as a RANKING - higher means more likely. Calibration asks for more: that <code>predict_proba</code> be interpretable as <strong>confidence</strong>, so a 0.8 means roughly 80% of such sessions actually convert. The diagnostic is the <strong>reliability diagram</strong>: bin the predicted probabilities, plot each bin's mean prediction against its actual positive rate, and compare to the diagonal - <strong>the diagonal is perfect calibration</strong>. Points sagging below it mean overconfidence (the model says 0.8, reality delivers 0.55); bulging above means underconfidence. Many good rankers are badly calibrated - boosted trees and SVMs are famous offenders - so this is a check you run, not a property you assume.</p>
 
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A reliability diagram with predicted probability on the horizontal axis and the observed positive rate on the vertical axis. The diagonal marks perfect calibration. The region below the diagonal is overconfidence and the region above it is underconfidence. One measured bin is plotted at a predicted 0.8 with an observed rate of 0.55, sitting below the diagonal, which is what overconfidence looks like. Side panels give the repair rule: sigmoid scaling on small data, isotonic regression above about a thousand calibration samples.">
+        <style>
+          .w3aT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w3aK { font: 600 11.5px Inter, sans-serif; fill: #1E293B; }
+          .w3aA { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .w3aR { font: 700 11px Inter, sans-serif; fill: #86198F; }
+          .w3aU { font: 700 11px Inter, sans-serif; fill: #0E7C6B; }
+          .w3aP { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w3aX { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .w3aN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="470" fill="#FCF8FC"/>
+        <text class="w3aT" x="40" y="26">The reliability diagram: what the model promised against what happened</text>
+        <line x1="40" y1="46" x2="64" y2="46" stroke="#64748B" stroke-width="2" stroke-dasharray="5 4"/>
+        <text class="w3aK" x="72" y="50">perfect calibration</text>
+        <circle cx="234" cy="46" r="6" fill="#991B1B"/>
+        <text class="w3aK" x="248" y="50">one measured bin</text>
+
+        <rect x="140" y="76" width="300" height="300" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+        <path d="M140,376 L440,76 L440,376 Z" fill="#FDF4FF"/>
+        <path d="M140,376 L440,76 L140,76 Z" fill="#E3F4F0"/>
+        <line x1="140" y1="376" x2="440" y2="76" stroke="#64748B" stroke-width="2" stroke-dasharray="5 4"/>
+        <text class="w3aR" x="330" y="336" text-anchor="middle">overconfident</text>
+        <text class="w3aU" x="245" y="136" text-anchor="middle">underconfident</text>
+
+        <line x1="380" y1="376" x2="380" y2="211" stroke="#991B1B" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <line x1="140" y1="211" x2="380" y2="211" stroke="#991B1B" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <circle cx="380" cy="211" r="7" fill="#991B1B"/>
+
+        <text class="w3aX" x="130" y="380" text-anchor="end">0</text>
+        <text class="w3aX" x="130" y="215" text-anchor="end">0.55</text>
+        <text class="w3aX" x="130" y="80" text-anchor="end">1.0</text>
+        <text class="w3aX" x="140" y="394" text-anchor="middle">0</text>
+        <text class="w3aX" x="380" y="394" text-anchor="middle">0.8</text>
+        <text class="w3aX" x="440" y="394" text-anchor="middle">1.0</text>
+        <text class="w3aA" x="290" y="412" text-anchor="middle">predicted probability</text>
+        <text class="w3aA" x="70" y="316" text-anchor="start" transform="rotate(-90 70 316)">actual positive rate</text>
+
+        <rect x="480" y="86" width="360" height="76" rx="10" fill="#FDF4FF" stroke="#C026D3" stroke-width="1.5"/>
+        <text class="w3aP" x="498" y="112">Below the diagonal: overconfident</text>
+        <text class="w3aX" x="498" y="132">the model says 0.8 and reality delivers 0.55</text>
+
+        <rect x="480" y="178" width="360" height="76" rx="10" fill="#E3F4F0" stroke="#0E7C6B" stroke-width="1.5"/>
+        <text class="w3aP" x="498" y="204">Above the diagonal: underconfident</text>
+        <text class="w3aX" x="498" y="224">the bins bulge over the line instead</text>
+
+        <rect x="480" y="270" width="360" height="106" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+        <text class="w3aP" x="498" y="296">Repair, once you have seen the shape</text>
+        <text class="w3aX" x="498" y="316">sigmoid: two parameters, safe on small data</text>
+        <text class="w3aX" x="498" y="334">isotonic: free-form, wants 1,000+ samples</text>
+
+        <text class="w3aN" x="40" y="442">The diagonal is perfect calibration: in every bin the predicted probability equals the observed rate.</text>
+        <text class="w3aN" x="40" y="462">Many strong rankers land off the line, so this is a check you run, never a property you assume.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - a 0.8 that delivers 0.55 sits below the line, and that is overconfidence</figcaption>
+    </figure>
+
     <details class="card">
       <summary><span class="mode live">Live</span>Diagnose, then repair: the sklearn calibration kit<span class="mini">6 min</span><span class="caret">▶</span></summary>
       <div class="body">
@@ -216,6 +274,53 @@ cal.fit(X_train, y_train)   # cal.predict_proba is now the trusted one</code></p
       <h2>Which scoring function, previewed <span class="tag concept">read after class</span></h2>
     </div>
     <p class="lede">Tonight touched two members of a bigger doctrine sklearn's guide organizes cleanly: <strong>match the metric to what the model outputs</strong>. Predicting <strong>probabilities</strong>? Grade with proper scoring rules - Brier, log loss - which are minimized only by the true probabilities. Predicting hard <strong>classes</strong>? Grade with the zero-one family - accuracy, precision, recall, F-scores - the metrics of b1 and b2. The doctrine extends to regression (means want squared error, medians want absolute error, quantiles want pinball loss) - the full table is b4's opening act.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 410" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A routing matrix from what a model outputs to the metric family that grades it. Probability outputs are graded with proper scoring rules such as Brier and log loss, which are minimized only by the true probabilities. Hard class outputs are graded with the zero-one family: accuracy, precision, recall and the F-scores. Regression targets are graded by the statistic being predicted: means want squared error, medians want absolute error, quantiles want pinball loss.">
+        <style>
+          .w3bT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w3bH { font: 700 11px Inter, sans-serif; fill: #64748B; }
+          .w3bC { font: 700 13px Inter, sans-serif; fill: #FFFFFF; }
+          .w3bM { font: 700 12px Inter, sans-serif; fill: #86198F; }
+          .w3bX { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .w3bN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="410" fill="#FCF8FC"/>
+        <text class="w3bT" x="40" y="26">Match the metric to what the model actually outputs</text>
+        <text class="w3bH" x="40" y="84">THE MODEL OUTPUTS</text>
+        <text class="w3bH" x="252" y="84">GRADE IT WITH</text>
+        <text class="w3bH" x="494" y="84">WHICH MEANS</text>
+
+        <rect x="40" y="96" width="200" height="68" rx="8" fill="#86198F"/>
+        <text class="w3bC" x="58" y="136">Probabilities</text>
+        <rect x="252" y="96" width="230" height="68" rx="8" fill="#FDF4FF" stroke="#C026D3" stroke-width="1.5"/>
+        <text class="w3bM" x="270" y="136">proper scoring rules</text>
+        <rect x="494" y="96" width="346" height="68" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+        <text class="w3bX" x="512" y="124">Brier, log loss</text>
+        <text class="w3bX" x="512" y="144">minimized only by the true probabilities</text>
+
+        <rect x="40" y="176" width="200" height="68" rx="8" fill="#86198F"/>
+        <text class="w3bC" x="58" y="216">Hard classes</text>
+        <rect x="252" y="176" width="230" height="68" rx="8" fill="#FDF4FF" stroke="#C026D3" stroke-width="1.5"/>
+        <text class="w3bM" x="270" y="216">the zero-one family</text>
+        <rect x="494" y="176" width="346" height="68" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+        <text class="w3bX" x="512" y="204">accuracy, precision, recall, F-scores</text>
+        <text class="w3bX" x="512" y="224">the metrics of b1 and b2</text>
+
+        <rect x="40" y="256" width="200" height="92" rx="8" fill="#86198F"/>
+        <text class="w3bC" x="58" y="308">Regression targets</text>
+        <rect x="252" y="256" width="230" height="92" rx="8" fill="#FDF4FF" stroke="#C026D3" stroke-width="1.5"/>
+        <text class="w3bM" x="270" y="308">the statistic decides</text>
+        <rect x="494" y="256" width="346" height="92" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+        <text class="w3bX" x="512" y="288">means want squared error</text>
+        <text class="w3bX" x="512" y="306">medians want absolute error</text>
+        <text class="w3bX" x="512" y="324">quantiles want pinball loss</text>
+
+        <text class="w3bN" x="40" y="380">The doctrine in one line: probabilities want proper scoring rules, classes want the zero-one family.</text>
+        <text class="w3bN" x="40" y="400">And no probability score certifies calibration on its own - that is what the reliability curve is for.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the output type picks the metric family, not the other way round</figcaption>
+    </figure>
 
     <details class="card">
       <summary><span class="mode self">Self-study</span>log loss vs Brier, one paragraph<span class="mini">2 min read</span><span class="caret">▶</span></summary>

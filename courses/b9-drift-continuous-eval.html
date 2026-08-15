@@ -105,6 +105,42 @@
       <figcaption>🔍 Click to zoom - the continuous loop vs the one-shot eval</figcaption>
     </figure>
 
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two percentage tracks read in opposite directions. A capability eval sitting at 35 percent fills about a third of its track and is a roadmap rather than a failure, because capability suites start low and climb as you build. A regression eval sitting at 96 percent fills almost the whole track but falls short of the roughly 100 percent line it must hold, so it is an alarm and blocks the merge. The same number means different things depending on which suite produced it.">
+        <style>
+          .w9aT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w9aA { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .w9aL { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w9aM { font: 700 20px Inter, sans-serif; fill: #86198F; }
+          .w9aR { font: 700 20px Inter, sans-serif; fill: #FFFFFF; }
+          .w9aG { font: 700 11px Inter, sans-serif; fill: #0E7C6B; }
+          .w9aX { font: 400 12px Inter, sans-serif; fill: #64748B; }
+          .w9aN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="300" fill="#FCF8FC"/>
+        <text class="w9aT" x="40" y="26">Same number, opposite verdicts - which suite produced it?</text>
+        <text class="w9aA" x="40" y="48">Both suites report a percentage. Only one of them is allowed to sit below 100.</text>
+
+        <text class="w9aL" x="228" y="117" text-anchor="end">Capability eval</text>
+        <rect x="240" y="96" width="560" height="32" rx="6" fill="#E2E8F0"/>
+        <rect x="240" y="96" width="196" height="32" rx="6" fill="#86198F"/>
+        <text class="w9aM" x="448" y="117">35%</text>
+        <text class="w9aX" x="240" y="148">starts low and climbs as you build - a roadmap, not a failure</text>
+
+        <text class="w9aL" x="228" y="207" text-anchor="end">Regression eval</text>
+        <rect x="240" y="186" width="560" height="32" rx="6" fill="#E2E8F0"/>
+        <rect x="240" y="186" width="538" height="32" rx="6" fill="#991B1B"/>
+        <text class="w9aG" x="800" y="176" text-anchor="end">must hold at ~100%</text>
+        <line x1="800" y1="180" x2="800" y2="226" stroke="#0E7C6B" stroke-width="2.5"/>
+        <text class="w9aR" x="766" y="207" text-anchor="end">96%</text>
+        <text class="w9aX" x="240" y="238">any dip blocks the merge - 96% is an alarm, not a pass</text>
+
+        <text class="w9aN" x="40" y="270">Capability evals ask what it can do; regression evals ask whether it still works.</text>
+        <text class="w9aN" x="40" y="290">Yesterday's hardest capability cases graduate into today's regression suite.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - 35% can be healthy and 96% can be an emergency</figcaption>
+    </figure>
+
     <details class="card" open>
       <summary><span class="mode live">Live</span>Anthropic's split: capability vs regression evals<span class="mini">5 min</span><span class="caret">▶</span></summary>
       <div class="body">
@@ -183,6 +219,60 @@
       <h2>The two-hop chain, completed <span class="tag demo">★ build-along · 14 min</span></h2>
     </div>
     <p class="lede">b5 planted the flag; tonight the full picture. Rule #39: your launch metrics are proxies. The chain is <strong>eval score -&gt; online metric -&gt; business goal</strong>, and each hop breaks independently, which makes it a diagnostic tool and not just a humility exercise. <strong>Offline up, revenue flat</strong> is usually hop 1-2: drift or serving skew (Part 2's ladder), or an eval metric detached from real user pain. <strong>Engagement up, satisfaction down</strong> is hop 2-3: the classic clickbait failure, where the online metric itself stopped meaning what you hoped. Name the hop before proposing the fix.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The two-hop proxy chain drawn as a diagnostic. An eval score feeds an online metric, which feeds a business goal, and each hop can break on its own. When offline scores rise but revenue stays flat, the break is in hop 1 to 2: drift, serving skew, or an eval metric detached from real user pain. When engagement rises but satisfaction falls, the break is in hop 2 to 3: the online metric itself stopped meaning what you hoped, the classic clickbait failure.">
+        <defs>
+          <marker id="w9bHd" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0,0 L9,4.5 L0,9 z" fill="#64748B"/>
+          </marker>
+        </defs>
+        <style>
+          .w9bT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w9bH { font: 700 11px Inter, sans-serif; fill: #64748B; }
+          .w9bC { font: 700 13px Inter, sans-serif; fill: #FFFFFF; }
+          .w9bS { font: 400 11px Inter, sans-serif; fill: rgba(255,255,255,.86); }
+          .w9bP { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w9bX { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .w9bN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="400" fill="#FCF8FC"/>
+        <text class="w9bT" x="40" y="26">The two-hop chain, used as a diagnostic</text>
+
+        <text class="w9bH" x="292" y="100" text-anchor="middle">hop 1-2</text>
+        <text class="w9bH" x="582" y="100" text-anchor="middle">hop 2-3</text>
+
+        <rect x="40" y="110" width="220" height="70" rx="10" fill="#86198F"/>
+        <text class="w9bC" x="58" y="140">Eval score</text>
+        <text class="w9bS" x="58" y="160">your offline suite</text>
+        <rect x="330" y="110" width="220" height="70" rx="10" fill="#C026D3"/>
+        <text class="w9bC" x="348" y="140">Online metric</text>
+        <text class="w9bS" x="348" y="160">what users actually do</text>
+        <rect x="620" y="110" width="220" height="70" rx="10" fill="#581C87"/>
+        <text class="w9bC" x="638" y="140">Business goal</text>
+        <text class="w9bS" x="638" y="160">the money and the mission</text>
+        <line x1="262" y1="145" x2="323" y2="145" stroke="#64748B" stroke-width="2.5" marker-end="url(#w9bHd)"/>
+        <line x1="552" y1="145" x2="613" y2="145" stroke="#64748B" stroke-width="2.5" marker-end="url(#w9bHd)"/>
+        <line x1="292" y1="168" x2="292" y2="214" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <line x1="582" y1="168" x2="582" y2="214" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+        <rect x="40" y="214" width="390" height="120" rx="10" fill="#FDF4FF" stroke="#C026D3" stroke-width="2"/>
+        <text class="w9bP" x="58" y="244">Offline up, revenue flat</text>
+        <text class="w9bX" x="58" y="272">the eval-to-online link broke</text>
+        <text class="w9bX" x="58" y="290">drift, serving skew, or a metric</text>
+        <text class="w9bX" x="58" y="308">detached from real user pain</text>
+
+        <rect x="450" y="214" width="390" height="120" rx="10" fill="#FDF4FF" stroke="#C026D3" stroke-width="2"/>
+        <text class="w9bP" x="468" y="244">Engagement up, satisfaction down</text>
+        <text class="w9bX" x="468" y="272">the online metric itself stopped</text>
+        <text class="w9bX" x="468" y="290">meaning what you hoped - the</text>
+        <text class="w9bX" x="468" y="308">classic clickbait failure</text>
+
+        <text class="w9bN" x="40" y="366">Each hop breaks on its own, which is what makes the chain a diagnostic and not just humility.</text>
+        <text class="w9bN" x="40" y="386">Name the hop before proposing the fix - the two symptoms point at two different teams.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the symptom tells you which hop broke, and who owns it</figcaption>
+    </figure>
 
     <details class="card">
       <summary><span class="mode live">Live</span>Production sampling in practice<span class="mini">5 min</span><span class="caret">▶</span></summary>

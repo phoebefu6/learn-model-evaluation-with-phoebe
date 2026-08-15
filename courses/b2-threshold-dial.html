@@ -116,6 +116,49 @@
       <figcaption>🔍 Click to zoom - the dial mechanism: two score strips, one cut line, four cells trading</figcaption>
     </figure>
 
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Four bars on a 0-to-1 scale for a degenerate model that flags two sessions a year. Precision is 1.00 and recall is 0.02. The arithmetic mean of those two is 0.51, a bar half the width of the chart, which flatters the model. The harmonic mean, which is F1, is 0.039, a stub. The harmonic mean is dragged toward the worse of the two numbers, which is why F1 cannot be bought by maxing one metric and abandoning the other.">
+        <style>
+          .w2aT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w2aK { font: 600 11.5px Inter, sans-serif; fill: #1E293B; }
+          .w2aL { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w2aV { font: 700 12px Inter, sans-serif; fill: #FFFFFF; }
+          .w2aO { font: 700 12px Inter, sans-serif; fill: #86198F; }
+          .w2aX { font: 400 12px Inter, sans-serif; fill: #64748B; }
+          .w2aN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="340" fill="#FCF8FC"/>
+        <text class="w2aT" x="40" y="26">Two averages of the same two numbers - only one tells the truth</text>
+        <rect x="40" y="40" width="14" height="14" rx="3" fill="#C026D3"/>
+        <text class="w2aK" x="60" y="52">the model's two metrics</text>
+        <rect x="236" y="40" width="14" height="14" rx="3" fill="#64748B"/>
+        <text class="w2aK" x="256" y="52">arithmetic mean</text>
+        <rect x="392" y="40" width="14" height="14" rx="3" fill="#86198F"/>
+        <text class="w2aK" x="412" y="52">harmonic mean, which is F1</text>
+
+        <text class="w2aL" x="268" y="106" text-anchor="end">Precision</text>
+        <rect x="280" y="84" width="480" height="34" rx="4" fill="#C026D3"/>
+        <text class="w2aV" x="292" y="106">1.00 - both of its flags were correct</text>
+
+        <text class="w2aL" x="268" y="158" text-anchor="end">Recall</text>
+        <rect x="280" y="136" width="10" height="34" rx="2" fill="#C026D3"/>
+        <text class="w2aO" x="302" y="158">0.02 - it flags two sessions all year</text>
+
+        <text class="w2aL" x="268" y="210" text-anchor="end">Arithmetic mean</text>
+        <rect x="280" y="188" width="245" height="34" rx="4" fill="#64748B"/>
+        <text class="w2aV" x="292" y="210">0.51</text>
+        <text class="w2aX" x="537" y="210">flattery - it says roughly half good</text>
+
+        <text class="w2aL" x="268" y="262" text-anchor="end">Harmonic mean (F1)</text>
+        <rect x="280" y="240" width="19" height="34" rx="2" fill="#86198F"/>
+        <text class="w2aO" x="311" y="262">0.039 - about as useless as the model is</text>
+
+        <text class="w2aN" x="40" y="306">Bar length is the score on a 0 to 1 scale. Harmonic means are dragged toward the worse number.</text>
+        <text class="w2aN" x="40" y="326">On Lumen's slice at the 0.50 cut: precision 21.5%, recall 63.6%, F1 0.321 - pulled toward the weak side.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the arithmetic mean flatters a useless model; the harmonic mean does not</figcaption>
+    </figure>
+
     <details class="card" open>
       <summary><span class="mode live">Live</span>F1: why harmonic, not arithmetic<span class="mini">5 min</span><span class="caret">▶</span></summary>
       <div class="body">
@@ -176,6 +219,64 @@ balanced_accuracy_score(y_test, y_pred)  # macro-average recall - the honest
       <h2>Pick the point on purpose <span class="tag concept">7 min live</span></h2>
     </div>
     <p class="lede">Andrew Ng's Advanced Learning Algorithms (week 3) turns the mechanism into doctrine, in two moves. <strong>Move one: plot the tradeoff curve and pick the operating point deliberately.</strong> The threshold is not a training artifact to inherit at 0.5 - it is a decision, and the curve is the menu of every decision available. <strong>Move two: iterate against a single-number metric.</strong> When you are comparing model candidates daily, two numbers (P and R) stall every review in argument; one number (F1, F-beta, or later b5's cost) makes "did this change help?" answerable in seconds. Pick the point deliberately, then compress it to one number so iteration stays fast - those two habits carry the rest of this course.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The three arrays returned by precision_recall_curve drawn as aligned rows of cells. The prec and rec rows run the full length; the thresholds row stops one cell short, leaving the final column empty. That final appended point is precision 1.00 and recall 0.00, and it carries no threshold, which is why zipping against prec or rec shifts every threshold by one row.">
+        <style>
+          .w2bT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w2bH { font: 700 11px Inter, sans-serif; fill: #64748B; }
+          .w2bL { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w2bC { font: 700 12px Inter, sans-serif; fill: #86198F; }
+          .w2bE { font: 600 12px Inter, sans-serif; fill: #64748B; }
+          .w2bA { font: 600 12px Inter, sans-serif; fill: #991B1B; }
+          .w2bN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="330" fill="#FCF8FC"/>
+        <text class="w2bT" x="40" y="26">precision_recall_curve returns three arrays, and one of them is shorter</text>
+
+        <rect x="716" y="76" width="104" height="170" rx="8" fill="#FDF4FF"/>
+
+        <text class="w2bH" x="248" y="66" text-anchor="middle">0</text>
+        <text class="w2bH" x="352" y="66" text-anchor="middle">1</text>
+        <text class="w2bH" x="456" y="66" text-anchor="middle">2</text>
+        <text class="w2bH" x="560" y="66" text-anchor="middle">...</text>
+        <text class="w2bH" x="664" y="66" text-anchor="middle">n-2</text>
+        <text class="w2bH" x="768" y="66" text-anchor="middle">n-1</text>
+
+        <text class="w2bL" x="188" y="102" text-anchor="end">prec</text>
+        <rect x="200" y="80" width="96" height="34" rx="6" fill="#FFFFFF" stroke="#C026D3" stroke-width="1.5"/>
+        <rect x="304" y="80" width="96" height="34" rx="6" fill="#FFFFFF" stroke="#C026D3" stroke-width="1.5"/>
+        <rect x="408" y="80" width="96" height="34" rx="6" fill="#FFFFFF" stroke="#C026D3" stroke-width="1.5"/>
+        <text class="w2bE" x="560" y="102" text-anchor="middle">...</text>
+        <rect x="616" y="80" width="96" height="34" rx="6" fill="#FFFFFF" stroke="#C026D3" stroke-width="1.5"/>
+        <rect x="720" y="80" width="96" height="34" rx="6" fill="#FFFFFF" stroke="#C026D3" stroke-width="1.5"/>
+        <text class="w2bC" x="768" y="102" text-anchor="middle">1.00</text>
+
+        <text class="w2bL" x="188" y="154" text-anchor="end">rec</text>
+        <rect x="200" y="132" width="96" height="34" rx="6" fill="#FFFFFF" stroke="#C026D3" stroke-width="1.5"/>
+        <rect x="304" y="132" width="96" height="34" rx="6" fill="#FFFFFF" stroke="#C026D3" stroke-width="1.5"/>
+        <rect x="408" y="132" width="96" height="34" rx="6" fill="#FFFFFF" stroke="#C026D3" stroke-width="1.5"/>
+        <text class="w2bE" x="560" y="154" text-anchor="middle">...</text>
+        <rect x="616" y="132" width="96" height="34" rx="6" fill="#FFFFFF" stroke="#C026D3" stroke-width="1.5"/>
+        <rect x="720" y="132" width="96" height="34" rx="6" fill="#FFFFFF" stroke="#C026D3" stroke-width="1.5"/>
+        <text class="w2bC" x="768" y="154" text-anchor="middle">0.00</text>
+
+        <text class="w2bL" x="188" y="206" text-anchor="end">thresholds</text>
+        <rect x="200" y="184" width="96" height="34" rx="6" fill="#E3F4F0" stroke="#0E7C6B" stroke-width="1.5"/>
+        <rect x="304" y="184" width="96" height="34" rx="6" fill="#E3F4F0" stroke="#0E7C6B" stroke-width="1.5"/>
+        <rect x="408" y="184" width="96" height="34" rx="6" fill="#E3F4F0" stroke="#0E7C6B" stroke-width="1.5"/>
+        <text class="w2bE" x="560" y="206" text-anchor="middle">...</text>
+        <rect x="616" y="184" width="96" height="34" rx="6" fill="#E3F4F0" stroke="#0E7C6B" stroke-width="1.5"/>
+        <rect x="720" y="184" width="96" height="34" rx="6" fill="none" stroke="#FCA5A5" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <text class="w2bA" x="768" y="206" text-anchor="middle">none</text>
+
+        <text class="w2bA" x="200" y="266">The appended (precision 1.00, recall 0.00) point carries no threshold.</text>
+
+        <text class="w2bN" x="40" y="298">Zip against thresholds, never against prec or rec - the shorter array sets the correct length.</text>
+        <text class="w2bN" x="40" y="318">Off by one and every cut you report is shifted one row from the pair you think it produces.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - thresholds is one cell short, so zip against it</figcaption>
+    </figure>
 
     <details class="card">
       <summary><span class="mode live">Live</span>precision_recall_curve, and the gotcha in its return<span class="mini">6 min</span><span class="caret">▶</span></summary>

@@ -165,6 +165,43 @@
       A hypothetical, to make the reflex concrete: the upgrade scores 2 quality points higher at 5x the per-query price - say a cent becomes a nickel. At a million queries a month, that is roughly $40,000 a month, about $480,000 a year, for 2 points on a judge-scored metric (a3's caveats apply to the 2 points, too). Sometimes worth it, on a high-stakes task. But the decision is two lines of multiplication, and most upgrade proposals arrive without them.
     </div>
 
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 350" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A bar chart pricing the 2-percent-at-5x upgrade. Today's model costs a cent per query; the upgraded model costs a nickel, a bar five times longer. At a million queries a month that gap is about 40,000 dollars a month and about 480,000 dollars a year, bought in exchange for 2 points on a judge-scored quality metric. A rate card difference of four cents becomes a half-million-dollar line item.">
+        <style>
+          .v4aT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .v4aK { font: 600 11.5px Inter, sans-serif; fill: #1E293B; }
+          .v4aL { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .v4aO { font: 700 12px Inter, sans-serif; fill: #64748B; }
+          .v4aV { font: 700 12px Inter, sans-serif; fill: #FFFFFF; }
+          .v4aB { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .v4aX { font: 400 12px Inter, sans-serif; fill: #64748B; }
+          .v4aN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="350" fill="#FCF8FC"/>
+        <text class="v4aT" x="40" y="26">The 2%-at-5x upgrade, priced at a million queries a month</text>
+        <rect x="40" y="40" width="14" height="14" rx="3" fill="#64748B"/>
+        <text class="v4aK" x="60" y="52">today's rate</text>
+        <rect x="176" y="40" width="14" height="14" rx="3" fill="#86198F"/>
+        <text class="v4aK" x="196" y="52">the upgraded rate</text>
+
+        <text class="v4aL" x="268" y="114" text-anchor="end">Today's model</text>
+        <rect x="280" y="92" width="96" height="34" rx="4" fill="#64748B"/>
+        <text class="v4aO" x="388" y="114">$0.01 per query</text>
+
+        <text class="v4aL" x="268" y="174" text-anchor="end">Upgraded model</text>
+        <rect x="280" y="152" width="480" height="34" rx="4" fill="#86198F"/>
+        <text class="v4aV" x="292" y="174">$0.05 per query - 5x the rate card</text>
+
+        <rect x="280" y="214" width="480" height="70" rx="10" fill="#FDF4FF" stroke="#C026D3" stroke-width="2"/>
+        <text class="v4aB" x="300" y="242">= about $40,000 a month, about $480,000 a year</text>
+        <text class="v4aX" x="300" y="266">bought: 2 points on a judge-scored metric</text>
+
+        <text class="v4aN" x="40" y="316">Rate cards are not budgets: pennies per query is a budget line at a million queries a month.</text>
+        <text class="v4aN" x="40" y="336">Sometimes 2 points is worth $480,000. The decision is two lines of multiplication that rarely get done.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - four cents a query is half a million dollars a year</figcaption>
+    </figure>
+
     <details class="card">
       <summary><span class="mode self">Self-study</span>Where these numbers come from<span class="mini">3 min read</span><span class="caret">▶</span></summary>
       <div class="body">
@@ -204,6 +241,61 @@
       <span class="ex-pill">Real world</span>
       <p><strong>The assistant users abandoned.</strong> A support assistant's quality scores climbed for three straight months - the team tuned prompts, upgraded models, and the judge scores duly rose. Usage fell the whole time. The upgraded models took around 8 seconds to start answering, users clicked away, and churn did the judging that the eval sheet did not: nobody had made latency a success criterion, so nobody was watching it. The postmortem finding was one sentence - the eval sheet had five quality rows and zero speed rows - and the fix was one line on a document, declared before the next initiative started.</p>
     </div>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two bars for time to first token on one 0-to-8-second scale. The average TTFT is 1 second, the number that appears on the slide. The p95 TTFT is 8 seconds, a bar eight times longer, and that is the wait users click away from. Below, a row of twenty user dots has one marked: one user in twenty lives in that tail, which is who churns.">
+        <style>
+          .v4bT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .v4bK { font: 600 11.5px Inter, sans-serif; fill: #1E293B; }
+          .v4bL { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .v4bO { font: 700 12px Inter, sans-serif; fill: #0E7C6B; }
+          .v4bV { font: 700 12px Inter, sans-serif; fill: #FFFFFF; }
+          .v4bX { font: 400 12px Inter, sans-serif; fill: #64748B; }
+          .v4bN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="330" fill="#FCF8FC"/>
+        <text class="v4bT" x="40" y="26">The average is not the experience - always ask for p95</text>
+        <rect x="40" y="40" width="14" height="14" rx="3" fill="#0E7C6B"/>
+        <text class="v4bK" x="60" y="52">what the average shows</text>
+        <rect x="228" y="40" width="14" height="14" rx="3" fill="#991B1B"/>
+        <text class="v4bK" x="248" y="52">what one user in twenty gets</text>
+
+        <text class="v4bL" x="268" y="114" text-anchor="end">Average TTFT</text>
+        <rect x="280" y="92" width="60" height="34" rx="4" fill="#0E7C6B"/>
+        <text class="v4bO" x="352" y="114">1 second - the number on the slide</text>
+
+        <text class="v4bL" x="268" y="174" text-anchor="end">TTFT at p95</text>
+        <rect x="280" y="152" width="480" height="34" rx="4" fill="#991B1B"/>
+        <text class="v4bV" x="292" y="174">8 seconds - users click away</text>
+
+        <text class="v4bL" x="268" y="234" text-anchor="end">Twenty users</text>
+        <circle cx="280" cy="230" r="7" fill="#CBD5E1"/>
+        <circle cx="306" cy="230" r="7" fill="#CBD5E1"/>
+        <circle cx="332" cy="230" r="7" fill="#CBD5E1"/>
+        <circle cx="358" cy="230" r="7" fill="#CBD5E1"/>
+        <circle cx="384" cy="230" r="7" fill="#CBD5E1"/>
+        <circle cx="410" cy="230" r="7" fill="#CBD5E1"/>
+        <circle cx="436" cy="230" r="7" fill="#CBD5E1"/>
+        <circle cx="462" cy="230" r="7" fill="#CBD5E1"/>
+        <circle cx="488" cy="230" r="7" fill="#CBD5E1"/>
+        <circle cx="514" cy="230" r="7" fill="#CBD5E1"/>
+        <circle cx="540" cy="230" r="7" fill="#CBD5E1"/>
+        <circle cx="566" cy="230" r="7" fill="#CBD5E1"/>
+        <circle cx="592" cy="230" r="7" fill="#CBD5E1"/>
+        <circle cx="618" cy="230" r="7" fill="#CBD5E1"/>
+        <circle cx="644" cy="230" r="7" fill="#CBD5E1"/>
+        <circle cx="670" cy="230" r="7" fill="#CBD5E1"/>
+        <circle cx="696" cy="230" r="7" fill="#CBD5E1"/>
+        <circle cx="722" cy="230" r="7" fill="#CBD5E1"/>
+        <circle cx="748" cy="230" r="7" fill="#CBD5E1"/>
+        <circle cx="774" cy="230" r="7" fill="#991B1B"/>
+        <text class="v4bX" x="280" y="266">one user in twenty lives in the tail - and that is who churns</text>
+
+        <text class="v4bN" x="40" y="298">Bar length is time to first token, 0 to 8 seconds on one shared scale.</text>
+        <text class="v4bN" x="40" y="318">A 1-second average with an 8-second p95 is an assistant users abandon. Averages hide the tail.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the tail, not the average, is the experience users churn over</figcaption>
+    </figure>
 
     <div class="callout tip">
       <strong>The one-line policy this session earns</strong>

@@ -102,6 +102,64 @@
       Which question does each row answer? Which scale and which pass bar was used (a 0.83 and a 4.2 are not comparable)? And is completeness on the sheet at all - because a system can score perfect faithfulness by refusing to say anything useful.
     </div>
 
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two rulers for the same concept. RAGAS faithfulness runs 0 to 1 and is an arithmetic ratio of supported claims over total claims, with a sample score of 0.83 marked near the top of its range. Microsoft Foundry groundedness runs 1 to 5, is rated by an LLM judge, and passes at 3, with a sample score of 4.2 marked. The two scores sit on different rulers built by different graders, so there is no conversion between 0.83 and 4.2.">
+        <style>
+          .v3aT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .v3aK { font: 600 11.5px Inter, sans-serif; fill: #1E293B; }
+          .v3aL { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .v3aS { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .v3aM { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .v3aX { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .v3aN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="300" fill="#FCF8FC"/>
+        <text class="v3aT" x="40" y="26">One concept, two rulers - why a 0.83 and a 4.2 never compare</text>
+        <rect x="40" y="40" width="14" height="14" rx="3" fill="#86198F"/>
+        <text class="v3aK" x="60" y="52">RAGAS arithmetic ratio</text>
+        <rect x="224" y="40" width="14" height="14" rx="3" fill="#C026D3"/>
+        <text class="v3aK" x="244" y="52">Foundry judged rating</text>
+        <rect x="400" y="40" width="14" height="14" rx="3" fill="#0E7C6B"/>
+        <text class="v3aK" x="420" y="52">Foundry pass bar at 3</text>
+
+        <text class="v3aL" x="228" y="104" text-anchor="end">RAGAS faithfulness</text>
+        <text class="v3aS" x="228" y="121" text-anchor="end">claims supported / total</text>
+        <line x1="240" y1="110" x2="760" y2="110" stroke="#CBD5E1" stroke-width="3"/>
+        <line x1="240" y1="103" x2="240" y2="117" stroke="#CBD5E1" stroke-width="2"/>
+        <line x1="370" y1="103" x2="370" y2="117" stroke="#CBD5E1" stroke-width="2"/>
+        <line x1="500" y1="103" x2="500" y2="117" stroke="#CBD5E1" stroke-width="2"/>
+        <line x1="630" y1="103" x2="630" y2="117" stroke="#CBD5E1" stroke-width="2"/>
+        <line x1="760" y1="103" x2="760" y2="117" stroke="#CBD5E1" stroke-width="2"/>
+        <text class="v3aX" x="240" y="136" text-anchor="middle">0</text>
+        <text class="v3aX" x="370" y="136" text-anchor="middle">0.25</text>
+        <text class="v3aX" x="500" y="136" text-anchor="middle">0.5</text>
+        <text class="v3aX" x="630" y="136" text-anchor="middle">0.75</text>
+        <text class="v3aX" x="760" y="136" text-anchor="middle">1</text>
+        <circle cx="672" cy="110" r="7" fill="#86198F"/>
+        <text class="v3aM" x="672" y="88" text-anchor="middle">0.83</text>
+
+        <text class="v3aL" x="228" y="204" text-anchor="end">Foundry groundedness</text>
+        <text class="v3aS" x="228" y="221" text-anchor="end">LLM-judged, pass at 3</text>
+        <line x1="240" y1="210" x2="760" y2="210" stroke="#CBD5E1" stroke-width="3"/>
+        <line x1="240" y1="203" x2="240" y2="217" stroke="#CBD5E1" stroke-width="2"/>
+        <line x1="370" y1="203" x2="370" y2="217" stroke="#CBD5E1" stroke-width="2"/>
+        <line x1="630" y1="203" x2="630" y2="217" stroke="#CBD5E1" stroke-width="2"/>
+        <line x1="760" y1="203" x2="760" y2="217" stroke="#CBD5E1" stroke-width="2"/>
+        <line x1="500" y1="192" x2="500" y2="228" stroke="#0E7C6B" stroke-width="2.5"/>
+        <text class="v3aX" x="240" y="236" text-anchor="middle">1</text>
+        <text class="v3aX" x="370" y="236" text-anchor="middle">2</text>
+        <text class="v3aX" x="500" y="236" text-anchor="middle">3</text>
+        <text class="v3aX" x="630" y="236" text-anchor="middle">4</text>
+        <text class="v3aX" x="760" y="236" text-anchor="middle">5</text>
+        <circle cx="656" cy="210" r="7" fill="#C026D3"/>
+        <text class="v3aM" x="656" y="188" text-anchor="middle">4.2</text>
+
+        <text class="v3aN" x="40" y="268">Same concept - is the answer supported by its source? - measured by different graders on different scales.</text>
+        <text class="v3aN" x="40" y="288">No conversion exists between them. Compare a system against itself over time on one fixed metric.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - different rulers, so cross-vendor quality numbers cannot be compared</figcaption>
+    </figure>
+
     <p class="lede">Now the distinction that pays for the whole session. "Hallucination" is one word covering two different failures, and they need two different fixes. <strong>World-lies</strong> (what TruthfulQA-style benchmarks measure): the model states something false about reality - its parametric memory invented or repeated a falsehood. <strong>Document-lies</strong> (what HHEM and every faithfulness metric measure): the model says something the provided source material never says - even if it happens to be true in the real world. A leader who conflates them funds the wrong fix.</p>
 
     <figure class="zoomable">
@@ -244,6 +302,47 @@
       <div class="step"><p>The leader takeaway, out loud: you MEASURE a judge before trusting it. The 58%-to-88% move cost no new model and no budget - it cost one calibration check against human labels. Teams skip it because nobody asks. You now ask.</p></div>
       <div class="step"><p>Close with the room's own dashboards: which of your current LLM quality numbers has been through this exercise? Any score that has not is a raw-judge score until proven otherwise.</p></div>
     </div>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two agreement tracks for the same judge on the same 24 answers with fixed human labels. The raw judge agrees with the human labels 58 percent of the time, well short of the 80 percent human-human bar, with 10 bad-but-long answers rated good. After a length control is applied, agreement rises to 88 percent with one residual borderline miss, clearing the 80 percent bar. The gain came from one calibration check, not from a new model.">
+        <style>
+          .v3bT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .v3bK { font: 600 11.5px Inter, sans-serif; fill: #1E293B; }
+          .v3bL { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .v3bP { font: 700 20px Inter, sans-serif; fill: #1E293B; }
+          .v3bX { font: 400 12px Inter, sans-serif; fill: #64748B; }
+          .v3bB { font: 700 11px Inter, sans-serif; fill: #86198F; }
+          .v3bN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="290" fill="#FCF8FC"/>
+        <text class="v3bT" x="40" y="26">Judge agreement with 24 human labels, before and after one length control</text>
+        <rect x="40" y="40" width="14" height="14" rx="3" fill="#991B1B"/>
+        <text class="v3bK" x="60" y="52">below the human bar</text>
+        <rect x="204" y="40" width="14" height="14" rx="3" fill="#0E7C6B"/>
+        <text class="v3bK" x="224" y="52">at the human bar</text>
+        <rect x="348" y="40" width="14" height="14" rx="3" fill="#86198F"/>
+        <text class="v3bK" x="368" y="52">the human-human bar, 80%</text>
+
+        <text class="v3bB" x="688" y="84" text-anchor="middle">80%</text>
+        <line x1="688" y1="90" x2="688" y2="214" stroke="#86198F" stroke-width="2.5" stroke-dasharray="5 4"/>
+
+        <text class="v3bL" x="228" y="116" text-anchor="end">Raw judge</text>
+        <rect x="240" y="96" width="560" height="30" rx="6" fill="#E2E8F0"/>
+        <rect x="240" y="96" width="325" height="30" rx="6" fill="#991B1B"/>
+        <text class="v3bP" x="575" y="117">58%</text>
+        <text class="v3bX" x="240" y="146">10 bad-but-long answers rated good - length mistaken for quality</text>
+
+        <text class="v3bL" x="228" y="196" text-anchor="end">Length-controlled</text>
+        <rect x="240" y="176" width="560" height="30" rx="6" fill="#E2E8F0"/>
+        <rect x="240" y="176" width="493" height="30" rx="6" fill="#0E7C6B"/>
+        <text class="v3bP" x="743" y="197">88%</text>
+        <text class="v3bX" x="240" y="226">1 residual miss - a genuine borderline call no grader escapes</text>
+
+        <text class="v3bN" x="40" y="258">Track length is agreement with the fixed human labels, 0% at the left edge to 100% at the right.</text>
+        <text class="v3bN" x="40" y="278">The 58 to 88 move cost no new model and no budget - it cost one calibration check against humans.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - an unmeasured judge scored 58%; one control put it at the human bar</figcaption>
+    </figure>
 
     <div class="evalbox" data-mode="judge"></div>
 

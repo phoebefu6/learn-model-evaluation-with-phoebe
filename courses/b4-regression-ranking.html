@@ -123,6 +123,41 @@
       <figcaption>🔍 Click to zoom - one skewed error distribution, three metrics with three different opinions</figcaption>
     </figure>
 
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two panels comparing how a regression metric is reported. On the left, MAE 19 dollars is reported alone and cannot be judged. On the right, the same MAE of 19 dollars is shown next to the predict-the-mean baseline of 31 dollars, whose bar is visibly longer, so the model can be seen earning its keep. The baseline is what makes the number readable.">
+        <style>
+          .w4aT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w4aH { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w4aV { font: 700 12px Inter, sans-serif; fill: #FFFFFF; }
+          .w4aB { font: 400 12px Inter, sans-serif; fill: #991B1B; }
+          .w4aG { font: 400 12px Inter, sans-serif; fill: #043029; }
+          .w4aN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="340" fill="#FCF8FC"/>
+        <text class="w4aT" x="40" y="26">The same MAE, reported two ways</text>
+
+        <rect x="40" y="76" width="390" height="200" rx="12" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="2"/>
+        <text class="w4aH" x="58" y="110">✗ Reported alone</text>
+        <rect x="58" y="140" width="200" height="32" rx="4" fill="#64748B"/>
+        <text class="w4aV" x="70" y="162">MAE $19</text>
+        <text class="w4aB" x="58" y="206">$19 of what? Good, bad, or no better</text>
+        <text class="w4aB" x="58" y="226">than doing nothing at all?</text>
+
+        <rect x="450" y="76" width="390" height="200" rx="12" fill="#E3F4F0" stroke="#0E7C6B" stroke-width="2"/>
+        <text class="w4aH" x="468" y="110">✓ Reported as a pair</text>
+        <rect x="468" y="134" width="196" height="28" rx="4" fill="#86198F"/>
+        <text class="w4aV" x="480" y="154">MAE $19 - the model</text>
+        <rect x="468" y="172" width="320" height="28" rx="4" fill="#64748B"/>
+        <text class="w4aV" x="480" y="192">MAE $31 - predict-the-mean</text>
+        <text class="w4aG" x="468" y="226">the model beats the dumb baseline,</text>
+        <text class="w4aG" x="468" y="246">and you can see by how much</text>
+
+        <text class="w4aN" x="40" y="308">Always print the metric next to its predict-the-mean baseline, in the same log line.</text>
+        <text class="w4aN" x="40" y="328">Same lie detector as b1's always-say-no model: the dumb baseline is what makes a score readable.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - a regression metric only becomes readable next to its baseline</figcaption>
+    </figure>
+
     <details class="card" open>
       <summary><span class="mode live">Live</span>The which-scoring-function doctrine<span class="mini">4 min</span><span class="caret">▶</span></summary>
       <div class="body">
@@ -188,6 +223,50 @@ mae_base = mean_absolute_error(y_test, baseline)</code></pre>
       <h2>Ranking metrics - when position matters <span class="tag concept">14 min live</span></h2>
     </div>
     <p class="lede">Search results, recommendations, top-k outreach lists: the model's output is an ORDER, and errors near the top hurt more than errors near the bottom. Classification metrics ignore position entirely; ranking metrics make it the whole point.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A bar chart of the log2 position discount NDCG applies. A relevant item at rank 1 earns 1 over log2 of 2, the full weight and the longest bar. Rank 2 earns 1 over log2 of 3, rank 3 one over log2 of 4, rank 5 one over log2 of 6, rank 10 one over log2 of 11, and rank 40 one over log2 of 41, a stub. Relevance buried deep in the list is worth almost nothing, which is why errors near the top of a ranking dominate the score.">
+        <style>
+          .w4bT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w4bA { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .w4bL { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w4bV { font: 700 12px Inter, sans-serif; fill: #86198F; }
+          .w4bX { font: 700 12px Inter, sans-serif; fill: #64748B; }
+          .w4bN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="380" fill="#FCF8FC"/>
+        <text class="w4bT" x="40" y="26">The log2 position discount: why only the top of a list counts</text>
+        <text class="w4bA" x="40" y="48">Bar length is the weight a relevant item earns at that position, before normalization.</text>
+
+        <text class="w4bL" x="248" y="103" text-anchor="end">rank 1</text>
+        <rect x="260" y="84" width="480" height="28" rx="4" fill="#86198F"/>
+        <text class="w4bV" x="750" y="103">1 / log2(2)</text>
+
+        <text class="w4bL" x="248" y="143" text-anchor="end">rank 2</text>
+        <rect x="260" y="124" width="303" height="28" rx="4" fill="#86198F"/>
+        <text class="w4bV" x="573" y="143">1 / log2(3)</text>
+
+        <text class="w4bL" x="248" y="183" text-anchor="end">rank 3</text>
+        <rect x="260" y="164" width="240" height="28" rx="4" fill="#86198F"/>
+        <text class="w4bV" x="510" y="183">1 / log2(4)</text>
+
+        <text class="w4bL" x="248" y="223" text-anchor="end">rank 5</text>
+        <rect x="260" y="204" width="186" height="28" rx="4" fill="#86198F"/>
+        <text class="w4bV" x="456" y="223">1 / log2(6)</text>
+
+        <text class="w4bL" x="248" y="263" text-anchor="end">rank 10</text>
+        <rect x="260" y="244" width="139" height="28" rx="4" fill="#86198F"/>
+        <text class="w4bV" x="409" y="263">1 / log2(11)</text>
+
+        <text class="w4bL" x="248" y="303" text-anchor="end">rank 40</text>
+        <rect x="260" y="284" width="90" height="28" rx="4" fill="#86198F"/>
+        <text class="w4bX" x="360" y="303">1 / log2(41) - almost nothing left</text>
+
+        <text class="w4bN" x="40" y="346">The discount encodes the belief that users read from the top, so errors near rank 1 dominate.</text>
+        <text class="w4bN" x="40" y="366">Read NDCG with its k, and only against rankers on the same data - the normalizer moves with the items.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - a hit at rank 40 is worth a fraction of a hit at rank 1</figcaption>
+    </figure>
 
     <details class="card">
       <summary><span class="mode live">Live</span>The ranking family in four names<span class="mini">6 min</span><span class="caret">▶</span></summary>

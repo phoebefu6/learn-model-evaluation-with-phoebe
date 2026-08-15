@@ -179,6 +179,58 @@ faithfulness = supported / len(claims)   # tonight: 3 / 4 = 0.75</code></pre>
         <p>Different failure, different fix. A vendor quoting "under 3% hallucinations" is citing the document kind; your users asking general questions will meet the world kind. Ask which one the number means before it goes on a slide.</p>
       </div>
     </details>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 390" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two panels for the two hallucination benchmarks, each on its own scale. TruthfulQA measures lying about the world across 817 adversarial questions: at publication the best model was truthful on 58 percent of them against 94 percent for humans, and larger models were less truthful. The HHEM leaderboard measures lying about the document, faithfulness in summarization at temperature 0, where leaders sit around 2 to 3 percent hallucination rates, a stub against the full scale. Different failures, different fixes, and they must never be averaged into one number.">
+        <style>
+          .w6aT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w6aK { font: 600 11.5px Inter, sans-serif; fill: #1E293B; }
+          .w6aP { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w6aS { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .w6aV { font: 700 12px Inter, sans-serif; fill: #FFFFFF; }
+          .w6aB { font: 700 12px Inter, sans-serif; fill: #991B1B; }
+          .w6aX { font: 400 12px Inter, sans-serif; fill: #64748B; }
+          .w6aF { font: 700 12px Inter, sans-serif; fill: #86198F; }
+          .w6aN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="390" fill="#FCF8FC"/>
+        <text class="w6aT" x="40" y="26">Two hallucination benchmarks, two scales, two fixes</text>
+        <rect x="40" y="44" width="14" height="14" rx="3" fill="#86198F"/>
+        <text class="w6aK" x="60" y="56">model score</text>
+        <rect x="156" y="44" width="14" height="14" rx="3" fill="#0E7C6B"/>
+        <text class="w6aK" x="176" y="56">human score</text>
+        <rect x="272" y="44" width="14" height="14" rx="3" fill="#991B1B"/>
+        <text class="w6aK" x="292" y="56">hallucination rate</text>
+
+        <rect x="40" y="76" width="390" height="250" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+        <text class="w6aP" x="58" y="104">TruthfulQA - the world kind</text>
+        <text class="w6aS" x="58" y="124">817 adversarial questions, at publication</text>
+        <text class="w6aS" x="58" y="154">best model</text>
+        <rect x="58" y="160" width="174" height="22" rx="4" fill="#86198F"/>
+        <text class="w6aV" x="68" y="176">58% truthful</text>
+        <text class="w6aS" x="58" y="202">humans</text>
+        <rect x="58" y="208" width="282" height="22" rx="4" fill="#0E7C6B"/>
+        <text class="w6aV" x="68" y="224">94% truthful</text>
+        <text class="w6aS" x="58" y="256">larger models were LESS truthful</text>
+        <text class="w6aF" x="58" y="286">Fix: a better model, not retrieval</text>
+
+        <rect x="450" y="76" width="390" height="250" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+        <text class="w6aP" x="468" y="104">HHEM leaderboard - the doc kind</text>
+        <text class="w6aS" x="468" y="124">faithfulness in summarization, at temp 0</text>
+        <text class="w6aS" x="468" y="154">leaderboard leaders</text>
+        <rect x="468" y="160" width="9" height="22" rx="2" fill="#991B1B"/>
+        <text class="w6aB" x="488" y="176">~2-3% hallucination rate</text>
+        <text class="w6aS" x="468" y="202">the same scale, drawn in full</text>
+        <rect x="468" y="208" width="300" height="22" rx="4" fill="none" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <text class="w6aX" x="478" y="224">0 to 100% of summaries</text>
+        <text class="w6aS" x="468" y="256">a vendor's "under 3%" is this kind</text>
+        <text class="w6aF" x="468" y="286">Fix: better retrieval and grounding</text>
+
+        <text class="w6aN" x="40" y="358">Two different failures on two different scales - never average them into one hallucination number.</text>
+        <text class="w6aN" x="40" y="378">Ask which kind a quoted rate means: the document kind is the RAG number, the world kind is not.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - a 3% document number says nothing about the world kind</figcaption>
+    </figure>
   </section>
 
   <!-- ============ PART 3: BY HAND ============ -->
@@ -196,6 +248,61 @@ faithfulness = supported / len(claims)   # tonight: 3 / 4 = 0.75</code></pre>
       <div class="step"><p><strong>Now score the OTHER dials.</strong> Response relevancy: high - every claim addresses the question asked. And here is the twist: suppose the March 8 outage really happened (the site log confirms it, the retriever just never fetched that log). Claim 3 is UNGROUNDED but TRUE - world knowledge leaking in.</p></div>
       <div class="step"><p><strong>Say what each family member would report.</strong> Faithfulness: 0.75, flags claim 3. Factual Correctness (vs ground truth): would PASS claim 3. Context Recall: low - the evidence needed was never retrieved. Verdict: this is a retrieval failure wearing a generation costume. Fix the retriever, not the prompt.</p></div>
     </div>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 390" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Four metrics reporting on the same March revenue answer. Faithfulness scores 0.75 and flags claim 3. Factual Correctness would pass claim 3, because the outage really happened. Context Recall reads low, because the site log was never retrieved. Response Relevancy reads high, because every claim addresses the question. Only reading the four together shows this is a retrieval failure wearing a generation costume.">
+        <style>
+          .w6bT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w6bK { font: 600 11.5px Inter, sans-serif; fill: #1E293B; }
+          .w6bP { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w6bF { font: 700 20px Inter, sans-serif; fill: #86198F; }
+          .w6bG { font: 700 20px Inter, sans-serif; fill: #0E7C6B; }
+          .w6bR { font: 700 20px Inter, sans-serif; fill: #991B1B; }
+          .w6bS { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .w6bV { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w6bN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="390" fill="#FCF8FC"/>
+        <text class="w6bT" x="40" y="26">One answer, four metrics, four different verdicts</text>
+        <rect x="40" y="40" width="14" height="14" rx="3" fill="#0E7C6B"/>
+        <text class="w6bK" x="60" y="52">reads healthy</text>
+        <rect x="176" y="40" width="14" height="14" rx="3" fill="#991B1B"/>
+        <text class="w6bK" x="196" y="52">reads broken</text>
+        <rect x="306" y="40" width="14" height="14" rx="3" fill="#86198F"/>
+        <text class="w6bK" x="326" y="52">the computed score</text>
+
+        <rect x="40" y="100" width="185" height="150" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+        <text class="w6bP" x="54" y="128">Faithfulness</text>
+        <text class="w6bF" x="54" y="172">0.75</text>
+        <text class="w6bS" x="54" y="204">3 of 4 claims supported</text>
+        <text class="w6bS" x="54" y="222">it flags claim 3</text>
+
+        <rect x="243" y="100" width="185" height="150" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+        <text class="w6bP" x="257" y="128">Factual Correctness</text>
+        <text class="w6bG" x="257" y="172">PASS</text>
+        <text class="w6bS" x="257" y="204">scored vs ground truth</text>
+        <text class="w6bS" x="257" y="222">claim 3 is really true</text>
+
+        <rect x="446" y="100" width="185" height="150" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+        <text class="w6bP" x="460" y="128">Context Recall</text>
+        <text class="w6bR" x="460" y="172">LOW</text>
+        <text class="w6bS" x="460" y="204">the evidence needed</text>
+        <text class="w6bS" x="460" y="222">was never fetched</text>
+
+        <rect x="649" y="100" width="185" height="150" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+        <text class="w6bP" x="663" y="128">Response Relevancy</text>
+        <text class="w6bG" x="663" y="172">HIGH</text>
+        <text class="w6bS" x="663" y="204">every claim addresses</text>
+        <text class="w6bS" x="663" y="222">the question asked</text>
+
+        <rect x="40" y="282" width="794" height="44" rx="10" fill="#FDF4FF" stroke="#C026D3" stroke-width="2"/>
+        <text class="w6bV" x="58" y="310">Verdict: a retrieval failure wearing a generation costume - fix the retriever, not the prompt</text>
+
+        <text class="w6bN" x="40" y="358">Four graders, one answer: only reading them together localizes which half of the system broke.</text>
+        <text class="w6bN" x="40" y="378">Claim 3 is ungrounded but true - world knowledge leaking in past the retrieved chunks.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the metric that failed is not the half of the system that broke</figcaption>
+    </figure>
 
     <div class="callout tip">
       <strong>Why you did this by hand</strong>

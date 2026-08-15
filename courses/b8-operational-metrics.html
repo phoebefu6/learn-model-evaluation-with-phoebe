@@ -98,6 +98,45 @@
       <figcaption>🔍 Click to zoom - the request timeline with the TTFT and ITL brackets and the identity</figcaption>
     </figure>
 
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 370" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A tradeoff chart with batch size on the horizontal axis and tokens per second on the vertical. System throughput, the metric the infrastructure bill cares about, rises as batches grow. Per-user throughput, the smoothness one person actually feels in their stream, falls over the same range, and the two lines cross. A live chat assistant belongs on the small-batch side and an overnight summarizer on the large-batch side, so they should never share a batching config or a latency budget.">
+        <style>
+          .w8aT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w8aK { font: 600 11.5px Inter, sans-serif; fill: #1E293B; }
+          .w8aA { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .w8aM { font: 700 12px Inter, sans-serif; fill: #86198F; }
+          .w8aG { font: 700 12px Inter, sans-serif; fill: #0E7C6B; }
+          .w8aP { font: 700 11px Inter, sans-serif; fill: #1E293B; }
+          .w8aN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="370" fill="#FCF8FC"/>
+        <text class="w8aT" x="40" y="26">Batching: one dial, two throughput numbers moving opposite ways</text>
+        <rect x="40" y="44" width="14" height="14" rx="3" fill="#86198F"/>
+        <text class="w8aK" x="60" y="56">system TPS - total tokens per second</text>
+        <rect x="316" y="44" width="14" height="14" rx="3" fill="#0E7C6B"/>
+        <text class="w8aK" x="336" y="56">per-user TPS - one stream's smoothness</text>
+
+        <text class="w8aP" x="230" y="82" text-anchor="middle">live chat assistant</text>
+        <text class="w8aP" x="710" y="82" text-anchor="middle">overnight summarizer</text>
+
+        <line x1="140" y1="90" x2="140" y2="280" stroke="#E2E8F0" stroke-width="2"/>
+        <line x1="140" y1="280" x2="810" y2="280" stroke="#E2E8F0" stroke-width="2"/>
+        <line x1="230" y1="90" x2="230" y2="280" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <line x1="710" y1="90" x2="710" y2="280" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <path d="M140,250 L800,120" fill="none" stroke="#86198F" stroke-width="2.5"/>
+        <path d="M140,120 L800,250" fill="none" stroke="#0E7C6B" stroke-width="2.5"/>
+
+        <text class="w8aM" x="790" y="108" text-anchor="end">system TPS - the infra bill's metric</text>
+        <text class="w8aG" x="790" y="272" text-anchor="end">per-user TPS - what one person feels</text>
+        <text class="w8aA" x="70" y="250" text-anchor="start" transform="rotate(-90 70 250)">tokens per second</text>
+        <text class="w8aA" x="470" y="306" text-anchor="middle">batch size, small to large</text>
+
+        <text class="w8aN" x="40" y="338">Big batches: cheaper per token, choppier for every individual user. Small batches: the reverse.</text>
+        <text class="w8aN" x="40" y="358">There is no correct setting - you choose per product, and one glorious TPS number hides which.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - raising system throughput spends each user's smoothness</figcaption>
+    </figure>
+
     <details class="card" open>
       <summary><span class="mode live">Live</span>System TPS vs per-user TPS: the batching tradeoff<span class="mini">4 min</span><span class="caret">▶</span></summary>
       <div class="body">
@@ -139,6 +178,53 @@ print(f"implied e2e: {e2e:.2f}s")          # 3.99s - does the claimed e2e match?
       <h2>Cost per query, and the ROI arithmetic <span class="tag concept">8 min live</span></h2>
     </div>
     <p class="lede">The cost of one query is not mysterious: <strong>tokens in x input price + tokens out x output price + retries</strong>. What teams skip is multiplying it by volume and putting it next to the quality number - which is the only place it means anything. The levers, in rough order of cheapness: <strong>model tier per step</strong> (not every step needs the big model), <strong>prompt caching</strong> (stop paying full price for the same system prompt), <strong>output-length discipline</strong> (you pay per output token; rambling is a line item), and <strong>max-turn caps</strong> (an agent that loops is a bill that loops).</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Paired bars for two candidate models for the Lumen assistant. Model A scores 0.86 on the calibrated judge and costs 0.004 dollars per query, which is 160 dollars a month at 40,000 queries. Model B scores 0.88 and costs 0.021 dollars per query, which is 840 dollars a month. The quality bars are almost identical while the cost bar is five times longer, so the upgrade buys 2 quality points for 680 dollars a month.">
+        <style>
+          .w8bT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w8bK { font: 600 11.5px Inter, sans-serif; fill: #1E293B; }
+          .w8bH { font: 700 11px Inter, sans-serif; fill: #1E293B; }
+          .w8bL { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w8bS { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .w8bM { font: 700 12px Inter, sans-serif; fill: #86198F; }
+          .w8bO { font: 700 12px Inter, sans-serif; fill: #581C87; }
+          .w8bV { font: 700 12px Inter, sans-serif; fill: #FFFFFF; }
+          .w8bC { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w8bN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="320" fill="#FCF8FC"/>
+        <text class="w8bT" x="40" y="26">Two candidate models, both columns on one sheet</text>
+        <rect x="40" y="40" width="14" height="14" rx="3" fill="#86198F"/>
+        <text class="w8bK" x="60" y="52">judge score, 0 to 1</text>
+        <rect x="216" y="40" width="14" height="14" rx="3" fill="#581C87"/>
+        <text class="w8bK" x="236" y="52">monthly cost at 40,000 queries</text>
+
+        <text class="w8bH" x="339" y="84" text-anchor="middle">Judge score, b7-calibrated</text>
+        <text class="w8bH" x="675" y="84" text-anchor="middle">Monthly cost at 40,000 queries</text>
+
+        <text class="w8bL" x="232" y="108" text-anchor="end">Model A</text>
+        <text class="w8bS" x="232" y="125" text-anchor="end">$0.004 per query</text>
+        <rect x="244" y="96" width="163" height="26" rx="4" fill="#86198F"/>
+        <text class="w8bM" x="415" y="114">0.86</text>
+        <rect x="560" y="96" width="41" height="26" rx="4" fill="#581C87"/>
+        <text class="w8bO" x="611" y="114">$160</text>
+
+        <text class="w8bL" x="232" y="168" text-anchor="end">Model B</text>
+        <text class="w8bS" x="232" y="185" text-anchor="end">$0.021 per query</text>
+        <rect x="244" y="156" width="167" height="26" rx="4" fill="#86198F"/>
+        <text class="w8bM" x="419" y="174">0.88</text>
+        <rect x="560" y="156" width="215" height="26" rx="4" fill="#581C87"/>
+        <text class="w8bV" x="765" y="174" text-anchor="end">$840</text>
+
+        <rect x="244" y="216" width="590" height="44" rx="10" fill="#FDF4FF" stroke="#C026D3" stroke-width="2"/>
+        <text class="w8bC" x="262" y="244">2 quality points for $680 a month more - roughly 5x the cost</text>
+
+        <text class="w8bN" x="40" y="292">A 2% quality win at 5x cost is usually a loss - but this is a product decision, not a math verdict.</text>
+        <text class="w8bN" x="40" y="312">Both columns belong on the same sheet, read by someone who can weigh one against the other.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - near-identical quality bars, a cost bar five times longer</figcaption>
+    </figure>
 
     <details class="card">
       <summary><span class="mode live">Live</span>Build-along: budget the Lumen assistant<span class="mini">14 min</span><span class="caret">▶</span></summary>

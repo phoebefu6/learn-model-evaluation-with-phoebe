@@ -174,6 +174,56 @@ print(tuned.best_threshold_)               # it cross-validates internally</code
       <div class="step"><p>Say the lesson out loud: F1-optimal is cost-optimal only when the errors cost the same - which is a business claim nobody at Lumen would sign.</p></div>
     </div>
 
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 410" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="One threshold dial running 0 to 1 with the two optimizers stopping in different places. Optimizing expected cost lands at threshold 0.22, where cost is 1,146 dollars, F1 is 0.161, precision 8.8 percent and recall 100 percent. Optimizing F1 lands at threshold 0.61, where F1 is 0.706 and precision 100 percent but cost rises to 1,850 dollars. The two points are 704 dollars apart on the same 2,000 sessions, with sklearn's warned-about 0.5 default sitting between them.">
+        <style>
+          .w5aT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w5aA { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .w5aM { font: 700 11px Inter, sans-serif; fill: #1E293B; }
+          .w5aP { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w5aX { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .w5aC { font: 700 13px Inter, sans-serif; fill: #FFFFFF; }
+          .w5aN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="410" fill="#FCF8FC"/>
+        <text class="w5aT" x="40" y="26">Two objectives sweep the same dial and stop in different places</text>
+        <text class="w5aA" x="40" y="48">The threshold runs 0 to 1. Same model, same scores, same 2,000 sessions - only the objective changed.</text>
+
+        <text class="w5aM" x="285" y="90" text-anchor="middle">cost-optimal 0.22</text>
+        <text class="w5aM" x="543" y="90" text-anchor="middle">F1-optimal 0.61</text>
+        <line x1="140" y1="110" x2="800" y2="110" stroke="#CBD5E1" stroke-width="3"/>
+        <line x1="140" y1="104" x2="140" y2="116" stroke="#CBD5E1" stroke-width="2"/>
+        <line x1="470" y1="104" x2="470" y2="116" stroke="#CBD5E1" stroke-width="2"/>
+        <line x1="800" y1="104" x2="800" y2="116" stroke="#CBD5E1" stroke-width="2"/>
+        <circle cx="285" cy="110" r="8" fill="#0E7C6B"/>
+        <circle cx="543" cy="110" r="8" fill="#C026D3"/>
+        <text class="w5aX" x="140" y="132" text-anchor="middle">0</text>
+        <text class="w5aX" x="470" y="132" text-anchor="middle">0.5 default</text>
+        <text class="w5aX" x="800" y="132" text-anchor="middle">1.0</text>
+        <line x1="285" y1="118" x2="285" y2="170" stroke="#0E7C6B" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <line x1="543" y1="118" x2="543" y2="170" stroke="#C026D3" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+        <rect x="100" y="170" width="340" height="120" rx="10" fill="#E3F4F0" stroke="#0E7C6B" stroke-width="2"/>
+        <text class="w5aP" x="118" y="198">Optimize $ - threshold 0.22</text>
+        <text class="w5aX" x="118" y="222">expected cost $1,146</text>
+        <text class="w5aX" x="118" y="242">F1 0.161 - the worst card on the table</text>
+        <text class="w5aX" x="118" y="262">precision 8.8%, recall 100%</text>
+
+        <rect x="460" y="170" width="340" height="120" rx="10" fill="#FDF4FF" stroke="#C026D3" stroke-width="2"/>
+        <text class="w5aP" x="478" y="198">Optimize F1 - threshold 0.61</text>
+        <text class="w5aX" x="478" y="222">expected cost $1,850</text>
+        <text class="w5aX" x="478" y="242">F1 0.706 - the gorgeous slide</text>
+        <text class="w5aX" x="478" y="262">precision 100%</text>
+
+        <rect x="290" y="310" width="300" height="34" rx="8" fill="#86198F"/>
+        <text class="w5aC" x="440" y="333" text-anchor="middle">$704 apart on the same slice</text>
+
+        <text class="w5aN" x="40" y="376">The money wants recall here: a missed converter costs 37x a wasted nudge, so it flags broadly.</text>
+        <text class="w5aN" x="40" y="396">F1-optimal is cost-optimal only when the two errors cost the same, which nobody at Lumen would sign.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - two optimizers, one dial, $704 between their answers</figcaption>
+    </figure>
+
     <div class="evalbox" data-mode="threshold" data-thresh="0.5"></div>
 
     <div class="callout tip">
@@ -200,6 +250,53 @@ print(tuned.best_threshold_)               # it cross-validates internally</code
       <span class="ex-pill">Real world</span>
       <p><strong>This line generalizes beyond classifiers.</strong> Swap the middle and it is an LLM spec: "maximize task success on the golden set; subject to faithfulness >= 0.9, TTFT <= 800ms, cost <= $0.02/query." Same architecture - one optimizing number, priced constraints. b8 fills in the latency and cost pieces; b10's capstone writes both versions in full.</p>
     </div>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The anatomy of an eval spec line, shown twice. The classifier version maximizes one thing - minimize expected error cost at 2 dollars per false positive and 74 dollars per false negative on the held-out slice - and adds two constraints: precision at least 8 percent, and no segment's recall below 80 percent. The LLM version has the same shape: maximize task success on the golden set, subject to faithfulness at least 0.9, TTFT at most 800 milliseconds and cost at most 2 cents per query. Accuracy and F1 are deliberately kept off both lines.">
+        <style>
+          .w5bT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w5bK { font: 600 11.5px Inter, sans-serif; fill: #1E293B; }
+          .w5bH { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w5bO { font: 600 12px Inter, sans-serif; fill: #FFFFFF; }
+          .w5bC { font: 600 12px Inter, sans-serif; fill: #86198F; }
+          .w5bE { font: 600 12px Inter, sans-serif; fill: #991B1B; }
+          .w5bN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="430" fill="#FCF8FC"/>
+        <text class="w5bT" x="40" y="26">Anatomy of a grown-up eval line - one optimizer, the rest are floors</text>
+        <rect x="40" y="40" width="14" height="14" rx="3" fill="#86198F"/>
+        <text class="w5bK" x="60" y="52">the one optimizing number</text>
+        <rect x="244" y="40" width="14" height="14" rx="3" fill="#C026D3"/>
+        <text class="w5bK" x="264" y="52">satisficing constraints - floors and ceilings</text>
+        <rect x="570" y="40" width="14" height="14" rx="3" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="w5bK" x="590" y="52">kept off the line</text>
+
+        <text class="w5bH" x="40" y="84">The classifier spec</text>
+        <rect x="40" y="94" width="800" height="42" rx="8" fill="#86198F"/>
+        <text class="w5bO" x="58" y="120">Minimize expected error cost at FP=$2 / FN=$74 on the held-out slice</text>
+        <rect x="40" y="142" width="394" height="38" rx="8" fill="#FDF4FF" stroke="#C026D3" stroke-width="1.5"/>
+        <text class="w5bC" x="58" y="166">precision &gt;= 8% - ops absorbs the volume</text>
+        <rect x="446" y="142" width="394" height="38" rx="8" fill="#FDF4FF" stroke="#C026D3" stroke-width="1.5"/>
+        <text class="w5bC" x="464" y="166">no segment's recall below 80%</text>
+
+        <text class="w5bH" x="40" y="214">The same shape for an LLM system</text>
+        <rect x="40" y="224" width="800" height="42" rx="8" fill="#86198F"/>
+        <text class="w5bO" x="58" y="250">Maximize task success on the golden set</text>
+        <rect x="40" y="272" width="258" height="38" rx="8" fill="#FDF4FF" stroke="#C026D3" stroke-width="1.5"/>
+        <text class="w5bC" x="58" y="296">faithfulness &gt;= 0.9</text>
+        <rect x="311" y="272" width="258" height="38" rx="8" fill="#FDF4FF" stroke="#C026D3" stroke-width="1.5"/>
+        <text class="w5bC" x="329" y="296">TTFT &lt;= 800ms</text>
+        <rect x="582" y="272" width="258" height="38" rx="8" fill="#FDF4FF" stroke="#C026D3" stroke-width="1.5"/>
+        <text class="w5bC" x="600" y="296">cost &lt;= $0.02 per query</text>
+
+        <rect x="40" y="326" width="800" height="38" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+        <text class="w5bE" x="58" y="350">Kept off the line: accuracy (base-rate theater) and F1 (an equal-costs assumption Lumen rejects)</text>
+
+        <text class="w5bN" x="40" y="396">One number is maximized; every other requirement is a floor or a ceiling someone can veto.</text>
+        <text class="w5bN" x="40" y="416">Same architecture for classifiers and LLM systems - only the constraint names change.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - one optimizing number, the rest declared as constraints with prices</figcaption>
+    </figure>
   </section>
 
   <!-- ============ HOMEWORK ============ -->

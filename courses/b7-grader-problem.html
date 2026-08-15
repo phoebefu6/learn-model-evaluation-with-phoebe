@@ -77,6 +77,56 @@
       </tbody>
     </table>
 
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Anthropic's volume doctrine drawn as two bars and a budget split. Five hundred automated verdicts make a bar sixteen times longer than thirty hand-graded ones, and the larger set pins down a model's behaviour better even though each verdict is individually less trustworthy. Below, the three grader types get their own budget: code graders run thousands of checks on every commit at zero marginal cost, the LLM judge grades hundreds of answers per run, and humans label roughly twenty-five anchor cases once, spent on calibrating the other two.">
+        <style>
+          .w7aT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w7aA { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .w7aL { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w7aV { font: 700 12px Inter, sans-serif; fill: #FFFFFF; }
+          .w7aO { font: 700 12px Inter, sans-serif; fill: #64748B; }
+          .w7aG { font: 700 13px Inter, sans-serif; fill: #0E7C6B; }
+          .w7aM { font: 700 13px Inter, sans-serif; fill: #86198F; }
+          .w7aD { font: 700 13px Inter, sans-serif; fill: #581C87; }
+          .w7aX { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .w7aN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="380" fill="#FCF8FC"/>
+        <text class="w7aT" x="40" y="26">Volume over quality - and the budget that makes it safe</text>
+        <text class="w7aA" x="40" y="48">Eval scores are noisy estimates, so more verdicts pin down behaviour better than fewer perfect ones.</text>
+
+        <text class="w7aL" x="268" y="106" text-anchor="end">Automated</text>
+        <rect x="280" y="84" width="480" height="34" rx="4" fill="#86198F"/>
+        <text class="w7aV" x="292" y="106">500 automated verdicts</text>
+
+        <text class="w7aL" x="268" y="158" text-anchor="end">Hand-graded</text>
+        <rect x="280" y="136" width="29" height="34" rx="2" fill="#64748B"/>
+        <text class="w7aO" x="321" y="158">30 artisanal ones</text>
+
+        <rect x="40" y="210" width="258" height="110" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+        <text class="w7aG" x="58" y="236">Code graders</text>
+        <text class="w7aX" x="58" y="260">thousands of checks, every commit</text>
+        <text class="w7aX" x="58" y="278">zero marginal cost</text>
+        <text class="w7aX" x="58" y="296">regression gates that never flake</text>
+
+        <rect x="311" y="210" width="258" height="110" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+        <text class="w7aM" x="329" y="236">The LLM judge</text>
+        <text class="w7aX" x="329" y="260">hundreds of answers per run</text>
+        <text class="w7aX" x="329" y="278">costs per call</text>
+        <text class="w7aX" x="329" y="296">quality, tone, faithfulness</text>
+
+        <rect x="582" y="210" width="258" height="110" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+        <text class="w7aD" x="600" y="236">Humans</text>
+        <text class="w7aX" x="600" y="260">~25 anchor labels, once</text>
+        <text class="w7aX" x="600" y="278">slow and expensive</text>
+        <text class="w7aX" x="600" y="296">spend it calibrating the rest</text>
+
+        <text class="w7aN" x="40" y="352">Human effort is not for grading everything - it is for calibrating the graders that do.</text>
+        <text class="w7aN" x="40" y="372">Volume only works if the automated grader is trustworthy on average, which is what calibration buys.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - spend humans on calibration, not on grading the bulk</figcaption>
+    </figure>
+
     <details class="card" open>
       <summary><span class="mode live">Live</span>Anthropic's volume doctrine<span class="mini">4 min</span><span class="caret">▶</span></summary>
       <div class="body">
@@ -181,6 +231,55 @@
         </div>
       </div>
     </details>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 450" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="An agreement track from 0 to 100 percent split at 80 percent. Everything up to 80 percent is agreement a judge can reach; the band above it is irreducible noise, because two trained humans grading the same answers agree only about four times in five. GPT-4-class judges land at the 80 percent mark, which is the ceiling of the thing they approximate rather than a 20 percent shortfall. Two panels contrast the wrong reading with the right one.">
+        <style>
+          .w7bT { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w7bA { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .w7bM { font: 700 11px Inter, sans-serif; fill: #1E293B; }
+          .w7bV { font: 700 12px Inter, sans-serif; fill: #FFFFFF; }
+          .w7bW { font: 700 11px Inter, sans-serif; fill: #1E293B; }
+          .w7bX { font: 400 11px Inter, sans-serif; fill: #64748B; }
+          .w7bH { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w7bB { font: 400 12px Inter, sans-serif; fill: #991B1B; }
+          .w7bG { font: 400 12px Inter, sans-serif; fill: #043029; }
+          .w7bC { font: 700 13px Inter, sans-serif; fill: #1E293B; }
+          .w7bN { font: 400 12px Inter, sans-serif; fill: #64748B; }
+        </style>
+        <rect x="0" y="0" width="880" height="450" fill="#FCF8FC"/>
+        <text class="w7bT" x="40" y="26">The 80% bar is a ceiling, not a shortfall</text>
+        <text class="w7bA" x="40" y="48">Two trained humans grading the same answers agree about four times in five.</text>
+
+        <text class="w7bM" x="664" y="86" text-anchor="middle">GPT-4-class judges land here</text>
+        <line x1="664" y1="92" x2="664" y2="106" stroke="#1E293B" stroke-width="2"/>
+        <rect x="120" y="110" width="544" height="32" rx="6" fill="#0E7C6B"/>
+        <text class="w7bV" x="132" y="131">agreement a judge can reach</text>
+        <rect x="664" y="110" width="136" height="32" rx="6" fill="#CBD5E1"/>
+        <text class="w7bW" x="676" y="131">noise in the task</text>
+        <text class="w7bX" x="120" y="162" text-anchor="middle">0%</text>
+        <text class="w7bX" x="664" y="162" text-anchor="middle">80%</text>
+        <text class="w7bX" x="800" y="162" text-anchor="middle">100%</text>
+
+        <rect x="40" y="196" width="390" height="130" rx="12" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="2"/>
+        <text class="w7bH" x="58" y="228">✗ The wrong reading</text>
+        <text class="w7bB" x="58" y="256">the judge is 20% wrong, so</text>
+        <text class="w7bB" x="58" y="276">humans would do better here</text>
+
+        <rect x="450" y="196" width="390" height="130" rx="12" fill="#E3F4F0" stroke="#0E7C6B" stroke-width="2"/>
+        <text class="w7bH" x="468" y="228">✓ The right reading</text>
+        <text class="w7bG" x="468" y="256">80% is also the human-human rate,</text>
+        <text class="w7bG" x="468" y="276">so the judge has hit the ceiling</text>
+        <text class="w7bG" x="468" y="296">of the thing it approximates</text>
+
+        <rect x="40" y="346" width="800" height="42" rx="10" fill="#FDF4FF" stroke="#C026D3" stroke-width="2"/>
+        <text class="w7bC" x="58" y="373">Demand the agreement number with every score: without it, 0.92 is an output, not a measurement</text>
+
+        <text class="w7bN" x="40" y="420">A judge cannot beat the humans it is calibrated against - human preference is the target itself.</text>
+        <text class="w7bN" x="40" y="440">In tonight's build-along the judge goes 58% to 88% - already at the human-human bar.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the last 20% is disagreement between humans, not judge error</figcaption>
+    </figure>
   </section>
 
   <!-- ============ DEMO: CALIBRATE THE JUDGE ============ -->
